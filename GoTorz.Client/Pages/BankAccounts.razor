@@ -1,0 +1,28 @@
+﻿@page "/bankaccounts"
+@inject HttpClient Http
+@using Shared
+
+<h3>Bank Accounts</h3>
+
+@if (accounts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ul>
+        @foreach (var acc in accounts)
+        {
+            <li>@acc.Owner: @acc.Balance DKK</li>
+        }
+    </ul>
+}
+
+@code {
+    private List<BankAccount> accounts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        accounts = await Http.GetFromJsonAsync<List<BankAccount>>("api/bankaccount");
+    }
+}
