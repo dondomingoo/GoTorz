@@ -23,10 +23,17 @@ namespace GoTorz.Api
             builder.Services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-
-            // Configuration binding
-            builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
-
+           
+            builder.Services.Configure<IdentityOptions>(options => // CHANGE LATER - We can delete this if we want defaults
+            {
+                options.Password.RequireDigit = false;             // Default true
+                options.Password.RequiredLength = 1;               // Default 6
+                options.Password.RequireNonAlphanumeric = false;   // Default true
+                options.Password.RequireUppercase = false;         // Default true
+                options.Password.RequireLowercase = false;         // Default true
+                options.Password.RequiredUniqueChars = 0;          // Default 1
+            });
+        
             // Authentication (Jwt)
             builder.Services.AddAuthentication(options =>
             {
@@ -47,7 +54,10 @@ namespace GoTorz.Api
                             System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!))
                     };
                 });
-                       
+                      
+            // Configuration binding (JWT)
+            builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
             // Authorization
             builder.Services.AddAuthorization();
           

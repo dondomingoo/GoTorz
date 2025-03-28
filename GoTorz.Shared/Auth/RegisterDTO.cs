@@ -8,6 +8,5 @@ public class RegisterDTO
     [EmailAddress]
     public string Email { get; set; }
     [Required]
-    [MinLength(1)] // Change later
     public string Password { get; set; }
 }
