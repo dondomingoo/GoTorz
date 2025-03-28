@@ -26,7 +26,7 @@
         var success = await Auth.LoginAsync(loginModel);
         Message = success ? "Login successful" : "Login failed";
         if (success)
-            Nav.NavigateTo("/");
+            Nav.NavigateTo("/bankaccounts");
     }
 }
 

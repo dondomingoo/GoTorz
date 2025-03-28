@@ -1,5 +1,8 @@
 ﻿@page "/bankaccounts"
 @inject HttpClient Http
+@inject LocalStorage LocalStorage
+@inject AuthService AuthService
+@inject NavigationManager Navigation
 @using Shared
 
 <h3>Bank Accounts</h3>
@@ -23,6 +26,24 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        accounts = await Http.GetFromJsonAsync<List<BankAccount>>("api/bankaccount");
+        var request = await AuthService.CreateAuthorizedRequest(HttpMethod.Get, "api/bankaccount");
+        
+        if (request == null)
+        {
+            // Show a friendly message, or redirect to /login
+            Navigation.NavigateTo("/login");
+            return;
+        }
+               
+        var response = await Http.SendAsync(request);
+
+        if (response.IsSuccessStatusCode)
+        {
+            accounts = await response.Content.ReadFromJsonAsync<List<BankAccount>>();
+        }
+        else
+        {
+            // Handle unauthorized or other errors
+        }
     }
 }
