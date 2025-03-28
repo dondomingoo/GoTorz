@@ -14,6 +14,8 @@ namespace GoTorz.Client
             builder.Services.AddScoped(sp =>
             new HttpClient { BaseAddress = new Uri("https://localhost:7111") });
 
+            builder.Services.AddScoped<AuthService>();
+            builder.Services.AddScoped<LocalStorage>();
 
             await builder.Build().RunAsync();
         }

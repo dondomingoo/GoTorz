@@ -1,0 +1,32 @@
+﻿@page "/login"
+@inject AuthService Auth
+@inject NavigationManager Nav
+@using GoTorz.Shared.Auth
+
+<h3>Login</h3>
+
+<p>@Message</p>
+
+<EditForm Model="loginModel" OnValidSubmit="LoginUser">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText @bind-Value="loginModel.Email" placeholder="Email" class="form-control" />
+    <InputText @bind-Value="loginModel.Password" placeholder="Password" type="password" class="form-control" />
+
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+@code {
+    private LoginDTO loginModel = new();
+    private string Message;
+
+    private async Task LoginUser()
+    {
+        var success = await Auth.LoginAsync(loginModel);
+        Message = success ? "Login successful" : "Login failed";
+        if (success)
+            Nav.NavigateTo("/");
+    }
+}
+
