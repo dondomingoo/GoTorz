@@ -14,8 +14,8 @@ namespace GoTorz.Api.Controllers
         {
             var accounts = new List<BankAccount>
             {
-            new() { Id = 1, Owner = "Alice", Balance = 1200.50m },
-            new() { Id = 2, Owner = "Bob", Balance = 850.75m }
+                new() { Id = 1, Owner = "Alice", Balance = 1200.50m },
+                new() { Id = 2, Owner = "Bob", Balance = 850.75m }
             };
 
             return Ok(accounts);

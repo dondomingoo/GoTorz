@@ -1,4 +1,5 @@
 using GoTorz.Api.Data;
+using GoTorz.Api.Services;
 using GoTorz.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -35,12 +36,12 @@ namespace GoTorz.Api
             });
         
             // Authentication (Jwt)
-            builder.Services.AddAuthentication(options =>
+            builder.Services.AddAuthentication(options => // "When someone makes a request and the controller says [Authorize], try to find a JWT in the request and validate it."
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-                .AddJwtBearer(options =>
+                .AddJwtBearer(options => // "When using JWT Bearer tokens, these are the rules you must follow when validating the token."
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -76,6 +77,10 @@ namespace GoTorz.Api
                           .AllowAnyMethod();
                 });
             });
+            
+            // TokenService
+            builder.Services.AddScoped<ITokenService, TokenService>();
+
 
             var app = builder.Build();
 
@@ -86,13 +91,15 @@ namespace GoTorz.Api
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
-            
-            app.UseCors("ClientPolicy");
+            // --- CSP ---  // Maybe add later - CSP header can prevent most XSS attacks by restricting what scripts are allowed --- we would need to grant access to external APIs and Bootstrap etc.
 
+            // --- Security ---
+            app.UseHttpsRedirection();
+            app.UseCors("ClientPolicy");
             app.UseAuthentication();
             app.UseAuthorization();
 
+            // --- Routing ---
             app.MapControllers();
 
             app.Run();

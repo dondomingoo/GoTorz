@@ -2,89 +2,89 @@
 using System.Net.Http.Json;
 using System.IdentityModel.Tokens.Jwt;
 
-
+/// <summary>
+/// Service responsible for handling Authentication-related operations in the Blazor Client.
+/// Communicates with the backend AuthController and manages JWT tokens in LocalStorage.
+/// </summary>
 public class AuthService
 {
-    private readonly HttpClient _http;
-    private readonly IConfiguration _config;
-    private readonly LocalStorage _localStorage;
+    private readonly HttpClient _http;                              // Used to send HTTP requests to the API (login, register, etc.)
+    private readonly LocalStorage _localStorage;                    // Used to store/retrieve JWT + Email in/from the browser's localStorage
+    private readonly CustomAuthStateProvider _authStateProvider;    // Updates Blazor's built-in AuthenticationStateProvider after login/logout
 
-    public string JwtToken { get; private set; }
-    public string Email { get; private set; }
+    public string JwtToken { get; private set; } = string.Empty;    // Holds the JWT token after login
+    public string Email { get; private set; } = string.Empty;       // Holds the user's email after login
 
-    public AuthService(HttpClient http, IConfiguration config, LocalStorage localStorage)
+    public AuthService(HttpClient http, LocalStorage localStorage, CustomAuthStateProvider authStateProvider)
     {
         _http = http;
-        _config = config;
         _localStorage = localStorage;
+        _authStateProvider = authStateProvider;
     }
 
-    // Login and store JWT + Email
-    public async Task<bool> LoginAsync(LoginDTO dto)
+    /// <summary>
+    /// Sends login request to API. Stores token + email if successful. Notifies Blazor.
+    /// </summary>
+    public async Task<bool> LoginAsync(LoginDTO dto)                                    
     {
-        var response = await _http.PostAsJsonAsync("api/auth/login", dto);
-        if (!response.IsSuccessStatusCode) return false;
+        var response = await _http.PostAsJsonAsync("api/auth/login", dto);              // Send POST to /api/auth/login with credentials
+        if (!response.IsSuccessStatusCode) return false;                                // If login failed, return false
 
-        var result = await response.Content.ReadFromJsonAsync<LoginResponseDTO>();
+        var result = await response.Content.ReadFromJsonAsync<LoginResponseDTO>();      // Read JWT + email from API response
+        JwtToken = result?.Token ?? string.Empty;                                       // Store JWT
+        Email = result?.Email ?? string.Empty;                                          // Store Email
 
-        JwtToken = result.Token;
-        Email = result.Email;
+        await _localStorage.SetItemAsync("jwt", JwtToken);                              // Save JWT in browser
+        await _localStorage.SetItemAsync("email", Email);                               // Save Email in browser
 
-        await _localStorage.SetItemAsync("jwt", JwtToken);
-        await _localStorage.SetItemAsync("email", Email);
-
-        return true;
+        await _authStateProvider.NotifyUserAuthentication();                            // Notify Blazor that user is now authenticated
+        return true;                                                                    // Return success
     }
 
-    // Register user
+    /// <summary>
+    /// Sends register request to API.
+    /// </summary>
     public async Task<bool> RegisterAsync(RegisterDTO dto)
     {
-        var response = await _http.PostAsJsonAsync("api/auth/register", dto);
-        return response.IsSuccessStatusCode;
+        var response = await _http.PostAsJsonAsync("api/auth/register", dto);           // POST to /api/auth/register with email + password
+        return response.IsSuccessStatusCode;                                            // Return success if registration worked
     }
 
-    // Create HTTP request with Authorization header
-    public async Task<HttpRequestMessage?> CreateAuthorizedRequest(HttpMethod method, string url)
+    /// <summary>
+    /// Creates a prepared HttpRequestMessage with JWT attached.
+    /// Returns null if no JWT is present (unauthenticated).
+    /// </summary>
+    public async Task<HttpRequestMessage?> CreateAuthorizedRequest(HttpMethod method, string url)   
     {
-        var jwt = await _localStorage.GetItemAsync("jwt");
+        var jwt = await _localStorage.GetItemAsync("jwt");                              // Get JWT from localStorage
+        if (string.IsNullOrWhiteSpace(jwt)) return null;                                // If no JWT, return null (user is probably not logged in)
 
-        // For testing: throw if no JWT is present to catch unauthorized access early
-        // if (string.IsNullOrWhiteSpace(jwt))
-        //     throw new InvalidOperationException("No JWT token found. User might not be logged in.");
-        if (string.IsNullOrWhiteSpace(jwt)) return null;
-
-
-        var request = new HttpRequestMessage(method, url);
-        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwt);
-        return request;
+        var request = new HttpRequestMessage(method, url);                              // Create the request
+        request.Headers.Authorization = new 
+            System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwt);           // Add JWT in Authorization header
+        return request;                                                                 // Return the prepared request
     }
 
-    // Checks if JWT is expired
-    public bool IsTokenExpired(string token)
-    {
-        var handler = new JwtSecurityTokenHandler();
-        var jwt = handler.ReadJwtToken(token);
-
-        return jwt.ValidTo < DateTime.UtcNow;
-    }
-
-    // Returns if user is currently logged in
+    /// <summary>
+    /// Checks if the user is logged in by validating the JWT.
+    /// </summary>
     public async Task<bool> IsLoggedInAsync()
     {
-        var jwt = await _localStorage.GetItemAsync("jwt");
-        if (string.IsNullOrWhiteSpace(jwt)) return false;
-
-        return !IsTokenExpired(jwt);
+        var jwt = await _localStorage.GetItemAsync("jwt");                              // Get JWT from localStorage
+        return !string.IsNullOrWhiteSpace(jwt) &&       
+            !_authStateProvider.IsTokenExpired(jwt);                                    // Return True if JWT exists AND is not expired
     }
 
-    // Logout user (clear token + email)
+    /// <summary>
+    /// Logs out the user by clearing stored JWT + Email. Notifies Blazor.
+    /// </summary>
     public async Task LogoutAsync()
     {
-        await _localStorage.RemoveItemAsync("jwt");
-        await _localStorage.RemoveItemAsync("email");
+        await _localStorage.RemoveItemAsync("jwt");                                     // Remove JWT from browser
+        await _localStorage.RemoveItemAsync("email");                                   // Remove Email from browser
         JwtToken = string.Empty;
-        Email = string.Empty;
+        Email = string.Empty;                                                           // Clear memory values
+
+        _authStateProvider.NotifyUserLogout();                                          // Notify Blazor that user is now anonymous
     }
-
-
 }

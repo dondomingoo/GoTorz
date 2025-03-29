@@ -1,7 +1,9 @@
 ﻿@page "/login"
-@inject AuthService Auth
+@inject AuthService AuthService
 @inject NavigationManager Nav
+
 @using GoTorz.Shared.Auth
+@using Microsoft.AspNetCore.Components.Authorization
 
 <h3>Login</h3>
 
@@ -21,12 +23,14 @@
     private LoginDTO loginModel = new();
     private string Message;
 
-    private async Task LoginUser()
+    private async Task LoginUser()                                                              // Method triggered when form is valid and submitted
     {
-        var success = await Auth.LoginAsync(loginModel);
-        Message = success ? "Login successful" : "Login failed";
+        var success = await AuthService.LoginAsync(loginModel);                                 // Calls AuthService.LoginAsync with the loginModel (DTO)
+        Message = success ? "Login successful" : "Login failed";                                // Sets the message based on result
+        
         if (success)
-            Nav.NavigateTo("/bankaccounts");
+        {                                 
+            //Nav.NavigateTo("/sooooome wheeeere over the raaainbow");        
+        }
     }
 }
-
