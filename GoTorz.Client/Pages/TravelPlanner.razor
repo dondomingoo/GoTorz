@@ -1,0 +1,96 @@
+﻿@page "/travel"
+@using GoTorz.Client.Components
+@using GoTorz.Shared.DTOs
+@inject HttpClient Http
+
+<h3>Plan Your Trip</h3>
+
+<DestinationSelector OnDestinationSelected="HandleDestinationSelected" />
+
+@if (selectedDestination != null)
+{
+    <div class="mt-4">
+        <h5>@selectedDestination.Name selected</h5>
+
+        <label>Check-in:</label>
+        <input type="date" @bind="CheckinDate" class="form-control" />
+
+        <label>Check-out:</label>
+        <input type="date" @bind="CheckoutDate" class="form-control" />
+
+        <label>Adults:</label>
+        <input type="number" min="1" @bind="Adults" class="form-control" />
+
+        <label>Children Ages (comma separated, e.g. 5,10):</label>
+        <input @bind="childrenAgesRaw" class="form-control" />
+
+        <label>Minimum Star Rating (1-5):</label>
+        <input type="number" min="1" max="5" @bind="stars" class="form-control" />
+
+        <label>From Airport:</label>
+        <select @bind="FromAirport" class="form-control">
+            <option value="CPH.AIRPORT">Copenhagen (CPH)</option>
+            <option value="ARN.AIRPORT">Stockholm (ARN)</option>
+            <option value="HAM.AIRPORT">Hamburg (HAM)</option>
+        </select>
+
+        <FlightAirportSelector Query="@selectedDestination.Name"
+                               OnAirportSelected="HandleToAirportSelected" />
+
+        <button class="btn btn-primary mt-3" @onclick="ShowResults">Search Hotels and Flights</button>
+    </div>
+}
+
+@if (showResults)
+{
+    <HotelSearch DestinationId="@selectedDestination.DestinationId"
+                 Checkin="@CheckinDate"
+                 Checkout="@CheckoutDate"
+                 Adults="@Adults"
+                 ChildrenAges="@ChildrenAges"
+                 MinStars="@stars" />
+
+    <FlightSearch FromAirport="@FromAirport"
+                  ToAirportId="@ToAirportId"
+                  Departure="@CheckinDate"
+                  Return="@CheckoutDate"
+                  Adults="@Adults"
+                  ChildrenAges="@ChildrenAges" />
+
+}
+
+@code {
+    private DestinationDto? selectedDestination;
+    private DateTime CheckinDate = DateTime.Today.AddDays(7);
+    private DateTime CheckoutDate = DateTime.Today.AddDays(14);
+    private int Adults = 1;
+    private string childrenAgesRaw = "0";
+    private int stars = 3;
+    private string FromAirport = "CPH.AIRPORT";
+    private bool showResults = false;
+	private string ToAirportId = "";
+
+    private void HandleDestinationSelected(DestinationDto dest)
+    {
+        selectedDestination = dest;
+        showResults = false;
+    }
+
+    private void ShowResults()
+    {
+        if (selectedDestination != null && CheckinDate < CheckoutDate)
+        {
+            showResults = true;
+        }
+    }
+
+    private void HandleToAirportSelected(string airportId)
+    {
+        ToAirportId = airportId;
+    }
+
+    private List<int> ChildrenAges => childrenAgesRaw
+        .Split(",", StringSplitOptions.RemoveEmptyEntries)
+        .Select(a => int.TryParse(a.Trim(), out var age) ? age : 0)
+        .ToList();
+}

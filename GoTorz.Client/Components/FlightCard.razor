@@ -1,0 +1,12 @@
+﻿@using Shared.DTOs
+@code {
+    [Parameter] public OutboundFlightDto Flight { get; set; } = new();
+}
+
+<div class="card">
+    <div class="card-body">
+        <p><strong>@Flight.FlightNumber</strong></p>
+        <p>@Flight.Departure ➡ @Flight.Destination</p>
+        <p>@Flight.DepartureTime.ToShortTimeString() - @Flight.ArrivalTime.ToShortTimeString()</p>
+    </div>
+</div>

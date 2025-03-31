@@ -1,0 +1,126 @@
+﻿@inject HttpClient Http
+@using Shared.DTOs
+@using System.Text.Json
+
+<h4 class="mt-5">Flights</h4>
+
+@if (loading)
+{
+    <p>Loading direct flights...</p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+else if (outbound != null && returnFlight != null)
+{
+    <div class="row">
+        <div class="col-md-6">
+            <h5>Outbound Flight</h5>
+            <FlightCard Flight="@outbound" />
+        </div>
+        <div class="col-md-6">
+            <h5>Return Flight</h5>
+            <FlightCard Flight="@returnFlight" />
+        </div>
+    </div>
+}
+else
+{
+    <p>No direct flights found.</p>
+}
+
+@code {
+    [Parameter] public string FromAirport { get; set; } = "";
+    [Parameter] public string ToAirportId { get; set; } = "";
+    [Parameter] public DateTime Departure { get; set; }
+    [Parameter] public DateTime Return { get; set; }
+    [Parameter] public int Adults { get; set; }
+    [Parameter] public List<int> ChildrenAges { get; set; } = new();
+
+    private OutboundFlightDto? outbound;
+    private ReturnFlightDto? returnFlight;
+    private bool loading = true;
+    private string? errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        loading = true;
+        errorMessage = null;
+        outbound = null;
+        returnFlight = null;
+
+        string departureDate = Departure.ToString("yyyy-MM-dd");
+        string returnDate = Return.ToString("yyyy-MM-dd");
+        string children = ChildrenAges.Any() ? string.Join(",", ChildrenAges) : "";
+
+        var apiUrl = $"/api/flightsearch/search-flights" +
+                     $"?fromId={FromAirport}&toId={ToAirportId}" +
+                     $"&departureDate={departureDate}&returnDate={returnDate}" +
+                     $"&adults={Adults}&children={Uri.EscapeDataString(children)}";
+
+        try
+        {
+            var response = await Http.GetAsync(apiUrl);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorJson = await response.Content.ReadAsStringAsync();
+                var parsed = JsonDocument.Parse(errorJson);
+                if (parsed.RootElement.TryGetProperty("error", out var err))
+                {
+                    errorMessage = $"Flight API error: {err.GetString()}";
+                }
+                else
+                {
+                    errorMessage = $"Unexpected error: {response.StatusCode}";
+                }
+                return;
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var parsedJson = JsonDocument.Parse(json);
+
+            if (parsedJson.RootElement.TryGetProperty("data", out var data))
+            {
+                if (data.TryGetProperty("outbound", out var outboundArray))
+                {
+                    var firstOutbound = outboundArray.EnumerateArray().FirstOrDefault();
+                    if (firstOutbound.ValueKind != JsonValueKind.Undefined)
+                    {
+                        outbound = new OutboundFlightDto
+                            {
+                                FlightNumber = firstOutbound.GetProperty("flight_number").GetString() ?? "",
+                                Departure = firstOutbound.GetProperty("departure_airport").GetString() ?? "",
+                                Destination = firstOutbound.GetProperty("arrival_airport").GetString() ?? "",
+                                DepartureTime = DateTime.Parse(firstOutbound.GetProperty("departure_time").GetString() ?? ""),
+                                ArrivalTime = DateTime.Parse(firstOutbound.GetProperty("arrival_time").GetString() ?? "")
+                            };
+                    }
+                }
+
+                if (data.TryGetProperty("return", out var returnArray))
+                {
+                    var firstReturn = returnArray.EnumerateArray().FirstOrDefault();
+                    if (firstReturn.ValueKind != JsonValueKind.Undefined)
+                    {
+                        returnFlight = new ReturnFlightDto
+                            {
+                                FlightNumber = firstReturn.GetProperty("flight_number").GetString() ?? "",
+                                Departure = firstReturn.GetProperty("departure_airport").GetString() ?? "",
+                                Destination = firstReturn.GetProperty("arrival_airport").GetString() ?? "",
+                                DepartureTime = DateTime.Parse(firstReturn.GetProperty("departure_time").GetString() ?? ""),
+                                ArrivalTime = DateTime.Parse(firstReturn.GetProperty("arrival_time").GetString() ?? "")
+                            };
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Unexpected client error: " + ex.Message;
+        }
+
+        loading = false;
+    }
+}

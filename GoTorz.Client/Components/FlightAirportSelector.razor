@@ -1,0 +1,65 @@
+﻿@inject HttpClient Http
+@using Shared.DTOs
+
+@if (airportOptions == null)
+{
+    <p>Loading airports...</p>
+}
+else if (!airportOptions.Any())
+{
+    <p>No airports found for destination: <strong>@Query</strong></p>
+}
+else
+{
+    <div class="form-group mt-3">
+        <label>Select Airport:</label>
+        <select class="form-control" @bind="SelectedAirportId">
+            @foreach (var airport in airportOptions)
+            {
+                <option value="@airport.Id">@airport.Name (@airport.Id)</option>
+            }
+        </select>
+    </div>
+}
+
+@code {
+    [Parameter] public string Query { get; set; } = "";
+    [Parameter] public EventCallback<string> OnAirportSelected { get; set; }
+
+    private List<FlightDestinationDto>? airportOptions;
+
+    private string? selectedAirportId;
+    private string? SelectedAirportId
+    {
+        get => selectedAirportId;
+        set
+        {
+            if (selectedAirportId != value)
+            {
+                selectedAirportId = value;
+                OnAirportSelected.InvokeAsync(value);
+            }
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Query))
+            return;
+
+        try
+        {
+            airportOptions = await Http.GetFromJsonAsync<List<FlightDestinationDto>>(
+                $"/api/Flights/search-flight-destinations?query={Query}");
+
+            if (airportOptions?.Any() == true)
+            {
+                SelectedAirportId = airportOptions.First().Id;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error loading airport options: " + ex.Message);
+        }
+    }
+}
