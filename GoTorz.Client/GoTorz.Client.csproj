@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <Folder Include="Components\SalesRep\" />
-    <Folder Include="Pages\Customer\" />
   </ItemGroup>
 
 </Project>
