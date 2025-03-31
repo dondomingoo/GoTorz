@@ -15,7 +15,8 @@ namespace GoTorz.Shared.DTOs
             public string Destination { get; set; } = "";
             public DateTime DepartureTime { get; set; }
             public DateTime ArrivalTime { get; set; }
-        }
+           
+    }
 
         public class ReturnFlightDto : OutboundFlightDto { }
     

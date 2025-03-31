@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using GoTorz.Shared.DTOs;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 namespace GoTorz.Api.Controllers
@@ -20,15 +21,11 @@ namespace GoTorz.Api.Controllers
         {
             try
             {
-                // Format legs JSON correctly with double quotes
-                string legsJson = $"[{{\"fromId\":\"{fromId}\",\"toId\":\"{toId}\",\"date\":\"{departureDate}\"}},{{\"fromId\":\"{toId}\",\"toId\":\"{fromId}\",\"date\":\"{returnDate}\"}}]";
-                string encodedLegs = Uri.EscapeDataString(legsJson);
                 string encodedChildren = string.IsNullOrWhiteSpace(children) || children == "0" ? "" : Uri.EscapeDataString(children);
 
-                string url = $"https://booking-com15.p.rapidapi.com/api/v1/flights/searchFlightsMultiStops" +
-             $"?legs={encodedLegs}&pageNo=1&adults={adults}&children={encodedChildren}" +
-             $"&sort=BEST&cabinClass=ECONOMY&currency_code=AED&location=US";
-
+                string url = $"https://booking-com15.p.rapidapi.com/api/v1/flights/searchFlights" +
+                             $"?fromId={fromId}&toId={toId}&departDate={departureDate}&returnDate={returnDate}" +
+                             $"&pageNo=1&adults={adults}&children={encodedChildren}&sort=BEST&cabinClass=ECONOMY&currency_code=EUR";
 
                 var request = new HttpRequestMessage
                 {
@@ -46,17 +43,51 @@ namespace GoTorz.Api.Controllers
 
                 var json = await response.Content.ReadAsStringAsync();
 
-                // Check for embedded error
                 var parsed = JsonDocument.Parse(json);
-                if (parsed.RootElement.TryGetProperty("data", out var dataNode) &&
-                    dataNode.TryGetProperty("error", out var errorNode))
-                {
-                    var errorCode = errorNode.GetProperty("code").GetString();
-                    var requestId = errorNode.GetProperty("requestId").GetString();
-                    return BadRequest(new { error = errorCode, requestId });
-                }
+                if (!parsed.RootElement.TryGetProperty("data", out var dataNode))
+                    return BadRequest("Missing data node in response.");
 
-                return Content(json, "application/json");
+                var offer = dataNode.GetProperty("flightOffers").EnumerateArray().FirstOrDefault();
+                if (offer.ValueKind == JsonValueKind.Undefined)
+                    return Ok(null);
+
+                var segments = offer.GetProperty("segments").EnumerateArray().ToList();
+                if (segments.Count < 2) return Ok(null);
+
+                var price = offer.GetProperty("priceBreakdown").GetProperty("total");
+                string priceFormatted = $"{price.GetProperty("units").GetInt32()}.{price.GetProperty("nanos").GetInt32() / 10000000:00} EUR";
+
+                var outbound = segments[0];
+                var returnSeg = segments[1];
+
+                var outboundDto = new OutboundFlightDto
+                {
+                    FlightNumber = outbound.GetProperty("legs")[0].GetProperty("flightInfo").GetProperty("flightNumber").ToString(),
+                    Departure = outbound.GetProperty("departureAirport").GetProperty("cityName").GetString() ?? "",
+                    Destination = outbound.GetProperty("arrivalAirport").GetProperty("cityName").GetString() ?? "",
+                    DepartureTime = DateTime.Parse(outbound.GetProperty("departureTime").GetString() ?? ""),
+                    ArrivalTime = DateTime.Parse(outbound.GetProperty("arrivalTime").GetString() ?? ""),
+                    
+                };
+
+                var returnDto = new ReturnFlightDto
+                {
+                    FlightNumber = returnSeg.GetProperty("legs")[0].GetProperty("flightInfo").GetProperty("flightNumber").ToString(),
+                    Departure = returnSeg.GetProperty("departureAirport").GetProperty("cityName").GetString() ?? "",
+                    Destination = returnSeg.GetProperty("arrivalAirport").GetProperty("cityName").GetString() ?? "",
+                    DepartureTime = DateTime.Parse(returnSeg.GetProperty("departureTime").GetString() ?? ""),
+                    ArrivalTime = DateTime.Parse(returnSeg.GetProperty("arrivalTime").GetString() ?? ""),
+                   
+                };
+
+                var result = new FlightSearchResultDto
+                {
+                    OutboundFlight = outboundDto,
+                    ReturnFlight = returnDto,
+                    TotalPrice = priceFormatted
+                };
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
