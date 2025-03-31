@@ -1,0 +1,58 @@
+﻿@using GoTorz.Client.Settings
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@inject ApiSettings ApiSettings
+@implements IAsyncDisposable
+
+<h3>Support Chat</h3>
+
+<input @bind="userInput" placeholder="Your name" />
+<input @bind="messageInput" placeholder="Type message" />
+<button @onclick="Send">Send</button>
+
+<ul>
+    @foreach (var msg in messages)
+    {
+        <li>@msg</li>
+    }
+</ul>
+
+@code {
+    private HubConnection? hubConnection;
+    private List<string> messages = new();
+    private string userInput = "";
+    private string messageInput = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+        .WithUrl($"{ApiSettings.ApiBaseUrl}/chathub")
+        .Build();
+
+        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        {
+            messages.Add($"{user}: {message}");
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private async Task Send()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.InvokeAsync("SendMessage", userInput, messageInput);
+            messageInput = "";
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}
+

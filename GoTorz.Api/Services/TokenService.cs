@@ -11,7 +11,7 @@ namespace GoTorz.Api.Services
     public class TokenService : ITokenService
     {
         private readonly JwtSettings _jwtSettings;                                      // Strongly typed JwtSettings object
-
+        
         public TokenService(IOptions<JwtSettings> jwtSettings)
         {
             _jwtSettings = jwtSettings.Value;

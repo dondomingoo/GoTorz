@@ -81,6 +81,8 @@ namespace GoTorz.Api
             // TokenService
             builder.Services.AddScoped<ITokenService, TokenService>();
 
+            // SignalR
+            builder.Services.AddSignalR();
 
             var app = builder.Build();
 
@@ -101,6 +103,7 @@ namespace GoTorz.Api
 
             // --- Routing ---
             app.MapControllers();
+            app.MapHub<ChatHub>("/chathub");  // This becomes your SignalR endpoint
 
             app.Run();
         }
