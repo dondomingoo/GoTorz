@@ -15,8 +15,6 @@ namespace GoTorz.Client
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
             // Http
-
-            // Http
             var apiSettings = new ApiSettings();
             builder.Configuration.Bind(apiSettings);
             builder.Services.AddSingleton(apiSettings);
@@ -27,7 +25,7 @@ namespace GoTorz.Client
             // Authentication & Authorization
             builder.Services.AddScoped<LocalStorage>();
             builder.Services.AddScoped<CustomAuthStateProvider>();
-            builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthStateProvider>()); // Any time AuthenticationStateProvider needs to check AuthState it calls this method in our CustomAuthStateProvider
+            builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthStateProvider>()); // Any time AuthenticationStateProvider needs to check AuthState it uses our CustomAuthStateProvider
             
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddAuthorizationCore();

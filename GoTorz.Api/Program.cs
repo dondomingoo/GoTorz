@@ -69,9 +69,9 @@ namespace GoTorz.Api
                             var accessToken = context.Request.Query["access_token"];
                             var path = context.HttpContext.Request.Path;
 
-                            // Only apply this logic when connecting to the SignalR /chathub
+                            // Only apply this logic when connecting to the SignalR /supportchathub
                             if (!string.IsNullOrEmpty(accessToken) &&
-                                path.StartsWithSegments("/chathub"))
+                                path.StartsWithSegments("/supportchathub"))
                             {
                                 context.Token = accessToken;
                             }
@@ -128,7 +128,7 @@ namespace GoTorz.Api
 
             // --- Routing ---
             app.MapControllers();
-            app.MapHub<SupportChatHub>("/chathub");  // This becomes your SignalR endpoint
+            app.MapHub<SupportChatHub>("/supportchathub");  // This becomes your SignalR endpoint
 
             app.Run();
         }

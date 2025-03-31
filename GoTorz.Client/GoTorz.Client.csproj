@@ -19,4 +19,9 @@
     <ProjectReference Include="..\GoTorz.Shared\GoTorz.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Components\SalesRep\" />
+    <Folder Include="Pages\Customer\" />
+  </ItemGroup>
+
 </Project>

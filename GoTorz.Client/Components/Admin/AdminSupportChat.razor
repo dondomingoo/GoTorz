@@ -1,0 +1,88 @@
+﻿@using GoTorz.Client.Settings
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@inject ApiSettings ApiSettings
+@inject CustomAuthStateProvider AuthStateProvider
+@implements IAsyncDisposable
+
+<h3>Admin Support Chat</h3>
+
+<p>Logged in as: @adminName</p>
+
+<label>User to assist (username / email):</label>
+<input @bind="targetUser" placeholder="Enter username" />
+
+<button @onclick="JoinRoom">Join User Room</button>
+
+@if (isInRoom)
+{
+    <p>Connected to private chat with: @targetUser</p>
+
+    <input @bind="messageInput" placeholder="Type message" />
+    <button @onclick="Send">Send</button>
+
+    <ul>
+        @foreach (var msg in messages)
+        {
+            <li>@msg</li>
+        }
+    </ul>
+}
+
+@code {
+    private HubConnection? hubConnection;
+    private string adminName = "";
+    private string targetUser = "";
+    private string messageInput = "";
+    private bool isInRoom = false;
+    private List<string> messages = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        adminName = user.Identity?.Name ?? "Unknown";
+
+        hubConnection = new HubConnectionBuilder()
+        .WithUrl($"{ApiSettings.ApiBaseUrl}/supportchathub", options =>
+        {
+            options.AccessTokenProvider = async () => await AuthStateProvider.GetJwtAsync() ?? string.Empty;
+        })
+        .Build();
+
+        hubConnection.On<string, string>("ReceiveMessage", (sender, message) =>
+        {
+            messages.Add($"{sender}: {message}");
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private async Task JoinRoom()
+    {
+        if (!string.IsNullOrWhiteSpace(targetUser))
+        {
+            await hubConnection.InvokeAsync("JoinSupportRoom", targetUser);
+            isInRoom = true;
+        }
+    }
+
+    private async Task Send()
+    {
+        if (hubConnection is not null && isInRoom && (!string.IsNullOrEmpty(messageInput)))
+        {
+            await hubConnection.InvokeAsync("SendAdminMessage", targetUser, messageInput);
+            messageInput = "";
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}

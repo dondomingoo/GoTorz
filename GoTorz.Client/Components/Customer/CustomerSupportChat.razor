@@ -41,7 +41,7 @@
 
         // Create and configure SignalR connection
         hubConnection = new HubConnectionBuilder()
-        .WithUrl($"{ApiSettings.ApiBaseUrl}/chathub", options =>
+        .WithUrl($"{ApiSettings.ApiBaseUrl}/supportchathub", options =>
         {    
             options.AccessTokenProvider = async () => await AuthStateProvider.GetJwtAsync() ?? string.Empty;
         })
@@ -58,9 +58,9 @@
 
     private async Task Send()
     {
-        if (hubConnection is not null)
+        if (hubConnection is not null && (!string.IsNullOrEmpty(messageInput)))
         {         
-            await hubConnection.InvokeAsync("SendMessage", messageInput);
+            await hubConnection.InvokeAsync("SendUserMessage", messageInput);
             messageInput = "";
         }
     }
