@@ -17,7 +17,7 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
     }
 
     /// <summary>
-    /// This method runs automatically when Blazor needs to know the user's current login state.
+    /// This method runs automatically when Blazor needs to know the user's current login state. Can also be called manually if needed.
     /// </summary>
     /// <returns>AuthenticationState</returns>
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -76,4 +76,15 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
         var jwt = handler.ReadJwtToken(token);                                                  // Parse token
         return jwt.ValidTo < DateTime.UtcNow;                                                   // Expired = true if expiry time has passed
     }
+
+
+    /// <summary>
+    /// Retrieves the JWT token from local storage.
+    /// This method safely exposes the token without exposing the local storage directly.
+    /// </summary>
+    public async Task<string?> GetJwtAsync()
+    {
+        return await _localStorage.GetItemAsync("jwt");
+    }
+
 }

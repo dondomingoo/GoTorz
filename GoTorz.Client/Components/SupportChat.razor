@@ -1,12 +1,14 @@
-﻿@using GoTorz.Client.Settings
+﻿@* Support chat component using SignalR *@
+@using GoTorz.Client.Settings
 @using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager Navigation
 @inject ApiSettings ApiSettings
+@inject CustomAuthStateProvider AuthStateProvider
 @implements IAsyncDisposable
 
 <h3>Support Chat</h3>
 
-<input @bind="userInput" placeholder="Your name" />
+<p>Logged in as: @currentUsername</p>
 <input @bind="messageInput" placeholder="Type message" />
 <button @onclick="Send">Send</button>
 
@@ -20,13 +22,29 @@
 @code {
     private HubConnection? hubConnection;
     private List<string> messages = new();
-    private string userInput = "";
+    private string currentUsername = "";
     private string messageInput = "";
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is { IsAuthenticated: true })
+        {
+            currentUsername = user.Identity.Name ?? "unknown";
+        }
+        else
+        {
+            currentUsername = "Anonymous";
+        }
+
+        // Create and configure SignalR connection
         hubConnection = new HubConnectionBuilder()
-        .WithUrl($"{ApiSettings.ApiBaseUrl}/chathub")
+        .WithUrl($"{ApiSettings.ApiBaseUrl}/chathub", options =>
+        {    
+            options.AccessTokenProvider = async () => await AuthStateProvider.GetJwtAsync() ?? string.Empty;
+        })
         .Build();
 
         hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
@@ -41,8 +59,8 @@
     private async Task Send()
     {
         if (hubConnection is not null)
-        {
-            await hubConnection.InvokeAsync("SendMessage", userInput, messageInput);
+        {         
+            await hubConnection.InvokeAsync("SendMessage", messageInput);
             messageInput = "";
         }
     }
@@ -55,4 +73,3 @@
         }
     }
 }
-

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace GoTorz.Api
 {
@@ -36,12 +37,12 @@ namespace GoTorz.Api
             });
         
             // Authentication (Jwt)
-            builder.Services.AddAuthentication(options => // "When someone makes a request and the controller says [Authorize], try to find a JWT in the request and validate it."
+            builder.Services.AddAuthentication(options => // When a controller or endpoint has [Authorize], ASP.NET will check if a valid JWT token is attached.
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-                .AddJwtBearer(options => // "When using JWT Bearer tokens, these are the rules you must follow when validating the token."
+                .AddJwtBearer(options => // Token validation rules for all JWT tokens received (both HTTP and WebSocket)
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -49,10 +50,34 @@ namespace GoTorz.Api
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-                        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+                        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],      // Must match token issuer
+                        ValidAudience = builder.Configuration["JwtSettings:Audience"],  // Must match token audience
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!))
+                            System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!)),
+
+                        // Maps claims to Identity fields for easy access in controllers and SignalR hubs
+                        NameClaimType = ClaimTypes.Name,            // Allows using User.Identity.Name
+                        RoleClaimType = ClaimTypes.Role             // Allows using User.IsInRole("Admin")
+                    };
+
+                    // Special handling for SignalR connections
+                    // SignalR cannot use the Authorization header, so it passes the token as ?access_token=...
+                    options.Events = new JwtBearerEvents            
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+
+                            // Only apply this logic when connecting to the SignalR /chathub
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                                path.StartsWithSegments("/chathub"))
+                            {
+                                context.Token = accessToken;
+                            }
+
+                            return Task.CompletedTask;
+                        }
                     };
                 });
                       
@@ -103,7 +128,7 @@ namespace GoTorz.Api
 
             // --- Routing ---
             app.MapControllers();
-            app.MapHub<ChatHub>("/chathub");  // This becomes your SignalR endpoint
+            app.MapHub<SupportChatHub>("/chathub");  // This becomes your SignalR endpoint
 
             app.Run();
         }
