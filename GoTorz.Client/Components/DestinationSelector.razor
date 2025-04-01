@@ -36,6 +36,5 @@
 
         destinations = await Http.GetFromJsonAsync<List<DestinationDto>>($"/api/destination?query={searchQuery}");
 
-		StateHasChanged();
     }
 }

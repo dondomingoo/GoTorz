@@ -1,0 +1,102 @@
+﻿@using GoTorz.Shared.DTOs
+@inject HttpClient Http
+
+<h4 class="mt-5">Hotels</h4>
+
+@if (loading)
+{
+    <p>Loading hotels...</p>
+}
+else if (selectedHotel != null)
+{
+    <div class="card mt-4 mx-auto" style="width: 18rem;">
+        @if (!string.IsNullOrWhiteSpace(selectedHotel.ImageUrl))
+        {
+            <img src="@selectedHotel.ImageUrl" class="card-img-top selected-hotel-img" alt="Hotel image" />
+        }
+        <div class="card-body">
+            <h5 class="card-title">@selectedHotel.Name</h5>
+            <p>@selectedHotel.Address</p>
+            <p>Stars: @selectedHotel.Stars</p>
+            <p class="text-success fw-bold">@selectedHotel.Price</p>
+            <button class="btn btn-danger mt-2" @onclick="() => selectedHotel = null">Change Hotel</button>
+        </div>
+    </div>
+
+    <button class="btn btn-success mt-3">Create Travel Package</button>
+}
+else if (hotels?.Count == 0)
+{
+    <p>No hotels found.</p>
+}
+else if (hotels != null)
+{
+    <div class="row">
+        @foreach (var hotel in hotels)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    @if (!string.IsNullOrWhiteSpace(hotel.ImageUrl))
+                    {
+                        <img src="@hotel.ImageUrl" class="card-img-top selected-hotel-img" alt="Hotel image" />
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@hotel.Name</h5>
+                        <p>@hotel.Address</p>
+                        <p>Stars: @hotel.Stars</p>
+                        <p class="text-success fw-bold">@hotel.Price</p>
+                        <button class="btn btn-outline-primary" @onclick="@(() => SelectHotel(hotel))">Select</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<style>
+    .selected-hotel-img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+</style>
+
+@code {
+    [Parameter] public string DestinationId { get; set; } = "";
+    [Parameter] public DateTime Checkin { get; set; }
+    [Parameter] public DateTime Checkout { get; set; }
+    [Parameter] public int Adults { get; set; } = 1;
+    [Parameter] public List<int> ChildrenAges { get; set; } = new();
+    [Parameter] public int MinStars { get; set; } = 1;
+
+    [Parameter] public EventCallback<HotelDto> OnHotelSelected { get; set; }
+
+    private List<HotelDto>? hotels;
+    private bool loading = true;
+    private HotelDto? selectedHotel;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        loading = true;
+
+        string children = string.Join(",", ChildrenAges);
+        string url = $"api/hotels/search-hotels?destId={DestinationId}&checkin={Checkin:yyyy-MM-dd}&checkout={Checkout:yyyy-MM-dd}&adults={Adults}&children={children}&stars={MinStars}";
+
+        try
+        {
+            hotels = await Http.GetFromJsonAsync<List<HotelDto>>(url);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Hotel error: " + ex.Message);
+        }
+
+        loading = false;
+    }
+
+    private async Task SelectHotel(HotelDto hotel)
+    {
+        selectedHotel = hotel;
+        await OnHotelSelected.InvokeAsync(hotel);
+    }
+}

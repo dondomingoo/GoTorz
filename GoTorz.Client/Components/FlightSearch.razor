@@ -57,7 +57,7 @@ else
             var apiUrl = $"/api/flightsearch/search-flights" +
                          $"?fromId={FromAirport}&toId={ToAirportId}" +
                          $"&departureDate={departureDate}&returnDate={returnDate}" +
-                         $"&adults={Adults}&children={Uri.EscapeDataString(children)}";
+							$"&adults={Adults}&children={Uri.EscapeDataString(children)}"; // Uri.EscapeDataString to encode the comma-separated children ages
 
             flightResult = await Http.GetFromJsonAsync<FlightSearchResultDto>(apiUrl);
         }

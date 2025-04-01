@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using GoTorz.Shared.DTOs;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 namespace GoTorz.Api.Controllers
@@ -15,59 +16,52 @@ namespace GoTorz.Api.Controllers
             [FromQuery] string checkin,
             [FromQuery] string checkout,
             [FromQuery] int adults = 1,
-            [FromQuery] string children = "0",
-            [FromQuery] int stars = 1)
+            [FromQuery] string children = "")
         {
             if (string.IsNullOrWhiteSpace(destId))
                 return BadRequest("Destination ID is required.");
 
+            string encodedChildren = string.IsNullOrWhiteSpace(children) || children == "0" ? "" : Uri.EscapeDataString(children);
+
             string url = $"https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels" +
-                         $"?dest_id={destId}&search_type=CITY" +
-                         $"&checkin_date={checkin}&checkout_date={checkout}" +
-                         $"&adults={adults}&children_age={Uri.EscapeDataString(children)}" +
+                         $"?dest_id={destId}&search_type=CITY&arrival_date={checkin}&departure_date={checkout}" +
+                         $"&adults={adults}&children_age={encodedChildren}" +
                          $"&room_qty=1&page_number=1&units=metric&temperature_unit=c" +
-                         $"&languagecode=en-us&currency_code=AED&location=US";
+                         $"&languagecode=en-us&currency_code=EUR&location=US&sort_by=class_descending&review_score=reviewscorebuckets::70";
 
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
                 RequestUri = new Uri(url),
                 Headers =
-            {
-                { "x-rapidapi-key", $"{ApiKey}" },
-                { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
-            },
+                {
+                    { "x-rapidapi-key", ApiKey },
+                    { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
+                },
             };
 
             try
             {
                 using var client = new HttpClient();
                 var response = await client.SendAsync(request);
-
-                if (!response.IsSuccessStatusCode)
-                    return StatusCode((int)response.StatusCode, "Error retrieving hotel data.");
-
                 var json = await response.Content.ReadAsStringAsync();
                 var parsed = JsonDocument.Parse(json);
 
-                var hotelList = parsed.RootElement
+                var hotels = parsed.RootElement
                     .GetProperty("data")
+                    .GetProperty("hotels")
                     .EnumerateArray()
-                    .Where(h =>
-                        h.TryGetProperty("review_score_word", out _) &&
-                        h.TryGetProperty("property_class", out var starProp) &&
-                        int.TryParse(starProp.GetString(), out var s) && s >= stars)
-                    .Select(h => new GoTorz.Shared.DTOs.HotelDto
+                    .Select(h => new HotelDto
                     {
-                        Name = h.GetProperty("property_name").GetString() ?? "Unknown",
-                        Address = h.GetProperty("address_trans").GetString() ?? "N/A",
-                        Stars = int.TryParse(h.GetProperty("property_class").GetString(), out var s) ? s : 0,
-                        Price = h.TryGetProperty("price_breakdown", out var price) ?
-                                    price.GetProperty("gross_price").ToString() + " AED" :
-                                    "N/A"
-                    }).ToList();
+                        Name = h.GetProperty("property").GetProperty("name").GetString() ?? "",
+                        Address = h.GetProperty("property").GetProperty("wishlistName").GetString() ?? "",
+                        Stars = h.GetProperty("property").GetProperty("propertyClass").GetInt32(),
+                        Price = h.GetProperty("property").GetProperty("priceBreakdown").GetProperty("grossPrice").GetProperty("value").ToString() + " EUR",
+                        ImageUrl = h.GetProperty("property").GetProperty("photoUrls")[0].GetString() ?? ""
+                    })
+                    .ToList();
 
-                return Ok(hotelList);
+                return Ok(hotels);
             }
             catch (Exception ex)
             {

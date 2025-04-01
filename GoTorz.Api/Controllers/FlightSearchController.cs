@@ -77,7 +77,7 @@ namespace GoTorz.Api.Controllers
                     Destination = returnSeg.GetProperty("arrivalAirport").GetProperty("cityName").GetString() ?? "",
                     DepartureTime = DateTime.Parse(returnSeg.GetProperty("departureTime").GetString() ?? ""),
                     ArrivalTime = DateTime.Parse(returnSeg.GetProperty("arrivalTime").GetString() ?? ""),
-                   
+                    
                 };
 
                 var result = new FlightSearchResultDto

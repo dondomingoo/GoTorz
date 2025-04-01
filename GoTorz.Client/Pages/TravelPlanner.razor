@@ -24,9 +24,6 @@
         <label>Children Ages (comma separated, e.g. 5,10):</label>
         <input @bind="childrenAgesRaw" class="form-control" />
 
-        <label>Minimum Star Rating (1-5):</label>
-        <input type="number" min="1" max="5" @bind="stars" class="form-control" />
-
         <label>From Airport:</label>
         <select @bind="FromAirport" class="form-control">
             <option value="CPH.AIRPORT">Copenhagen (CPH)</option>
@@ -48,7 +45,7 @@
                  Checkout="@CheckoutDate"
                  Adults="@Adults"
                  ChildrenAges="@ChildrenAges"
-                 MinStars="@stars" />
+                 OnHotelSelected="HandleHotelSelected" />
 
     <FlightSearch FromAirport="@FromAirport"
                   ToAirportId="@ToAirportId"
@@ -61,11 +58,11 @@
 
 @code {
     private DestinationDto? selectedDestination;
+	private HotelDto? selectedHotel;
     private DateTime CheckinDate = DateTime.Today.AddDays(7);
     private DateTime CheckoutDate = DateTime.Today.AddDays(14);
     private int Adults = 1;
-    private string childrenAgesRaw = "0";
-    private int stars = 3;
+    private string childrenAgesRaw = "";
     private string FromAirport = "CPH.AIRPORT";
     private bool showResults = false;
 	private string ToAirportId = "";
@@ -89,8 +86,17 @@
         ToAirportId = airportId;
     }
 
-    private List<int> ChildrenAges => childrenAgesRaw
+    private void HandleHotelSelected(HotelDto hotel)
+    {
+        selectedHotel = hotel;
+        Console.WriteLine("Hotel selected: " + hotel.Name);
+    }
+
+    private List<int> ChildrenAges => string.IsNullOrWhiteSpace(childrenAgesRaw)
+    ? new List<int>()
+    : childrenAgesRaw
         .Split(",", StringSplitOptions.RemoveEmptyEntries)
         .Select(a => int.TryParse(a.Trim(), out var age) ? age : 0)
         .ToList();
+
 }

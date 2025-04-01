@@ -12,5 +12,6 @@ namespace GoTorz.Shared.DTOs
         public string Address { get; set; } = "";
         public int Stars { get; set; }
         public string Price { get; set; } = "";
+        public string ImageUrl { get; set; } = "";
     }
 }
