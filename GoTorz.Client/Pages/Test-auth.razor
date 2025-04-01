@@ -1,0 +1,39 @@
+﻿@page "/test-auth"
+@using Microsoft.AspNetCore.Components.Authorization                @* Needed for AuthorizeView and AuthState *@
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthProvider
+
+<h3>Test Auth State</h3>
+
+<AuthorizeView>                                                     @* This Section uses CustomAuthStateProvider automatically - set in program.cs *@
+    <Authorized>
+        <p>You are logged in!</p>                                   @* Rendered only when user is authenticated *@
+    </Authorized>
+    <NotAuthorized>
+        <p>You are NOT logged in!</p>                               @* Rendered when no valid user *@
+    </NotAuthorized>
+</AuthorizeView>
+
+<button @onclick="Check">Check Auth (Manual)</button>
+
+<p>@message</p>
+
+@code {
+    private string message = string.Empty;
+
+    private async Task Check()
+    {
+        var state = await AuthProvider.GetAuthenticationStateAsync();           // Manually get state of current User --- (runs auto with AuthorizeView but can be called manually when needed)
+        var user = state.User;    
+        
+        if (state.User.Identity is { IsAuthenticated: true })                   // Safe way to check for login
+        {
+            var role = user.FindFirst(ClaimTypes.Role)?.Value ?? "No role";     // Find the first Role claim if it exists
+            message = $"Hello {user.Identity.Name}. Your Role is {role}";       // Display Username + Role
+        }
+        else
+        {
+            message = "Not logged in";                                          // Fallback
+        }
+    }
+}

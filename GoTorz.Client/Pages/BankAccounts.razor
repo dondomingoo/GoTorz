@@ -1,12 +1,15 @@
 ﻿@page "/bankaccounts"
 @inject HttpClient Http
+@inject LocalStorage LocalStorage
+@inject AuthService AuthService
+@inject NavigationManager Navigation
 @using Shared
 
 <h3>Bank Accounts</h3>
 
 @if (accounts == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>Loading... List will never be populated if not logged in or only 'User' role because of [Authorize(Roles = 'Admin')] in BankAccountController</em></p>
 }
 else
 {
@@ -21,8 +24,25 @@ else
 @code {
     private List<BankAccount> accounts;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()                                                  
     {
-        accounts = await Http.GetFromJsonAsync<List<BankAccount>>("api/bankaccount");
+        var request = await AuthService.CreateAuthorizedRequest(HttpMethod.Get, "api/bankaccount");     // Asks AuthService to Create an Authorized Request (JWR in header)
+        
+        if (request == null)                                                                            // If no JWT or it's invalid/expired
+        {
+            //Navigation.NavigateTo("/login");                                                          // Redirect somewhere, maybe
+            return;
+        }
+               
+        var response = await Http.SendAsync(request);                                                   // Send request to protected API
+
+        if (response.IsSuccessStatusCode)
+        {
+            accounts = await response.Content.ReadFromJsonAsync<List<BankAccount>>();                   // Deserialize list of accounts
+        }
+        else
+        {
+            //Show friendly error if unauthorized, forbidden, etc.
+        }
     }
 }
