@@ -52,9 +52,10 @@ else
             airportOptions = await Http.GetFromJsonAsync<List<FlightDestinationDto>>(
                 $"/api/Flights/search-flight-destinations?query={Query}");
 
-            if (airportOptions?.Any() == true)
+            // Kun auto-vælg hvis brugeren endnu ikke har valgt noget
+            if (airportOptions?.Any() == true && string.IsNullOrEmpty(SelectedAirportId))
             {
-                SelectedAirportId = airportOptions.First().Id;
+                SelectedAirportId = ""; // Lad brugeren selv vælge
             }
         }
         catch (Exception ex)
