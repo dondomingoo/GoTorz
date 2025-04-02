@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using GoTorz.Shared.Models;
 
 namespace GoTorz.Api.Data;
 
@@ -13,6 +14,11 @@ public class ApplicationDbContext : IdentityDbContext
 
 
     // DbSet<TEntity> Entities { get; set; }   // Add more custom tables
+    public DbSet<Flight> Flights { get; set; }
+    public DbSet<ReturnFlight> ReturnFlights { get; set; }
+    public DbSet<OutboundFlight> OutboundFlights { get; set; }
+    public DbSet<Hotel> Hotels { get; set; }
+    public DbSet<TravelPackage> TravelPackages { get; set; }
 
 }
 

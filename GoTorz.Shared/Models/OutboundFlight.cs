@@ -8,5 +8,7 @@ namespace GoTorz.Shared.Models
 {
     public class OutboundFlight : Flight
     {
+        public string Airline { get; set; }
+        public string FlightNumber { get; set; }
     }
 }

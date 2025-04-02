@@ -1,0 +1,227 @@
+﻿<div class="row">
+    <!-- Left side: List of Travel Packages -->
+    <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8">
+        <div class="row">
+            <div class="col"><h3>Travel Packages</h3></div>
+            <div class="col">
+                <button type="button" class="btn btn-info float-right" @onclick="ShowCreate">Create</button>
+            </div>
+        </div>
+        <div class="row">
+            @if (TravelPackages.Any())
+            {
+                @foreach (var travelPackage in TravelPackages)
+                {
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-4 mh-25 mb-4">
+                        <div class="card @(SelectedPackage?.TravelPackageId == travelPackage.TravelPackageId ? "bg-light" : "")">
+                            <div class="card-body">
+                                <h5 class="card-title">#@travelPackage.TravelPackageId @travelPackage.Destination</h5>
+                                <p class="card-text">
+                                    Arrival: @travelPackage.Arrival.ToString("MM/dd/yyyy")<br />
+                                    Departure: @travelPackage.Departure.ToString("MM/dd/yyyy")
+                                </p>
+                                <a href="/travelpackage" @onclick="() => GetDetails(int.Parse(travelPackage.TravelPackageId))">More...</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>No travel packages available</p>
+            }
+        </div>
+    </div>
+
+    <!-- Right side: Details and Edit Form -->
+    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+        @if (SelectedPackage is not null)
+        {
+            <EditForm class="container" Model="SelectedPackage" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="form-group">
+                    <label for="travelPackageId">Travel Package ID</label>
+                    <InputText id="travelPackageId" @bind-Value="SelectedPackage.TravelPackageId" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="destination">Destination</label>
+                    <InputText id="destination" @bind-Value="SelectedPackage.Destination" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="arrival">Arrival</label>
+                    <InputDate id="arrival" @bind-Value="SelectedPackage.Arrival" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="departure">Departure</label>
+                    <InputDate id="departure" @bind-Value="SelectedPackage.Departure" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="hotelName">Hotel Name</label>
+                    <InputText id="hotelName" @bind-Value="SelectedPackage.Hotel.Name" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="hotelAddress">Hotel Address</label>
+                    <InputText id="hotelAddress" @bind-Value="SelectedPackage.Hotel.Address" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="hotelCheckin">Hotel Check-in</label>
+                    <InputDate id="hotelCheckin" @bind-Value="SelectedPackage.Hotel.Checkin" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="hotelCheckout">Hotel Check-out</label>
+                    <InputDate id="hotelCheckout" @bind-Value="SelectedPackage.Hotel.Checkout" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="hotelRooms">Hotel Rooms</label>
+                    <InputNumber id="hotelRooms" @bind-Value="SelectedPackage.Hotel.Rooms" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="outboundFlightDeparture">Outbound Flight Departure</label>
+                    <InputText id="outboundFlightDeparture" @bind-Value="SelectedPackage.OutboundFlight.Departure" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="outboundFlightDestination">Outbound Flight Destination</label>
+                    <InputText id="outboundFlightDeparture" @bind-Value="SelectedPackage.OutboundFlight.Destination" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label for="returnFlightDeparture">Return Flight Departure</label>
+                    <InputText id="returnFlightDeparture" @bind-Value="SelectedPackage.ReturnFlight.Departure" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="returnFlightDestination">Return Flight Destination</label>
+                    <InputText id="returnFlightDeparture" @bind-Value="SelectedPackage.ReturnFlight.Destination" class="form-control" />
+                </div>
+
+
+
+                <div class="form-group">
+                    <label for="outboundFlightAirline">Outbound Flight Airline</label>
+                    <InputText id="outboundFlightAirline" @bind-Value="SelectedPackage.OutboundFlight.Airline" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="outboundFlightNumber">Outbound Flight Number</label>
+                    <InputText id="outboundFlightNumber" @bind-Value="SelectedPackage.OutboundFlight.FlightNumber" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="returnFlightAirline">Return Flight Airline</label>
+                    <InputText id="returnFlightAirline" @bind-Value="SelectedPackage.ReturnFlight.Airline" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="returnFlightNumber">Return Flight Number</label>
+                    <InputText id="returnFlightNumber" @bind-Value="SelectedPackage.ReturnFlight.FlightNumber" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="price">Price</label>
+                    <InputText id="price" @bind-Value="SelectedPackage.price" class="form-control" />
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                    <div class="col">
+                        <button type="button" @onclick="DeletePackage" class="btn btn-danger float-right">Delete</button>
+                    </div>
+                </div>
+            </EditForm>
+        }
+        else
+        {
+            <p>No travel package selected</p>
+        }
+    </div>
+</div>
+
+
+@page "/travelpackage"
+@inject HttpClient HttpClient
+@using GoTorz.Shared.Models
+@code {
+    private List<TravelPackage> TravelPackages = new();
+    private TravelPackage SelectedPackage;
+    private bool IsCreating;
+
+    protected override async Task OnInitializedAsync()
+    {
+        TravelPackages = await GetTravelPackages();
+    }
+
+    async Task GetDetails(int id)
+    {
+        SelectedPackage = await HttpClient.GetFromJsonAsync<TravelPackage>($"api/TravelPackage/{id}");
+    }
+
+    async Task HandleValidSubmit()
+    {
+        Console.WriteLine("HandleValidSubmit called");
+        HttpResponseMessage response;
+        if (IsCreating)
+        {
+            response = await HttpClient.PostAsJsonAsync("api/TravelPackage", SelectedPackage);
+        }
+        else
+        {
+            response = await HttpClient.PutAsJsonAsync($"api/TravelPackage/{SelectedPackage.TravelPackageId}", SelectedPackage);
+        }
+
+        if (response.IsSuccessStatusCode)
+        {
+            Console.WriteLine("Response is successful");
+            // Refresh list to include the newly created item
+            TravelPackages = await GetTravelPackages();
+            SelectedPackage = null; // Clear the selected package
+            IsCreating = false;
+            StateHasChanged(); // Trigger UI update
+        }
+        else
+        {
+            Console.WriteLine($"Response failed with status code: {response.StatusCode}");
+            var errorContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Error content: {errorContent}");
+        }
+    }
+
+
+    async Task DeletePackage()
+    {
+        int idToDelete = 0;
+        if (int.TryParse(SelectedPackage.TravelPackageId, out idToDelete))
+        {
+            var response = await HttpClient.DeleteAsync($"api/TravelPackage/{idToDelete}");
+            if (response.IsSuccessStatusCode)
+            {
+                TravelPackages = await GetTravelPackages();
+            }
+        }
+        else
+        {
+            Console.WriteLine("Invalid TravelPackageId");
+        }
+    }
+
+    async Task<List<TravelPackage>> GetTravelPackages()
+    {
+        try
+        {
+            return await HttpClient.GetFromJsonAsync<List<TravelPackage>>("api/TravelPackage/List");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching travel packages: {ex.Message}");
+            return new List<TravelPackage>();
+        }
+    }
+
+
+    void ShowCreate()
+    {
+        SelectedPackage = new TravelPackage
+            {
+                Hotel = new Hotel(),
+                OutboundFlight = new OutboundFlight(),
+                ReturnFlight = new ReturnFlight()
+            };
+        IsCreating = true;
+    }
+}
