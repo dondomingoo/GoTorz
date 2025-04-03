@@ -1,6 +1,8 @@
 ﻿@page "/search"
-@inject HttpClient Http
+@inject SearchTravelPackageService SearchService
 @inject NavigationManager Navigation
+
+<link rel="stylesheet" href="css/search.css" />
 
 <h3 class="page-header">Søg efter rejsepakker</h3>
 
@@ -42,15 +44,13 @@
     </ul>
 }
 
-
-
-    <div style="margin-top: 10px; display: flex; gap: 15px;">
-        <button @onclick="BookSelectedPackage"
-                class="book-btn @(string.IsNullOrEmpty(selectedPackageId) ? "disabled" : "enabled")"
-                disabled="@(string.IsNullOrEmpty(selectedPackageId))">
-            Book
-        </button>
-    </div>
+<div style="margin-top: 10px; display: flex; gap: 15px;">
+    <button @onclick="BookSelectedPackage"
+            class="book-btn @(string.IsNullOrEmpty(selectedPackageId) ? "disabled" : "enabled")"
+            disabled="@(string.IsNullOrEmpty(selectedPackageId))">
+        Book
+    </button>
+</div>
 
 @if (selectedPackageDetails != null)
 {
@@ -69,14 +69,10 @@
             <p><strong>Returfly:</strong> @selectedPackageDetails.ReturnFlight</p>
         </div>
 
-        <!-- New Book Button inside details -->
         <button class="book-btn enabled" @onclick="BookSelectedPackage">Book</button>
-
-        <!-- Close Button -->
         <button class="close-btn" @onclick="CloseDetails">Luk</button>
     </div>
 }
-
 
 @code {
     private string destination;
@@ -94,16 +90,14 @@
 
     private async Task LoadAllPackages()
     {
-        allTravelPackages = await Http.GetFromJsonAsync<List<GoTorz.Shared.Models.TravelPackage>>("api/travelpackage");
+        allTravelPackages = await SearchService.GetTravelPackagesAsync(null, null, null);
         travelPackages = new List<GoTorz.Shared.Models.TravelPackage>(allTravelPackages);
     }
 
     private async Task SearchPackages()
     {
-        var searchParams = $"/search?destination={destination}&arrivalDate={arrivalDate?.ToString("yyyy-MM-dd")}&departureDate={departureDate?.ToString("yyyy-MM-dd")}";
-        travelPackages = await Http.GetFromJsonAsync<List<GoTorz.Shared.Models.TravelPackage>>($"api/travelpackage{searchParams}");
+        travelPackages = await SearchService.GetTravelPackagesAsync(destination, arrivalDate, departureDate);
     }
-    
 
     private void ShowDetails()
     {
@@ -111,7 +105,7 @@
         {
             if (selectedPackageDetails?.TravelPackageId == selectedPackageId)
             {
-                selectedPackageDetails = null; // Close details if clicking the same package again
+                selectedPackageDetails = null; // Luk detaljer, hvis brugeren klikker på samme pakke igen
             }
             else
             {
@@ -119,7 +113,6 @@
             }
         }
     }
-
 
     private void CloseDetails()
     {
@@ -137,225 +130,8 @@
     private void SelectPackage(string packageId)
     {
         selectedPackageId = packageId;
-		ShowDetails();
+        ShowDetails();
     }
 }
 
-@* HaderStyling *@
-<style>
-    /* Center the header at the top */
-    .page-header {
-        text-align: center; /* Horizontally center */
-        font-size: 40px; /* Increase the font size if needed */
-        font-weight: bold;
-        margin-top: 20px; /* Add some space from the top */
-        color: #333; /* Optional: Change the text color */
-    }
-</style>
-
-@* Searchsection styling *@
-<style>
-    /* General container for search section */
-    .search-container {
-        background: #ffffff;
-        padding: 20px;
-        border-radius: 12px;
-        max-width: 600px;
-        margin: 20px auto;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        font-family: Arial, sans-serif;
-    }
-
-    /* Grouping the input fields with their labels */
-    .input-group {
-        margin-bottom: 15px;
-    }
-
-        /* Label styling */
-        .input-group label {
-            display: block;
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-    /* Input field styling */
-    .input-field {
-        width: 100%;
-        padding: 10px;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        font-size: 14px;
-        box-sizing: border-box;
-        margin-top: 5px;
-        transition: border-color 0.3s ease;
-    }
-
-        .input-field:focus {
-            border-color: #4CAF50;
-            outline: none;
-        }
-
-    /* Search button styling */
-    .search-btn {
-        width: 100%;
-        padding: 12px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background 0.3s ease;
-    }
-
-        .search-btn:hover {
-            background-color: #45a049;
-        }
-</style>
-
-@* Packages css styling *@
-<style>
-    /* Main list style */
-    .package-list {
-        list-style-type: none;
-        padding: 0;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        justify-content: flex-start; /* Align packages to the left, you can change this to 'center' if needed */
-    }
-
-    /* Each item in the list */
-    .package-item {
-        flex: 1;
-        min-width: 250px;
-        max-width: 300px;
-    }
-
-    /* Button styling for each package */
-    .package-button {
-        display: block;
-        width: 100%;
-        padding: 15px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        background-color: white;
-        color: #333;
-        font-size: 16px;
-        text-align: left;
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-        font-family: Arial, sans-serif;
-    }
-
-        /* Hover effect */
-        .package-button:hover {
-            background-color: #f4f4f4;
-            transform: translateY(-2px); /* Slight lift effect */
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Selected package button */
-        .package-button.selected {
-            background-color: #4CAF50;
-            color: white;
-            border: 2px solid #4CAF50;
-        }
-
-        /* Not selected package button */
-        .package-button.not-selected {
-            background-color: #fff;
-            color: #333;
-            border: 1px solid #ddd;
-        }
-
-            /* When hovering over a non-selected package */
-            .package-button.not-selected:hover {
-                background-color: #f0f0f0;
-            }
-
-        /* Additional text styles */
-        .package-button br {
-            margin: 5px 0;
-        }
-</style>
-
-@* Booking button at the bottom *@
-<style>
-    /* Default book button styles */
-    .book-btn {
-        display: block;
-        width: 100%;
-        padding: 10px;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background 0.3s ease;
-        border: none;
-    }
-
-        /* Disabled book button */
-        .book-btn.disabled {
-            background-color: gray;
-            color: white;
-            cursor: not-allowed;
-        }
-
-        /* Enabled (green) book button */
-        .book-btn.enabled {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-            .book-btn.enabled:hover {
-                background-color: #45a049;
-            }
-
-    /* Close button */
-    .close-btn {
-        display: block;
-        width: 100%;
-        margin-top: 10px;
-        padding: 10px;
-        background-color: #d9534f;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 16px;
-        transition: background 0.3s ease;
-    }
-
-        .close-btn:hover {
-            background-color: #c9302c;
-        }
-
-    /* Details box */
-    .details-box {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 20px;
-        max-width: 600px;
-        margin: 20px auto;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        font-family: Arial, sans-serif;
-    }
-
-    /* Grid layout for details */
-    .details-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
-
-        .details-grid p {
-            background: #f4f4f4;
-            padding: 8px;
-            border-radius: 6px;
-            text-align: left;
-        }
-</style>
 
