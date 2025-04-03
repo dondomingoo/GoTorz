@@ -1,3 +1,5 @@
+using GoTorz.Client.Services;
+using GoTorz.Client.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -15,6 +17,14 @@ namespace GoTorz.Client
             // Http
             builder.Services.AddScoped(sp => 
                 new HttpClient { BaseAddress = new Uri("https://localhost:7111/") });
+            //travelpackage etc.
+            builder.Services.AddScoped<IHotelService, HotelService>();
+            builder.Services.AddScoped<IFlightService, FlightService>();
+            builder.Services.AddScoped<IDestinationService, DestinationService>();
+            builder.Services.AddScoped<ITravelService, TravelService>();
+            builder.Services.AddScoped<IFlightDestinationService, FlightDestinationService>();
+
+
 
             // Authentication & Authorization
             builder.Services.AddScoped<LocalStorage>();

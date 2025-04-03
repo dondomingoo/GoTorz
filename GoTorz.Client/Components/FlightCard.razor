@@ -1,0 +1,16 @@
+﻿@using GoTorz.Shared.DTOs
+
+@if (Outbound != null)
+{
+    <div class="card p-3 shadow-sm mb-3">
+        <p><strong>Flight:</strong> @Outbound.FlightNumber</p>
+        <p><strong>From:</strong> @Outbound.Departure</p>
+        <p><strong>To:</strong> @Outbound.Destination</p>
+        <p><strong>Departure:</strong> @Outbound.DepartureTime.ToString("f")</p>
+        <p><strong>Arrival:</strong> @Outbound.ArrivalTime.ToString("f")</p>
+    </div>
+}
+
+@code {
+    [Parameter] public OutboundFlightDto? Outbound { get; set; }
+}

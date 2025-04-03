@@ -15,6 +15,10 @@ namespace GoTorz.Api
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            //travelPackage builders
+            builder.Services.AddScoped<ITravelPackageRepository, TravelPackageRepository>();
+            builder.Services.AddScoped<ITravelPackageService, TravelPackageService>();
+
 
             // DbContext
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
