@@ -80,6 +80,7 @@ namespace GoTorz.Api
             
             // TokenService
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<ITravelPackageService, TravelPackageService>();
 
 
             var app = builder.Build();

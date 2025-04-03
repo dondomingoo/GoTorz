@@ -33,10 +33,10 @@ public class AuthController : ControllerBase
             return BadRequest(result.Errors);                                               // If creation failed, return error list
 
         // Add default role
-        if (!await _roleManager.RoleExistsAsync("Admin"))                                   // Check if "Admin" role exists
-            await _roleManager.CreateAsync(new IdentityRole("Admin"));                      // Create "Admin" role if missing
+        if (!await _roleManager.RoleExistsAsync("User"))                                   // Check if "Admin" role exists
+            await _roleManager.CreateAsync(new IdentityRole("User"));                      // Create "Admin" role if missing
 
-            await _userManager.AddToRoleAsync(user, "Admin");                               // Assign "Admin" role to the new user (TEMPORARY for testing) 
+            await _userManager.AddToRoleAsync(user, "User");                               // Assign "Admin" role to the new user (TEMPORARY for testing) 
 
         return Ok();                                                                        // Success!
     }
