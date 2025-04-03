@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using GoTorz.Client.Services.Interfaces;
 using GoTorz.Shared.Models;
 
-public class SearchTravelPackageService
+public class SearchTravelPackageService : ISearchTravelPackageService
 {
     private readonly HttpClient _httpClient;
 
