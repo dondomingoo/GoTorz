@@ -21,36 +21,41 @@ public class ApplicationDbContext : IdentityDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
-
-        // 🧠 Registrér base class og nøgle
+        // 👇 Primærnøgle og tabelnavn for base class Flight
         modelBuilder.Entity<Flight>(f =>
         {
-            f.HasKey(f => f.FlightId);
-            f.ToTable("Flights"); // base tabel
+            f.HasKey(f => f.FlightId); // 👈 PRIMÆRNØGLE HER!
+            f.ToTable("Flights");
         });
 
-        modelBuilder.Entity<OutboundFlight>(f =>
-        {
-            f.HasBaseType<Flight>();
-            f.ToTable("OutboundFlights"); // derived tabel
-        });
+        // 👇 TPT-konfigurationer for subklasser
+        modelBuilder.Entity<OutboundFlight>().ToTable("OutboundFlights");
+        modelBuilder.Entity<ReturnFlight>().ToTable("ReturnFlights");
 
-        modelBuilder.Entity<ReturnFlight>(f =>
-        {
-            f.HasBaseType<Flight>();
-            f.ToTable("ReturnFlights"); // derived tabel
-        });
-
+        // 👇 TravelPackage-konfigurationer
         modelBuilder.Entity<TravelPackage>(tp =>
         {
             tp.HasKey(t => t.TravelPackageId);
 
-            tp.HasOne(t => t.Hotel).WithMany().OnDelete(DeleteBehavior.Cascade);
-            tp.HasOne(t => t.OutboundFlight).WithMany().OnDelete(DeleteBehavior.Cascade);
-            tp.HasOne(t => t.ReturnFlight).WithMany().OnDelete(DeleteBehavior.Cascade);
+            tp.HasOne(t => t.Hotel)
+              .WithMany()
+              .HasForeignKey(t => t.HotelId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            tp.HasOne(t => t.OutboundFlight)
+              .WithMany()
+              .HasForeignKey(t => t.OutboundFlightId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            tp.HasOne(t => t.ReturnFlight)
+              .WithMany()
+              .HasForeignKey(t => t.ReturnFlightId)
+              .OnDelete(DeleteBehavior.Restrict);
         });
+
+        base.OnModelCreating(modelBuilder);
     }
 }
+
 
 

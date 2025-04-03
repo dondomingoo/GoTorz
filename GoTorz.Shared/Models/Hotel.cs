@@ -13,6 +13,6 @@ namespace GoTorz.Shared.Models
         public DateTime Checkout { get; set; }
         public int Rooms { get; set; }
 
-        public ICollection<TravelPackage> TravelPackages { get; set; } = new List<TravelPackage>(); // Navigation property
+        
     }
 }

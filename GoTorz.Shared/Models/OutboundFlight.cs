@@ -8,6 +8,6 @@ namespace GoTorz.Shared.Models
 {
     public class OutboundFlight : Flight
     {
-        public ICollection<TravelPackage> TravelPackages { get; set; } = new List<TravelPackage>();
+        
     }
 }
