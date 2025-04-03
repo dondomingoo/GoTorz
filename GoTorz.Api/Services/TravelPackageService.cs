@@ -47,7 +47,7 @@ namespace GoTorz.Api.Services
         };
         }
 
-        // Initially loads all travel packages
+
         public async Task<IEnumerable<TravelPackage>> GetAllTravelPackagesAsync()
         {
             // return await _travelPackageRepo.GetAllTravelPackagesAsync(); // Uncomment when repo is ready
@@ -58,7 +58,7 @@ namespace GoTorz.Api.Services
         public async Task<IEnumerable<TravelPackage>> GetTravelPackagesAsync(string? destination, DateTime? arrivalDate, DateTime? departureDate)
         {
             // var packages = await _travelPackageRepo.GetTravelPackagesAsync(destination, arrivalDate, departureDate); // Uncomment when repo is ready
-            var packages = _packages.AsQueryable(); // Use mock data for now
+            var packages = _packages.AsQueryable(); // Use mock data 
 
             if (!string.IsNullOrEmpty(destination))
             {

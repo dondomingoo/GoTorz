@@ -15,10 +15,10 @@ namespace GoTorz.Api.Controllers
         public TravelPackageController(ITravelPackageService travelPackageService)
         {
             _travelPackageService = travelPackageService;
-            GetAll();
+
         }
 
-        // Loads all travel packages initially when opening the page
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TravelPackage>>> GetAll()
         {
