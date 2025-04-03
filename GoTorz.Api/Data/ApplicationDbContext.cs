@@ -17,22 +17,22 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<Hotel> Hotels => Set<Hotel>();
     public DbSet<OutboundFlight> OutboundFlights => Set<OutboundFlight>();
     public DbSet<ReturnFlight> ReturnFlights => Set<ReturnFlight>();
-    public DbSet<Flight> Flights => Set<Flight>(); // 🧠 VIGTIGT for EF TPT!
+    public DbSet<Flight> Flights => Set<Flight>(); // VIGTIGT for EF TPT!
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // 👇 Primærnøgle og tabelnavn for base class Flight
+        //  Primærnøgle og tabelnavn for base class Flight
         modelBuilder.Entity<Flight>(f =>
         {
-            f.HasKey(f => f.FlightId); // 👈 PRIMÆRNØGLE HER!
+            f.HasKey(f => f.FlightId); // PRIMÆRNØGLE HER!
             f.ToTable("Flights");
         });
 
-        // 👇 TPT-konfigurationer for subklasser
+        //  TPT-konfigurationer for subklasser
         modelBuilder.Entity<OutboundFlight>().ToTable("OutboundFlights");
         modelBuilder.Entity<ReturnFlight>().ToTable("ReturnFlights");
 
-        // 👇 TravelPackage-konfigurationer
+        // TravelPackage-konfigurationer
         modelBuilder.Entity<TravelPackage>(tp =>
         {
             tp.HasKey(t => t.TravelPackageId);

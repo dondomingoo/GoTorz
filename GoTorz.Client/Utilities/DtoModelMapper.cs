@@ -42,14 +42,18 @@ namespace GoTorz.Client.Utilities
         }
 
         public static TravelPackage CreateTravelPackage(
-            string destinationName,
-            DateTime arrival,
-            DateTime departure,
-            HotelDto hotelDto,
-            OutboundFlightDto outboundDto,
-            ReturnFlightDto returnDto,
-            string totalPrice)
+     string destinationName,
+     DateTime arrival,
+     DateTime departure,
+     HotelDto hotelDto,
+     OutboundFlightDto outboundDto,
+     ReturnFlightDto returnDto,
+     string flightTotalPrice)
         {
+            // Parse flypris (fx "435.00 EUR")
+            var flightPrice = ParsePrice(flightTotalPrice);
+            var hotelPrice = ParsePrice(hotelDto.Price);
+
             return new TravelPackage
             {
                 TravelPackageId = Guid.NewGuid().ToString(),
@@ -59,8 +63,18 @@ namespace GoTorz.Client.Utilities
                 Hotel = MapToModel(hotelDto, arrival, departure),
                 OutboundFlight = MapToModel(outboundDto),
                 ReturnFlight = MapToModel(returnDto),
-                Price = totalPrice
+                Price = flightPrice + hotelPrice // Total
             };
+        }
+
+        private static decimal ParsePrice(string priceStr)
+        {
+            // Eksempel: "435.00 EUR" → 435.00
+            if (string.IsNullOrWhiteSpace(priceStr)) return 0;
+
+            var numeric = new string(priceStr.TakeWhile(c => char.IsDigit(c) || c == '.' || c == ',').ToArray());
+            decimal.TryParse(numeric, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var price);
+            return price;
         }
     }
 }

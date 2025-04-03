@@ -8,24 +8,42 @@ namespace GoTorz.Api.Controllers
     [Route("api/[controller]")]
     public class TravelPackagesController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ITravelPackageService _service;
 
-        public TravelPackagesController(ApplicationDbContext context)
+        public TravelPackagesController(ITravelPackageService service)
         {
-            _context = context;
+            _service = service;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var packages = await _service.GetAllPackagesAsync();
+            return Ok(packages);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(string id)
+        {
+            var package = await _service.GetPackageByIdAsync(id);
+            if (package == null) return NotFound();
+            return Ok(package);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePackage([FromBody] TravelPackage package)
+        public async Task<IActionResult> Post([FromBody] TravelPackage package)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            _context.TravelPackages.Add(package);
-            await _context.SaveChangesAsync();
-
+            await _service.CreatePackageAsync(package);
             return Ok();
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            await _service.DeletePackageAsync(id);
+            return NoContent();
+        }
     }
+
 
 }

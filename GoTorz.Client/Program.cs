@@ -15,6 +15,12 @@ namespace GoTorz.Client
             // Http
             builder.Services.AddScoped(sp => 
                 new HttpClient { BaseAddress = new Uri("https://localhost:7111/") });
+            //travelpackage etc.
+            builder.Services.AddScoped<IHotelService, HotelService>();
+            //builder.Services.AddScoped<IFlightService, FlightService>();
+            //builder.Services.AddScoped<IDestinationService, DestinationService>();
+            //builder.Services.AddScoped<ITravelService, TravelService>();
+
 
             // Authentication & Authorization
             builder.Services.AddScoped<LocalStorage>();

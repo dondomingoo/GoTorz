@@ -1,5 +1,5 @@
 ﻿@using GoTorz.Shared.DTOs
-@inject HttpClient Http
+@inject IHotelService HotelService
 
 <h4 class="mt-5">Hotels</h4>
 
@@ -89,13 +89,9 @@ else if (hotels != null)
 
         loading = true;
 
-
-        string children = string.Join(",", ChildrenAges);
-        string url = $"api/hotels/search-hotels?destId={DestinationId}&checkin={Checkin:yyyy-MM-dd}&checkout={Checkout:yyyy-MM-dd}&adults={Adults}&children={children}&stars={MinStars}";
-
         try
         {
-            hotels = await Http.GetFromJsonAsync<List<HotelDto>>(url);
+            hotels = await HotelService.SearchHotelsAsync(DestinationId, Checkin, Checkout, Adults, ChildrenAges);
         }
         catch (Exception ex)
         {
@@ -104,6 +100,7 @@ else if (hotels != null)
 
         loading = false;
     }
+
 
     private async Task SelectHotel(HotelDto hotel)
     {
