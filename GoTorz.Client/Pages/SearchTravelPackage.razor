@@ -32,7 +32,7 @@
         {
             <li class="package-item">
                 <button class="package-button @(selectedPackageId == package.TravelPackageId ? "selected" : "not-selected")"
-                        @onclick="() => SelectPackage(package.TravelPackageId)">
+                @onclick="() => SelectPackage(package.TravelPackageId)">
                     <strong>@package.Destination</strong> <br />
                     Hotel: @package.Hotel.Name <br />
                     Afrejse: @package.Arrival.ToString("d") <br />
@@ -46,8 +46,8 @@
 
 <div style="margin-top: 10px; display: flex; gap: 15px;">
     <button @onclick="BookSelectedPackage"
-            class="book-btn @(string.IsNullOrEmpty(selectedPackageId) ? "disabled" : "enabled")"
-            disabled="@(string.IsNullOrEmpty(selectedPackageId))">
+    class="book-btn @(string.IsNullOrEmpty(selectedPackageId) ? "disabled" : "enabled")"
+    disabled="@(string.IsNullOrEmpty(selectedPackageId))">
         Book
     </button>
 </div>
@@ -106,6 +106,7 @@
             if (selectedPackageDetails?.TravelPackageId == selectedPackageId)
             {
                 selectedPackageDetails = null; // Luk detaljer, hvis brugeren klikker på samme pakke igen
+                selectedPackageId = null;
             }
             else
             {
@@ -116,6 +117,7 @@
 
     private void CloseDetails()
     {
+        selectedPackageId = null;
         selectedPackageDetails = null;
     }
 
