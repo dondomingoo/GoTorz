@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GoTorz.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitIdentitySchema : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -48,6 +48,40 @@ namespace GoTorz.Api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Flights",
+                columns: table => new
+                {
+                    FlightId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FlightNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Departure = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Destination = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DepartureTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ArrivalTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Flights", x => x.FlightId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Hotels",
+                columns: table => new
+                {
+                    HotelId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Checkin = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Checkout = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Rooms = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Hotels", x => x.HotelId);
                 });
 
             migrationBuilder.CreateTable(
@@ -156,6 +190,76 @@ namespace GoTorz.Api.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "OutboundFlights",
+                columns: table => new
+                {
+                    FlightId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OutboundFlights", x => x.FlightId);
+                    table.ForeignKey(
+                        name: "FK_OutboundFlights_Flights_FlightId",
+                        column: x => x.FlightId,
+                        principalTable: "Flights",
+                        principalColumn: "FlightId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ReturnFlights",
+                columns: table => new
+                {
+                    FlightId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReturnFlights", x => x.FlightId);
+                    table.ForeignKey(
+                        name: "FK_ReturnFlights_Flights_FlightId",
+                        column: x => x.FlightId,
+                        principalTable: "Flights",
+                        principalColumn: "FlightId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TravelPackages",
+                columns: table => new
+                {
+                    TravelPackageId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Destination = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Arrival = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Departure = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Price = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    HotelId = table.Column<int>(type: "int", nullable: false),
+                    OutboundFlightId = table.Column<int>(type: "int", nullable: false),
+                    ReturnFlightId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TravelPackages", x => x.TravelPackageId);
+                    table.ForeignKey(
+                        name: "FK_TravelPackages_Hotels_HotelId",
+                        column: x => x.HotelId,
+                        principalTable: "Hotels",
+                        principalColumn: "HotelId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_TravelPackages_OutboundFlights_OutboundFlightId",
+                        column: x => x.OutboundFlightId,
+                        principalTable: "OutboundFlights",
+                        principalColumn: "FlightId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_TravelPackages_ReturnFlights_ReturnFlightId",
+                        column: x => x.ReturnFlightId,
+                        principalTable: "ReturnFlights",
+                        principalColumn: "FlightId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -194,6 +298,21 @@ namespace GoTorz.Api.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TravelPackages_HotelId",
+                table: "TravelPackages",
+                column: "HotelId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TravelPackages_OutboundFlightId",
+                table: "TravelPackages",
+                column: "OutboundFlightId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TravelPackages_ReturnFlightId",
+                table: "TravelPackages",
+                column: "ReturnFlightId");
         }
 
         /// <inheritdoc />
@@ -215,10 +334,25 @@ namespace GoTorz.Api.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "TravelPackages");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Hotels");
+
+            migrationBuilder.DropTable(
+                name: "OutboundFlights");
+
+            migrationBuilder.DropTable(
+                name: "ReturnFlights");
+
+            migrationBuilder.DropTable(
+                name: "Flights");
         }
     }
 }

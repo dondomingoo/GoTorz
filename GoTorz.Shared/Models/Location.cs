@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace GoTorz.Shared.Models
 {
-    public class OutboundFlight : Flight
+    public class Location
     {
-        
+        public string LocationId { get; set; }
     }
 }

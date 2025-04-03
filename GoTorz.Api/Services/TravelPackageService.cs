@@ -5,49 +5,36 @@ using System.Threading.Tasks;
 
 namespace GoTorz.Api.Services
 {
-    public class TravelPackageService : ITravelPackageService
+public class TravelPackageService : ITravelPackageService
+{
+    private readonly ITravelPackageRepository _repository;
+
+    public TravelPackageService(ITravelPackageRepository repository)
     {
-        // private readonly ITravelPackageRepo _travelPackageRepo; // Will be used when repo is ready
-        private readonly List<TravelPackage> _packages; // Mock data for now
+        _repository = repository;
+    }
 
-        public TravelPackageService()
-        {
-            //_travelPackageRepo = travelPackageRepo; // Uncomment when repo is ready
+    public async Task<List<TravelPackage>> GetAllPackagesAsync()
+    {
+        return await _repository.GetAllAsync();
+    }
 
-            // Mock data for demonstration
-            _packages = new List<TravelPackage>
-        {
-            new TravelPackage
-            {
-                TravelPackageId = "1",
-                Destination = "Paris",
-                Arrival = DateTime.Now.AddDays(5),
-                Departure = DateTime.Now.AddDays(10),
-                price = "500 EUR",
-                Hotel = new Hotel { Name = "Hotel Paris", Rooms = 1 }
-            },
-            new TravelPackage
-            {
-                TravelPackageId = "3",
-                Destination = "Paris",
-                Arrival = DateTime.Now.AddDays(10),
-                Departure = DateTime.Now.AddDays(15),
-                price = "1500 EUR",
-                Hotel = new Hotel { Name = "Hotel Paris", Rooms = 1 }
-            },
-            new TravelPackage
-            {
-                TravelPackageId = "2",
-                Destination = "Berlin",
-                Arrival = DateTime.Now.AddDays(1),
-                Departure = DateTime.Now.AddDays(7),
-                price = "350 EUR",
-                Hotel = new Hotel { Name = "Hotel Berlin", Rooms = 2 }
-            }
-        };
-        }
+    public async Task<TravelPackage?> GetPackageByIdAsync(string id)
+    {
+        return await _repository.GetByIdAsync(id);
+    }
 
+    public async Task CreatePackageAsync(TravelPackage package)
+    {
+        await _repository.AddAsync(package);
+        await _repository.SaveChangesAsync();
+    }
 
+    public async Task DeletePackageAsync(string id)
+    {
+        await _repository.DeleteAsync(id);
+        await _repository.SaveChangesAsync();
+    }
         public async Task<IEnumerable<TravelPackage>> GetAllTravelPackagesAsync()
         {
             // return await _travelPackageRepo.GetAllTravelPackagesAsync(); // Uncomment when repo is ready
@@ -78,4 +65,3 @@ namespace GoTorz.Api.Services
             return await Task.FromResult(packages.ToList());
         }
     }
-}
