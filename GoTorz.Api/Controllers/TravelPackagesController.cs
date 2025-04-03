@@ -1,4 +1,5 @@
 ﻿using GoTorz.Api.Data;
+using GoTorz.Api.Services;
 using GoTorz.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,6 +43,16 @@ namespace GoTorz.Api.Controllers
         {
             await _service.DeletePackageAsync(id);
             return NoContent();
+        }
+        // Search function
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<TravelPackage>>> Search(
+            string? destination = null,
+            DateTime? arrivalDate = null,
+            DateTime? departureDate = null)
+        {
+            var packages = await _service.GetTravelPackagesAsync(destination, arrivalDate, departureDate);
+            return Ok(packages.ToList());
         }
     }
 

@@ -13,6 +13,10 @@ namespace GoTorz.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
+            
+            //service
+            builder.Services.AddScoped<SearchTravelPackageService>();
+
 
             // Http
             builder.Services.AddScoped(sp => 
