@@ -1,5 +1,6 @@
 ﻿@inject HttpClient Http
 @using GoTorz.Shared.DTOs
+@using Microsoft.AspNetCore.Components
 
 <h4 class="mt-5">Flights</h4>
 
@@ -23,7 +24,7 @@ else if (flightResult != null)
     @if (!string.IsNullOrEmpty(flightResult.TotalPrice))
     {
         <div class="mt-3">
-            <h6>Total flight Price :</h6>
+            <h6>Total flight Price:</h6>
             <p class="text-primary fw-bold">@flightResult.TotalPrice</p>
         </div>
     }
@@ -38,28 +39,63 @@ else
     [Parameter] public string ToAirportId { get; set; } = "";
     [Parameter] public DateTime Departure { get; set; }
     [Parameter] public DateTime Return { get; set; }
-    [Parameter] public int Adults { get; set; }
+    [Parameter] public int Adults { get; set; } = 1;
     [Parameter] public List<int> ChildrenAges { get; set; } = new();
+    [Parameter] public EventCallback<FlightSearchResultDto> OnFlightSearchCompleted { get; set; }
 
     private FlightSearchResultDto? flightResult;
     private bool loading = true;
 
+    // Cache for parameter tracking
+    private string? lastFrom;
+    private string? lastTo;
+    private DateTime lastDeparture;
+    private DateTime lastReturn;
+    private string lastChildren = "";
+    private int lastAdults;
+
     protected override async Task OnParametersSetAsync()
     {
+        string currentChildren = string.Join(",", ChildrenAges);
+
+        // Skip fetch if parameters haven’t changed
+        if (FromAirport == lastFrom &&
+            ToAirportId == lastTo &&
+            Departure == lastDeparture &&
+            Return == lastReturn &&
+            Adults == lastAdults &&
+            currentChildren == lastChildren)
+        {
+            return;
+        }
+
+        // Update cached values
+        lastFrom = FromAirport;
+        lastTo = ToAirportId;
+        lastDeparture = Departure;
+        lastReturn = Return;
+        lastAdults = Adults;
+        lastChildren = currentChildren;
+
         loading = true;
 
         string departureDate = Departure.ToString("yyyy-MM-dd");
         string returnDate = Return.ToString("yyyy-MM-dd");
-        string children = string.Join(",", ChildrenAges);
+
+        var apiUrl = $"/api/flightsearch/search-flights" +
+                     $"?fromId={FromAirport}&toId={ToAirportId}" +
+                     $"&departureDate={departureDate}&returnDate={returnDate}" +
+                     $"&adults={Adults}&children={Uri.EscapeDataString(currentChildren)}";
 
         try
         {
-            var apiUrl = $"/api/flightsearch/search-flights" +
-                         $"?fromId={FromAirport}&toId={ToAirportId}" +
-                         $"&departureDate={departureDate}&returnDate={returnDate}" +
-							$"&adults={Adults}&children={Uri.EscapeDataString(children)}"; // Uri.EscapeDataString to encode the comma-separated children ages
+            var result = await Http.GetFromJsonAsync<FlightSearchResultDto>(apiUrl);
 
-            flightResult = await Http.GetFromJsonAsync<FlightSearchResultDto>(apiUrl);
+            if (result != null)
+            {
+                flightResult = result;
+                await OnFlightSearchCompleted.InvokeAsync(result);
+            }
         }
         catch (Exception ex)
         {

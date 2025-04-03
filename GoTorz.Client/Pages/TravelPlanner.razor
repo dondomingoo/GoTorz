@@ -1,5 +1,6 @@
 ﻿@page "/travel"
 @using GoTorz.Client.Components
+@using GoTorz.Client.Utilities
 @using GoTorz.Shared.DTOs
 @inject HttpClient Http
 
@@ -40,7 +41,7 @@
 
 @if (showResults)
 {
-    <HotelSearch DestinationId="@selectedDestination.DestinationId"
+    <HotelSearch DestinationId="@selectedDestination!.DestinationId"
                  Checkin="@CheckinDate"
                  Checkout="@CheckoutDate"
                  Adults="@Adults"
@@ -52,20 +53,27 @@
                   Departure="@CheckinDate"
                   Return="@CheckoutDate"
                   Adults="@Adults"
-                  ChildrenAges="@ChildrenAges" />
+                  ChildrenAges="@ChildrenAges"
+                  OnFlightSearchCompleted="HandleFlightSearchCompleted" />
+}
 
+@if (selectedHotel != null && flightResult != null)
+{
+    <button class="btn btn-success mt-3" @onclick="CreateTravelPackage">Create Travel Package</button>
 }
 
 @code {
     private DestinationDto? selectedDestination;
-	private HotelDto? selectedHotel;
+    private HotelDto? selectedHotel;
+    private FlightSearchResultDto? flightResult;
+
     private DateTime CheckinDate = DateTime.Today.AddDays(7);
     private DateTime CheckoutDate = DateTime.Today.AddDays(14);
     private int Adults = 1;
     private string childrenAgesRaw = "";
     private string FromAirport = "CPH.AIRPORT";
+    private string ToAirportId = "";
     private bool showResults = false;
-	private string ToAirportId = "";
 
     private void HandleDestinationSelected(DestinationDto dest)
     {
@@ -92,11 +100,41 @@
         Console.WriteLine("Hotel selected: " + hotel.Name);
     }
 
-    private List<int> ChildrenAges => string.IsNullOrWhiteSpace(childrenAgesRaw)
-    ? new List<int>()
-    : childrenAgesRaw
-        .Split(",", StringSplitOptions.RemoveEmptyEntries)
-        .Select(a => int.TryParse(a.Trim(), out var age) ? age : 0)
-        .ToList();
+    private void HandleFlightSearchCompleted(FlightSearchResultDto result)
+    {
+        flightResult = result;
+        Console.WriteLine("Flight search completed. Total price: " + result.TotalPrice);
+    }
 
+    private async Task CreateTravelPackage()
+    {
+        if (selectedDestination != null && selectedHotel != null && flightResult != null)
+        {
+            var package = DtoModelMapper.CreateTravelPackage(
+                selectedDestination.Name,
+                CheckinDate,
+                CheckoutDate,
+                selectedHotel,
+                flightResult.OutboundFlight,
+                flightResult.ReturnFlight,
+                flightResult.TotalPrice);
+
+            var response = await Http.PostAsJsonAsync("/api/travelpackages", package);
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Package created successfully!");
+            }
+            else
+            {
+                Console.WriteLine("Failed to create travel package.");
+            }
+        }
+    }
+
+    private List<int> ChildrenAges => string.IsNullOrWhiteSpace(childrenAgesRaw)
+        ? new List<int>()
+        : childrenAgesRaw
+            .Split(",", StringSplitOptions.RemoveEmptyEntries)
+            .Select(a => int.TryParse(a.Trim(), out var age) ? age : 0)
+            .ToList();
 }

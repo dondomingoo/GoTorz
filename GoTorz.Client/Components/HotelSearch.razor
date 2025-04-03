@@ -23,7 +23,7 @@ else if (selectedHotel != null)
         </div>
     </div>
 
-    <button class="btn btn-success mt-3">Create Travel Package</button>
+    
 }
 else if (hotels?.Count == 0)
 {
@@ -74,10 +74,21 @@ else if (hotels != null)
     private List<HotelDto>? hotels;
     private bool loading = true;
     private HotelDto? selectedHotel;
+    private string? lastDestId;
+    private DateTime lastCheckin;
+    private DateTime lastCheckout;
 
     protected override async Task OnParametersSetAsync()
     {
+        if (DestinationId == lastDestId && Checkin == lastCheckin && Checkout == lastCheckout)
+            return;
+
+        lastDestId = DestinationId;
+        lastCheckin = Checkin;
+        lastCheckout = Checkout;
+
         loading = true;
+
 
         string children = string.Join(",", ChildrenAges);
         string url = $"api/hotels/search-hotels?destId={DestinationId}&checkin={Checkin:yyyy-MM-dd}&checkout={Checkout:yyyy-MM-dd}&adults={Adults}&children={children}&stars={MinStars}";
