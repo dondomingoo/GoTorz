@@ -1,6 +1,11 @@
 ﻿using GoTorz.Shared.DTOs;
 
-public interface IHotelService
+namespace GoTorz.Client.Services.Interfaces
 {
-    Task<List<HotelDto>> SearchHotelsAsync(string destId, DateTime checkin, DateTime checkout, int adults, List<int> children);
+
+    public interface IHotelService
+    {
+        Task<List<HotelDto>> SearchHotelsAsync(string destId, DateTime checkin, DateTime checkout, int adults, List<int> children);
+    }
+
 }

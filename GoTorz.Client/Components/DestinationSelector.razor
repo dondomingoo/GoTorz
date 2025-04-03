@@ -1,5 +1,6 @@
-﻿@inject HttpClient Http
-@using GoTorz.Shared.DTOs
+﻿@using GoTorz.Shared.DTOs
+@using GoTorz.Client.Services.Interfaces
+@inject IDestinationService DestinationService
 
 <div class="mb-3">
     <input @bind="searchQuery" class="form-control" placeholder="Search for a destination..." />
@@ -31,10 +32,7 @@
 
     private async Task SearchDestinations()
     {
-        if (string.IsNullOrWhiteSpace(searchQuery))
-            return;
-
-        destinations = await Http.GetFromJsonAsync<List<DestinationDto>>($"/api/destination?query={searchQuery}");
-
+        if (string.IsNullOrWhiteSpace(searchQuery)) return;
+        destinations = await DestinationService.SearchDestinationsAsync(searchQuery);
     }
 }

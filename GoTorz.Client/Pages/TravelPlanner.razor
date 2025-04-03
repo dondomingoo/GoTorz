@@ -1,8 +1,9 @@
 ﻿@page "/travel"
 @using GoTorz.Client.Components
 @using GoTorz.Client.Utilities
+@using GoTorz.Client.Services.Interfaces
 @using GoTorz.Shared.DTOs
-@inject HttpClient Http
+@inject ITravelService TravelService
 
 <h3>Plan Your Trip</h3>
 
@@ -119,15 +120,12 @@
                 flightResult.ReturnFlight,
                 flightResult.TotalPrice);
 
-            var response = await Http.PostAsJsonAsync("/api/travelpackages", package);
-            if (response.IsSuccessStatusCode)
-            {
+            var success = await TravelService.CreateTravelPackageAsync(package);
+
+            if (success)
                 Console.WriteLine("Package created successfully!");
-            }
             else
-            {
                 Console.WriteLine("Failed to create travel package.");
-            }
         }
     }
 

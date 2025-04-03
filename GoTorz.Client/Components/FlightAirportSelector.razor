@@ -1,5 +1,6 @@
-﻿@inject HttpClient Http
-@using Shared.DTOs
+﻿@inject IFlightDestinationService FlightDestinationService
+@using GoTorz.Client.Services.Interfaces
+@using GoTorz.Shared.DTOs
 
 @if (airportOptions == null)
 {
@@ -49,13 +50,12 @@ else
 
         try
         {
-            airportOptions = await Http.GetFromJsonAsync<List<FlightDestinationDto>>(
-                $"/api/Flights/search-flight-destinations?query={Query}");
+            airportOptions = await FlightDestinationService.SearchFlightDestinationsAsync(Query);
 
-            // Kun auto-vælg hvis brugeren endnu ikke har valgt noget
+            // Auto-select kun hvis ikke allerede valgt
             if (airportOptions?.Any() == true && string.IsNullOrEmpty(SelectedAirportId))
             {
-                SelectedAirportId = ""; // Lad brugeren selv vælge
+                SelectedAirportId = ""; // Lader brugeren vælge selv
             }
         }
         catch (Exception ex)

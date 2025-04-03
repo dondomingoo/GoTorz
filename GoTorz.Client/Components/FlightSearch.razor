@@ -1,6 +1,6 @@
-﻿@inject HttpClient Http
+﻿@using GoTorz.Client.Services.Interfaces
 @using GoTorz.Shared.DTOs
-@using Microsoft.AspNetCore.Components
+@inject IFlightService FlightService
 
 <h4 class="mt-5">Flights</h4>
 
@@ -46,7 +46,7 @@ else
     private FlightSearchResultDto? flightResult;
     private bool loading = true;
 
-    // Cache for parameter tracking
+    // Cache til at undgå unødvendige kald
     private string? lastFrom;
     private string? lastTo;
     private DateTime lastDeparture;
@@ -58,7 +58,6 @@ else
     {
         string currentChildren = string.Join(",", ChildrenAges);
 
-        // Skip fetch if parameters haven’t changed
         if (FromAirport == lastFrom &&
             ToAirportId == lastTo &&
             Departure == lastDeparture &&
@@ -69,7 +68,6 @@ else
             return;
         }
 
-        // Update cached values
         lastFrom = FromAirport;
         lastTo = ToAirportId;
         lastDeparture = Departure;
@@ -79,17 +77,9 @@ else
 
         loading = true;
 
-        string departureDate = Departure.ToString("yyyy-MM-dd");
-        string returnDate = Return.ToString("yyyy-MM-dd");
-
-        var apiUrl = $"/api/flightsearch/search-flights" +
-                     $"?fromId={FromAirport}&toId={ToAirportId}" +
-                     $"&departureDate={departureDate}&returnDate={returnDate}" +
-                     $"&adults={Adults}&children={Uri.EscapeDataString(currentChildren)}";
-
         try
         {
-            var result = await Http.GetFromJsonAsync<FlightSearchResultDto>(apiUrl);
+            var result = await FlightService.SearchFlightsAsync(FromAirport, ToAirportId, Departure, Return, Adults, ChildrenAges);
 
             if (result != null)
             {
@@ -99,7 +89,7 @@ else
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Flight error: " + ex.Message);
+            Console.WriteLine("FlightSearch error: " + ex.Message);
         }
 
         loading = false;
