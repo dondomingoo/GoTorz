@@ -1,4 +1,8 @@
-﻿<div class="row">
+﻿@page "/travelpackage"
+@inject HttpClient HttpClient
+@using GoTorz.Shared.Models
+
+<div class="row">
     <!-- Left side: List of Travel Packages -->
     <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8">
         <div class="row">
@@ -20,7 +24,7 @@
                                     Arrival: @travelPackage.Arrival.ToString("MM/dd/yyyy")<br />
                                     Departure: @travelPackage.Departure.ToString("MM/dd/yyyy")
                                 </p>
-                                <a href="/travelpackage" @onclick="() => GetDetails(int.Parse(travelPackage.TravelPackageId))">More...</a>
+                                <a href="/travelpackage" @onclick="() => GetDetails(travelPackage.TravelPackageId)">More...</a>
                             </div>
                         </div>
                     </div>
@@ -82,20 +86,16 @@
                 </div>
                 <div class="form-group">
                     <label for="outboundFlightDestination">Outbound Flight Destination</label>
-                    <InputText id="outboundFlightDeparture" @bind-Value="SelectedPackage.OutboundFlight.Destination" class="form-control" />
+                    <InputText id="outboundFlightDestination" @bind-Value="SelectedPackage.OutboundFlight.Destination" class="form-control" />
                 </div>
-
                 <div class="form-group">
                     <label for="returnFlightDeparture">Return Flight Departure</label>
                     <InputText id="returnFlightDeparture" @bind-Value="SelectedPackage.ReturnFlight.Departure" class="form-control" />
                 </div>
                 <div class="form-group">
                     <label for="returnFlightDestination">Return Flight Destination</label>
-                    <InputText id="returnFlightDeparture" @bind-Value="SelectedPackage.ReturnFlight.Destination" class="form-control" />
+                    <InputText id="returnFlightDestination" @bind-Value="SelectedPackage.ReturnFlight.Destination" class="form-control" />
                 </div>
-
-
-
                 <div class="form-group">
                     <label for="outboundFlightAirline">Outbound Flight Airline</label>
                     <InputText id="outboundFlightAirline" @bind-Value="SelectedPackage.OutboundFlight.Airline" class="form-control" />
@@ -133,10 +133,6 @@
     </div>
 </div>
 
-
-@page "/travelpackage"
-@inject HttpClient HttpClient
-@using GoTorz.Shared.Models
 @code {
     private List<TravelPackage> TravelPackages = new();
     private TravelPackage SelectedPackage;
@@ -147,51 +143,49 @@
         TravelPackages = await GetTravelPackages();
     }
 
-    async Task GetDetails(int id)
+    async Task GetDetails(string id)
     {
         SelectedPackage = await HttpClient.GetFromJsonAsync<TravelPackage>($"api/TravelPackage/{id}");
+        IsCreating = false;
     }
 
     async Task HandleValidSubmit()
     {
-        Console.WriteLine("HandleValidSubmit called");
         HttpResponseMessage response;
+
         if (IsCreating)
         {
             response = await HttpClient.PostAsJsonAsync("api/TravelPackage", SelectedPackage);
         }
         else
         {
-            response = await HttpClient.PutAsJsonAsync($"api/TravelPackage/{SelectedPackage.TravelPackageId}", SelectedPackage);
+            response = await HttpClient.PutAsJsonAsync("api/TravelPackage", SelectedPackage);
         }
 
         if (response.IsSuccessStatusCode)
         {
-            Console.WriteLine("Response is successful");
-            // Refresh list to include the newly created item
             TravelPackages = await GetTravelPackages();
-            SelectedPackage = null; // Clear the selected package
+            SelectedPackage = null;
             IsCreating = false;
-            StateHasChanged(); // Trigger UI update
+            StateHasChanged();
         }
         else
         {
-            Console.WriteLine($"Response failed with status code: {response.StatusCode}");
             var errorContent = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"Error content: {errorContent}");
+            Console.WriteLine($"Error: {errorContent}");
         }
     }
 
-
     async Task DeletePackage()
     {
-        int idToDelete = 0;
-        if (int.TryParse(SelectedPackage.TravelPackageId, out idToDelete))
+        if (!string.IsNullOrWhiteSpace(SelectedPackage?.TravelPackageId))
         {
-            var response = await HttpClient.DeleteAsync($"api/TravelPackage/{idToDelete}");
+            var response = await HttpClient.DeleteAsync($"api/TravelPackage/{SelectedPackage.TravelPackageId}");
             if (response.IsSuccessStatusCode)
             {
                 TravelPackages = await GetTravelPackages();
+                SelectedPackage = null;
+                StateHasChanged();
             }
         }
         else
@@ -204,15 +198,14 @@
     {
         try
         {
-            return await HttpClient.GetFromJsonAsync<List<TravelPackage>>("api/TravelPackage/List");
+            return await HttpClient.GetFromJsonAsync<List<TravelPackage>>("api/TravelPackage/List") ?? new();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error fetching travel packages: {ex.Message}");
-            return new List<TravelPackage>();
+            Console.WriteLine($"Failed to fetch travel packages: {ex.Message}");
+            return new();
         }
     }
-
 
     void ShowCreate()
     {

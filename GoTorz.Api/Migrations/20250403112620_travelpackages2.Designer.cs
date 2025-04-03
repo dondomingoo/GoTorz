@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GoTorz.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250401105433_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250403112620_travelpackages2")]
+    partial class travelpackages2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,115 @@ namespace GoTorz.Api.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("GoTorz.Shared.Models.Flight", b =>
+                {
+                    b.Property<int>("FlightId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FlightId"));
+
+                    b.Property<DateTime>("ArrivalTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Departure")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DepartureTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Destination")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(21)
+                        .HasColumnType("nvarchar(21)");
+
+                    b.Property<string>("FlightNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("FlightId");
+
+                    b.ToTable("Flights");
+
+                    b.HasDiscriminator().HasValue("Flight");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("GoTorz.Shared.Models.Hotel", b =>
+                {
+                    b.Property<int>("HotelId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HotelId"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Checkin")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Checkout")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Rooms")
+                        .HasColumnType("int");
+
+                    b.HasKey("HotelId");
+
+                    b.ToTable("Hotels");
+                });
+
+            modelBuilder.Entity("GoTorz.Shared.Models.TravelPackage", b =>
+                {
+                    b.Property<string>("TravelPackageId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("Arrival")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Departure")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Destination")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("HotelId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OutboundFlightFlightId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReturnFlightFlightId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("price")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("TravelPackageId");
+
+                    b.HasIndex("HotelId");
+
+                    b.HasIndex("OutboundFlightFlightId");
+
+                    b.HasIndex("ReturnFlightFlightId");
+
+                    b.ToTable("TravelPackages");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -221,6 +330,61 @@ namespace GoTorz.Api.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("GoTorz.Shared.Models.OutboundFlight", b =>
+                {
+                    b.HasBaseType("GoTorz.Shared.Models.Flight");
+
+                    b.Property<string>("Airline")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasDiscriminator().HasValue("OutboundFlight");
+                });
+
+            modelBuilder.Entity("GoTorz.Shared.Models.ReturnFlight", b =>
+                {
+                    b.HasBaseType("GoTorz.Shared.Models.Flight");
+
+                    b.Property<string>("Airline")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("Flights", t =>
+                        {
+                            t.Property("Airline")
+                                .HasColumnName("ReturnFlight_Airline");
+                        });
+
+                    b.HasDiscriminator().HasValue("ReturnFlight");
+                });
+
+            modelBuilder.Entity("GoTorz.Shared.Models.TravelPackage", b =>
+                {
+                    b.HasOne("GoTorz.Shared.Models.Hotel", "Hotel")
+                        .WithMany()
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GoTorz.Shared.Models.OutboundFlight", "OutboundFlight")
+                        .WithMany()
+                        .HasForeignKey("OutboundFlightFlightId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GoTorz.Shared.Models.ReturnFlight", "ReturnFlight")
+                        .WithMany()
+                        .HasForeignKey("ReturnFlightFlightId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Hotel");
+
+                    b.Navigation("OutboundFlight");
+
+                    b.Navigation("ReturnFlight");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

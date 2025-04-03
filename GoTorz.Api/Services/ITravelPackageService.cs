@@ -6,5 +6,10 @@ namespace GoTorz.Api.Services
     {
         Task<IEnumerable<TravelPackage>> GetAllTravelPackagesAsync();
         Task<IEnumerable<TravelPackage>> GetTravelPackagesAsync(string? destination, DateTime? arrivalDate, DateTime? departureDate);
+        Task<TravelPackage?> GetByIdAsync(string id);
+        Task<TravelPackage> CreateAsync(TravelPackage travelPackage);
+        Task<bool> UpdateAsync(TravelPackage travelPackage);
+        Task<bool> DeleteAsync(string id);
     }
+
 }

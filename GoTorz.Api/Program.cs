@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using GoTorz.Shared.Models;
+using GoTorz.Api.Repositories;
 
 namespace GoTorz.Api
 {
@@ -15,16 +17,22 @@ namespace GoTorz.Api
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddScoped<ITravelPackageService, TravelPackageService>();
 
             // DbContext
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            // TravelPackage Repository and Service
+            builder.Services.AddScoped<TravelPackageRepository>();
+            builder.Services.AddScoped<ITravelPackageService, TravelPackageService>();
+
+
             // Identity
             builder.Services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-           
+
             builder.Services.Configure<IdentityOptions>(options => // CHANGE LATER - We can delete this if we want defaults
             {
                 options.Password.RequireDigit = false;             // Default true
@@ -34,7 +42,7 @@ namespace GoTorz.Api
                 options.Password.RequireLowercase = false;         // Default true
                 options.Password.RequiredUniqueChars = 0;          // Default 1
             });
-        
+
             // Authentication (Jwt)
             builder.Services.AddAuthentication(options => // "When someone makes a request and the controller says [Authorize], try to find a JWT in the request and validate it."
             {
@@ -55,15 +63,15 @@ namespace GoTorz.Api
                             System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!))
                     };
                 });
-                      
+
             // Configuration binding (JWT)
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
             // Authorization
             builder.Services.AddAuthorization();
-          
+
             // Controllers & Swagger
-            builder.Services.AddControllers();          
+            builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -77,7 +85,7 @@ namespace GoTorz.Api
                           .AllowAnyMethod();
                 });
             });
-            
+
             // TokenService
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ITravelPackageService, TravelPackageService>();
