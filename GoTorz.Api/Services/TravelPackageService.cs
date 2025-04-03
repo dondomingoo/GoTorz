@@ -5,47 +5,41 @@ using System.Threading.Tasks;
 
 namespace GoTorz.Api.Services
 {
-public class TravelPackageService : ITravelPackageService
-{
-    private readonly ITravelPackageRepository _repository;
-
-    public TravelPackageService(ITravelPackageRepository repository)
+    public class TravelPackageService : ITravelPackageService
     {
-        _repository = repository;
-    }
+        private readonly ITravelPackageRepository _repository;
 
-    public async Task<List<TravelPackage>> GetAllPackagesAsync()
-    {
-        return await _repository.GetAllAsync();
-    }
-
-    public async Task<TravelPackage?> GetPackageByIdAsync(string id)
-    {
-        return await _repository.GetByIdAsync(id);
-    }
-
-    public async Task CreatePackageAsync(TravelPackage package)
-    {
-        await _repository.AddAsync(package);
-        await _repository.SaveChangesAsync();
-    }
-
-    public async Task DeletePackageAsync(string id)
-    {
-        await _repository.DeleteAsync(id);
-        await _repository.SaveChangesAsync();
-    }
-        public async Task<IEnumerable<TravelPackage>> GetAllTravelPackagesAsync()
+        public TravelPackageService(ITravelPackageRepository repository)
         {
-            // return await _travelPackageRepo.GetAllTravelPackagesAsync(); // Uncomment when repo is ready
-            return await Task.FromResult(_packages);
+            _repository = repository;
+        }
+
+        public async Task<List<TravelPackage>> GetAllPackagesAsync()
+        {
+            return await _repository.GetAllAsync();
+        }
+
+        public async Task<TravelPackage?> GetPackageByIdAsync(string id)
+        {
+            return await _repository.GetByIdAsync(id);
+        }
+
+        public async Task CreatePackageAsync(TravelPackage package)
+        {
+            await _repository.AddAsync(package);
+            await _repository.SaveChangesAsync();
+        }
+
+        public async Task DeletePackageAsync(string id)
+        {
+            await _repository.DeleteAsync(id);
+            await _repository.SaveChangesAsync();
         }
 
         // Searches for travel packages based on filters
         public async Task<IEnumerable<TravelPackage>> GetTravelPackagesAsync(string? destination, DateTime? arrivalDate, DateTime? departureDate)
         {
-            // var packages = await _travelPackageRepo.GetTravelPackagesAsync(destination, arrivalDate, departureDate); // Uncomment when repo is ready
-            var packages = _packages.AsQueryable(); // Use mock data 
+            var packages = (await _repository.GetAllAsync()).AsQueryable(); 
 
             if (!string.IsNullOrEmpty(destination))
             {
@@ -65,3 +59,4 @@ public class TravelPackageService : ITravelPackageService
             return await Task.FromResult(packages.ToList());
         }
     }
+}

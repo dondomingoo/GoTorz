@@ -18,6 +18,6 @@ public class SearchTravelPackageService : ISearchTravelPackageService
     public async Task<List<TravelPackage>> GetTravelPackagesAsync(string? destination, DateTime? arrivalDate, DateTime? departureDate)
     {
         string query = $"?destination={destination}&arrivalDate={arrivalDate?.ToString("yyyy-MM-dd")}&departureDate={departureDate?.ToString("yyyy-MM-dd")}";
-        return await _httpClient.GetFromJsonAsync<List<TravelPackage>>($"api/travelpackage{query}");
+        return await _httpClient.GetFromJsonAsync<List<TravelPackage>>($"api/travelpackages/search{query}");
     }
 }
