@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿using GoTorz.Shared.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -5,6 +6,13 @@ using GoTorz.Api.Data;
 using GoTorz.Api.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+=======
+﻿using Microsoft.AspNetCore.Mvc;
+using GoTorz.Shared.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using GoTorz.Api.Services;
+>>>>>>> Marlen
 
 namespace GoTorz.Api.Controllers
 {
@@ -12,6 +20,7 @@ namespace GoTorz.Api.Controllers
     [ApiController]
     public class TravelPackageController : ControllerBase
     {
+<<<<<<< HEAD
         private readonly ApplicationDbContext _context;
 
         public TravelPackageController (ApplicationDbContext context)
@@ -156,5 +165,33 @@ namespace GoTorz.Api.Controllers
             return NotFound("Travel package not found.");
         }
 
+=======
+        private readonly ITravelPackageService _travelPackageService;
+
+        public TravelPackageController(ITravelPackageService travelPackageService)
+        {
+            _travelPackageService = travelPackageService;
+            GetAll();
+        }
+
+        // Loads all travel packages initially when opening the page
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TravelPackage>>> GetAll()
+        {
+            var packages = await _travelPackageService.GetAllTravelPackagesAsync();
+            return Ok(packages.ToList());
+        }
+
+        // Search function
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<TravelPackage>>> Search(
+            string? destination = null,
+            DateTime? arrivalDate = null,
+            DateTime? departureDate = null)
+        {
+            var packages = await _travelPackageService.GetTravelPackagesAsync(destination, arrivalDate, departureDate);
+            return Ok(packages.ToList());
+        }
+>>>>>>> Marlen
     }
 }
