@@ -51,6 +51,8 @@ public class ApplicationDbContext : IdentityDbContext
               .WithMany()
               .HasForeignKey(t => t.ReturnFlightId)
               .OnDelete(DeleteBehavior.Restrict);
+
+            tp.ToTable("TravelPackages");
         });
 
         base.OnModelCreating(modelBuilder);
