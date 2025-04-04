@@ -1,0 +1,31 @@
+﻿@code {
+    [Parameter] public EventCallback<(string, DateTime?, DateTime?)> OnSearch { get; set; }
+
+    private string destination;
+    private DateTime? arrivalDate;
+    private DateTime? departureDate;
+
+    private async Task Search()
+    {
+        await OnSearch.InvokeAsync((destination, arrivalDate, departureDate));
+    }
+}
+
+<div class="search-container">
+    <div class="input-group">
+        <label for="destination">Destination:</label>
+        <input id="destination" @bind="destination" class="input-field" />
+    </div>
+
+    <div class="input-group">
+        <label for="arrivalDate">Tur:</label>
+        <input id="arrivalDate" type="date" @bind="arrivalDate" class="input-field" />
+    </div>
+
+    <div class="input-group">
+        <label for="departureDate">Retur:</label>
+        <input id="departureDate" type="date" @bind="departureDate" class="input-field" />
+    </div>
+
+    <button class="search-btn" @onclick="Search">Søg</button>
+</div>
