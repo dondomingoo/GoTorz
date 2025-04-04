@@ -1,5 +1,6 @@
 using GoTorz.Api.Data;
 using GoTorz.Api.Services;
+using GoTorz.Api.Services.Auth;
 using GoTorz.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;

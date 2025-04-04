@@ -1,7 +1,7 @@
 ﻿using GoTorz.Shared.Auth;
 using Microsoft.AspNetCore.Identity;
 
-namespace GoTorz.Api.Services
+namespace GoTorz.Api.Services.Auth
 {
     /// <summary>
     /// Handles user authentication and registration logic.

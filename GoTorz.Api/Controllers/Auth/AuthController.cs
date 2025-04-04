@@ -1,4 +1,4 @@
-﻿using GoTorz.Api.Services;
+﻿using GoTorz.Api.Services.Auth;
 using GoTorz.Shared.Auth;
 using Microsoft.AspNetCore.Mvc;
 

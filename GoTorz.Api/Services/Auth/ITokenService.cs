@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace GoTorz.Api.Services
+namespace GoTorz.Api.Services.Auth
 {
     public interface ITokenService
     {
