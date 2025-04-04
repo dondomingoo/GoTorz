@@ -1,5 +1,6 @@
 using GoTorz.Api.Data;
 using GoTorz.Api.Services;
+using GoTorz.Api.Services.Auth;
 using GoTorz.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -85,6 +86,9 @@ namespace GoTorz.Api
             // TokenService
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ITravelPackageService, TravelPackageService>();
+
+            // AuthService
+            builder.Services.AddScoped<IAuthService, AuthService>();
 
 
             var app = builder.Build();

@@ -6,7 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 /// Service responsible for handling Authentication-related operations in the Blazor Client.
 /// Communicates with the backend AuthController and manages JWT tokens in LocalStorage.
 /// </summary>
-public class AuthService
+public class ClientAuthService
 {
     private readonly HttpClient _http;                              // Used to send HTTP requests to the API (login, register, etc.)
     private readonly LocalStorage _localStorage;                    // Used to store/retrieve JWT + Email in/from the browser's localStorage
@@ -15,7 +15,7 @@ public class AuthService
     public string JwtToken { get; private set; } = string.Empty;    // Holds the JWT token after login
     public string Email { get; private set; } = string.Empty;       // Holds the user's email after login
 
-    public AuthService(HttpClient http, LocalStorage localStorage, CustomAuthStateProvider authStateProvider)
+    public ClientAuthService(HttpClient http, LocalStorage localStorage, CustomAuthStateProvider authStateProvider)
     {
         _http = http;
         _localStorage = localStorage;

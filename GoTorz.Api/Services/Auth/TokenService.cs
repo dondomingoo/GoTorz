@@ -6,7 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace GoTorz.Api.Services
+namespace GoTorz.Api.Services.Auth
 {
     public class TokenService : ITokenService
     {
