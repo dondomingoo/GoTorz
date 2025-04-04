@@ -1,0 +1,30 @@
+﻿@code {
+    [Parameter] public GoTorz.Shared.Models.TravelPackage Package { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private async Task CloseDetails()
+    {
+        await OnClose.InvokeAsync();
+    }
+}
+
+@if (Package != null)
+{
+    <div class="details-box">
+        <h4>Hotel</h4>
+        <div class="details-grid">
+            <p><strong>Navn:</strong> @Package.Hotel.Name</p>
+            <p><strong>Antal Værelser:</strong> @Package.Hotel.Rooms</p>
+        </div>
+
+        <h4>Fly</h4>
+        <div class="details-grid">
+            <p><strong>Afrejse:</strong> @Package.Departure.ToString("g")</p>
+            <p><strong>Ankomst:</strong> @Package.Arrival.ToString("g")</p>
+            <p><strong>Afgangsfly:</strong> @Package.OutboundFlight</p>
+            <p><strong>Returfly:</strong> @Package.ReturnFlight</p>
+        </div>
+
+        <button class="close-btn" @onclick="CloseDetails">Luk</button>
+    </div>
+}

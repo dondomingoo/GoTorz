@@ -1,0 +1,31 @@
+﻿@code {
+    [Parameter] public List<GoTorz.Shared.Models.TravelPackage> Packages { get; set; }
+    [Parameter] public EventCallback<string> OnPackageSelected { get; set; }
+
+    private string selectedPackageId;
+
+    private async Task SelectPackage(string packageId)
+    {
+        selectedPackageId = packageId;
+        await OnPackageSelected.InvokeAsync(packageId);
+    }
+}
+
+@if (Packages != null)
+{
+    <ul class="package-list">
+        @foreach (var package in Packages)
+        {
+            <li class="package-item">
+                <button class="package-button @(selectedPackageId == package.TravelPackageId ? "selected" : "not-selected")"
+                        @onclick="() => SelectPackage(package.TravelPackageId)">
+                    <strong>@package.Destination</strong> <br />
+                    Hotel: @package.Hotel.Name <br />
+                    Afrejse: @package.Arrival.ToString("d") <br />
+                    Hjemrejse: @package.Departure.ToString("d") <br />
+                    Pris: @package.Price DKK
+                </button>
+            </li>
+        }
+    </ul>
+}

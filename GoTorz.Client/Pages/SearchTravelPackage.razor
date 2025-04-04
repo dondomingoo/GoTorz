@@ -1,86 +1,29 @@
 ﻿@page "/search"
 @inject SearchTravelPackageService SearchService
 @inject NavigationManager Navigation
+@using GoTorz.Client.Components
 
 <link rel="stylesheet" href="css/search.css" />
 
 <h3 class="page-header">Søg efter rejsepakker</h3>
 
-<div class="search-container">
-    <div class="input-group">
-        <label for="destination">Destination:</label>
-        <input id="destination" @bind="destination" class="input-field" />
-    </div>
+<SearchForm OnSearch="HandleSearch" />
 
-    <div class="input-group">
-        <label for="arrivalDate">Tur:</label>
-        <input id="arrivalDate" type="date" @bind="arrivalDate" class="input-field" />
-    </div>
-
-    <div class="input-group">
-        <label for="departureDate">Retur:</label>
-        <input id="departureDate" type="date" @bind="departureDate" class="input-field" />
-    </div>
-
-    <button class="search-btn" @onclick="SearchPackages">Søg</button>
-</div>
-
-@if (travelPackages != null)
-{
-    <ul class="package-list">
-        @foreach (var package in travelPackages)
-        {
-            <li class="package-item">
-                <button class="package-button @(selectedPackageId == package.TravelPackageId ? "selected" : "not-selected")"
-                @onclick="() => SelectPackage(package.TravelPackageId)">
-                    <strong>@package.Destination</strong> <br />
-                    Hotel: @package.Hotel.Name <br />
-                    Afrejse: @package.Arrival.ToString("d") <br />
-                    Hjemrejse: @package.Departure.ToString("d") <br />
-                    Pris: @package.Price DKK
-                </button>
-            </li>
-        }
-    </ul>
-}
+<TravelPackageList Packages="travelPackages" OnPackageSelected="HandlePackageSelection" />
 
 <div style="margin-top: 10px; display: flex; gap: 15px;">
     <button @onclick="BookSelectedPackage"
-    class="book-btn @(string.IsNullOrEmpty(selectedPackageId) ? "disabled" : "enabled")"
-    disabled="@(string.IsNullOrEmpty(selectedPackageId))">
+        class="book-btn @(string.IsNullOrEmpty(selectedPackageId) ? "disabled" : "enabled")"
+        disabled="@(string.IsNullOrEmpty(selectedPackageId))">
         Book
     </button>
 </div>
 
-@if (selectedPackageDetails != null)
-{
-    <div class="details-box">
-        <h4>Hotel</h4>
-        <div class="details-grid">
-            <p><strong>Navn:</strong> @selectedPackageDetails.Hotel.Name</p>
-            <p><strong>Antal Værelser:</strong> @selectedPackageDetails.Hotel.Rooms</p>
-        </div>
-
-        <h4>Fly</h4>
-        <div class="details-grid">
-            <p><strong>Afrejse:</strong> @selectedPackageDetails.Departure.ToString("g")</p>
-            <p><strong>Ankomst:</strong> @selectedPackageDetails.Arrival.ToString("g")</p>
-            <p><strong>Afgangsfly:</strong> @selectedPackageDetails.OutboundFlight</p>
-            <p><strong>Returfly:</strong> @selectedPackageDetails.ReturnFlight</p>
-        </div>
-
-        <button class="book-btn enabled" @onclick="BookSelectedPackage">Book</button>
-        <button class="close-btn" @onclick="CloseDetails">Luk</button>
-    </div>
-}
+<TravelPackageDetails Package="selectedPackageDetails" OnClose="CloseDetails" />
 
 @code {
-    private string destination;
-    private DateTime? arrivalDate;
-    private DateTime? departureDate;
-    private List<GoTorz.Shared.Models.TravelPackage> travelPackages;
-    private List<GoTorz.Shared.Models.TravelPackage> allTravelPackages;
-    private string selectedPackageId = "";
+    private List<GoTorz.Shared.Models.TravelPackage> travelPackages = new();
+    private string selectedPackageId;
     private GoTorz.Shared.Models.TravelPackage selectedPackageDetails;
 
     protected override async Task OnInitializedAsync()
@@ -90,29 +33,18 @@
 
     private async Task LoadAllPackages()
     {
-        allTravelPackages = await SearchService.GetTravelPackagesAsync(null, null, null);
-        travelPackages = new List<GoTorz.Shared.Models.TravelPackage>(allTravelPackages);
+        travelPackages = await SearchService.GetTravelPackagesAsync(null, null, null);
     }
 
-    private async Task SearchPackages()
+    private async Task HandleSearch((string destination, DateTime? arrivalDate, DateTime? departureDate) searchParams)
     {
-        travelPackages = await SearchService.GetTravelPackagesAsync(destination, arrivalDate, departureDate);
+        travelPackages = await SearchService.GetTravelPackagesAsync(searchParams.destination, searchParams.arrivalDate, searchParams.departureDate);
     }
 
-    private void ShowDetails()
+    private void HandlePackageSelection(string packageId)
     {
-        if (!string.IsNullOrEmpty(selectedPackageId))
-        {
-            if (selectedPackageDetails?.TravelPackageId == selectedPackageId)
-            {
-                selectedPackageDetails = null; // Luk detaljer, hvis brugeren klikker på samme pakke igen
-                selectedPackageId = null;
-            }
-            else
-            {
-                selectedPackageDetails = travelPackages.FirstOrDefault(p => p.TravelPackageId == selectedPackageId);
-            }
-        }
+        selectedPackageId = packageId;
+        selectedPackageDetails = travelPackages.FirstOrDefault(p => p.TravelPackageId == selectedPackageId);
     }
 
     private void CloseDetails()
@@ -128,12 +60,4 @@
             Navigation.NavigateTo($"/register?packageId={selectedPackageId}");
         }
     }
-
-    private void SelectPackage(string packageId)
-    {
-        selectedPackageId = packageId;
-        ShowDetails();
-    }
 }
-
-
