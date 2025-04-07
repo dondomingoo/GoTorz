@@ -15,7 +15,7 @@ namespace GoTorz.Client
             builder.RootComponents.Add<HeadOutlet>("head::after");
             
             //service
-            builder.Services.AddScoped<SearchTravelPackageService>();
+            builder.Services.AddScoped<ISearchTravelPackageService, SearchTravelPackageService>();
 
 
             // Http
