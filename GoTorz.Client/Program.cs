@@ -1,4 +1,5 @@
 using GoTorz.Client.Services;
+using GoTorz.Client.Services.Helpers;
 using GoTorz.Client.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -27,6 +28,7 @@ namespace GoTorz.Client
             builder.Services.AddScoped<IDestinationService, DestinationService>();
             builder.Services.AddScoped<ITravelService, TravelService>();
             builder.Services.AddScoped<IFlightDestinationService, FlightDestinationService>();
+            builder.Services.AddScoped<TravelPriceCalculator>();
 
 
 

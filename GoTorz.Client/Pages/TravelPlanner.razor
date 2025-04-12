@@ -1,9 +1,12 @@
 ﻿@page "/travel"
 @using GoTorz.Client.Components
+@using GoTorz.Client.Services.Helpers
 @using GoTorz.Client.Utilities
 @using GoTorz.Client.Services.Interfaces
 @using GoTorz.Shared.DTOs
 @inject ITravelService TravelService
+@inject TravelPriceCalculator PriceCalculator
+
 
 <h3>Plan Your Trip</h3>
 
@@ -34,7 +37,7 @@
         </select>
 
         <FlightAirportSelector Query="@selectedDestination.Name"
-                               OnAirportSelected="HandleToAirportSelected" />
+        OnAirportSelected="HandleToAirportSelected" />
 
         <button class="btn btn-primary mt-3" @onclick="ShowResults">Search Hotels and Flights</button>
     </div>
@@ -43,24 +46,43 @@
 @if (showResults)
 {
     <HotelSearch DestinationId="@selectedDestination!.DestinationId"
-                 Checkin="@CheckinDate"
-                 Checkout="@CheckoutDate"
-                 Adults="@Adults"
-                 ChildrenAges="@ChildrenAges"
-                 OnHotelSelected="HandleHotelSelected" />
+    Checkin="@CheckinDate"
+    Checkout="@CheckoutDate"
+    Adults="@Adults"
+    ChildrenAges="@ChildrenAges"
+    OnHotelSelected="HandleHotelSelected" />
 
     <FlightSearch FromAirport="@FromAirport"
-                  ToAirportId="@ToAirportId"
-                  Departure="@CheckinDate"
-                  Return="@CheckoutDate"
-                  Adults="@Adults"
-                  ChildrenAges="@ChildrenAges"
-                  OnFlightSearchCompleted="HandleFlightSearchCompleted" />
+    ToAirportId="@ToAirportId"
+    Departure="@CheckinDate"
+    Return="@CheckoutDate"
+    Adults="@Adults"
+    ChildrenAges="@ChildrenAges"
+    OnFlightSearchCompleted="HandleFlightSearchCompleted" />
 }
 
 @if (selectedHotel != null && flightResult != null)
 {
-    <button class="btn btn-success mt-3" @onclick="CreateTravelPackage">Create Travel Package</button>
+    <div class="mt-4">
+        <label>Markup percentage:</label>
+        <select @onchange="HandleMarkupChanged" class="form-control">
+            <option value="0">0%</option>
+            <option value="10">10%</option>
+            <option value="20">20%</option>
+            <option value="30">30%</option>
+        </select>
+    </div>
+		@if (MarkupPercentage > 0)
+		{
+		<div class="mt-4">	
+		
+        <p>
+            <strong>Total Price:</strong> @TotalPrice EUR
+        </p>
+        
+        <button class="btn btn-success mt-3" @onclick="CreateTravelPackage">Create Travel Package</button>
+        </div>
+        }
 }
 
 @code {
@@ -75,6 +97,11 @@
     private string FromAirport = "CPH.AIRPORT";
     private string ToAirportId = "";
     private bool showResults = false;
+    private decimal TotalPrice = 0;
+	private decimal MarkupPercentage = 0;
+
+    [Inject] private NavigationManager NavManager { get; set; }
+    [Inject] private IJSRuntime JS { get; set; }
 
     private void HandleDestinationSelected(DestinationDto dest)
     {
@@ -98,13 +125,37 @@
     private void HandleHotelSelected(HotelDto hotel)
     {
         selectedHotel = hotel;
+        TotalPrice = CalculateTotalPrice();
+		
         Console.WriteLine("Hotel selected: " + hotel.Name);
     }
 
     private void HandleFlightSearchCompleted(FlightSearchResultDto result)
     {
         flightResult = result;
+        TotalPrice = CalculateTotalPrice();
+		
         Console.WriteLine("Flight search completed. Total price: " + result.TotalPrice);
+    }
+
+    private void HandleMarkupChanged(ChangeEventArgs e)
+    {
+        if (decimal.TryParse(e.Value?.ToString(), out var value))
+        {
+            MarkupPercentage = value;
+            TotalPrice = CalculateTotalPrice();
+        }
+    }
+
+    private decimal CalculateTotalPrice()
+    {
+        if (flightResult == null || selectedHotel == null)
+            return 0;
+
+        var flightPrice = DtoModelMapper.ParsePrice(flightResult.TotalPrice);
+        var hotelPrice = DtoModelMapper.ParsePrice(selectedHotel.Price);
+
+        return PriceCalculator.CalculateTotal(flightPrice, hotelPrice, MarkupPercentage);
     }
 
     private async Task CreateTravelPackage()
@@ -118,14 +169,20 @@
                 selectedHotel,
                 flightResult.OutboundFlight,
                 flightResult.ReturnFlight,
-                flightResult.TotalPrice);
+                flightResult.TotalPrice,
+                MarkupPercentage);
 
             var success = await TravelService.CreateTravelPackageAsync(package);
 
             if (success)
-                Console.WriteLine("Package created successfully!");
+            {
+                await JS.InvokeVoidAsync("alert", "Rejsepakken blev oprettet!");
+                NavManager.NavigateTo("/");
+            }
             else
-                Console.WriteLine("Failed to create travel package.");
+            {
+                await JS.InvokeVoidAsync("alert", "Noget gik galt under oprettelsen.");
+            }
         }
     }
 
