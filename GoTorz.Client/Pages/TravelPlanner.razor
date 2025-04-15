@@ -1,4 +1,4 @@
-﻿@page "/travel"
+﻿@page "/travelplanner"
 @using GoTorz.Client.Components
 @using GoTorz.Client.Services.Helpers
 @using GoTorz.Client.Utilities
@@ -6,6 +6,9 @@
 @using GoTorz.Shared.DTOs
 @inject ITravelService TravelService
 @inject TravelPriceCalculator PriceCalculator
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@attribute [Authorize(Roles = "Admin")]
 
 
 <h3>Plan Your Trip</h3>
