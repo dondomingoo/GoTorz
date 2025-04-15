@@ -1,0 +1,24 @@
+﻿@inject CustomAuthStateProvider AuthStateProvider
+@page "/dashboard"
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@attribute [Authorize(Roles = "Admin")]
+
+<h3>Dashboard</h3>
+
+<p>@message</p>
+@code {
+   private string message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            message = $"User logged ind as: {user.Identity.Name}. Role: {string.Join(", ", user.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value))}";
+        }
+        
+    }
+}

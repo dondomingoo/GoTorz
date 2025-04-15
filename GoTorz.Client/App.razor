@@ -1,9 +1,19 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+﻿@using GoTorz.Client.Components
+@using Microsoft.AspNetCore.Components.Authorization
 
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
-            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+            @* <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" /> *@
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                     <RedirectToLogin />
+                </NotAuthorized>
+                <Authorizing>
+                    <p>Checker adgang...</p>
+                </Authorizing>
+            </AuthorizeRouteView>
+
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
         <NotFound>
