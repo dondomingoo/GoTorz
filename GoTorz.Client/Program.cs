@@ -36,7 +36,7 @@ namespace GoTorz.Client
             builder.Services.AddScoped<LocalStorage>();
             builder.Services.AddScoped<CustomAuthStateProvider>();
             builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthStateProvider>()); // Any time AuthenticationStateProvider needs to check AuthState it calls this method in our CustomAuthStateProvider
-            builder.Services.AddScoped<ClientAuthService>();
+            builder.Services.AddScoped<IClientAuthService, ClientAuthService>();
             builder.Services.AddAuthorizationCore();
 
             await builder.Build().RunAsync();
