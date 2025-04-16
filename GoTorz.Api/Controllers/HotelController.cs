@@ -8,7 +8,7 @@ namespace GoTorz.Api.Controllers
     [Route("api/[controller]")]
     public class HotelsController : ControllerBase
     {
-        private readonly string ApiKey = "add6dbc133mshd0ee729a506ca11p1321dcjsn299739cd567f";
+        private readonly string ApiKey = "f63472ff3dmsh48a6a25a8a05abap1790dcjsn7ea0f9022bcc";
 
         [HttpGet("search-hotels")]
         public async Task<IActionResult> SearchHotels(

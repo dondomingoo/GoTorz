@@ -48,11 +48,13 @@ namespace GoTorz.Client.Utilities
      HotelDto hotelDto,
      OutboundFlightDto outboundDto,
      ReturnFlightDto returnDto,
-     string flightTotalPrice)
+     string flightTotalPrice,
+     decimal markupPercentage)
         {
             // Parse flypris (fx "435.00 EUR")
             var flightPrice = ParsePrice(flightTotalPrice);
             var hotelPrice = ParsePrice(hotelDto.Price);
+            var totalWithMarkup = (flightPrice + hotelPrice) * (1 + markupPercentage / 100);
 
             return new TravelPackage
             {
@@ -63,11 +65,11 @@ namespace GoTorz.Client.Utilities
                 Hotel = MapToModel(hotelDto, arrival, departure),
                 OutboundFlight = MapToModel(outboundDto),
                 ReturnFlight = MapToModel(returnDto),
-                Price = flightPrice + hotelPrice // Total
+                Price = totalWithMarkup,
             };
         }
 
-        private static decimal ParsePrice(string priceStr)
+        public static decimal ParsePrice(string priceStr)
         {
             // Eksempel: "435.00 EUR" → 435.00
             if (string.IsNullOrWhiteSpace(priceStr)) return 0;
