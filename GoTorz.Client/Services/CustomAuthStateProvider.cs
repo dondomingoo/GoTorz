@@ -9,9 +9,9 @@ using System.Security.Claims;
 /// </summary>
 public class CustomAuthStateProvider : AuthenticationStateProvider, ICustomAuthStateProvider
 {
-    private readonly LocalStorage _localStorage;
+    private readonly ILocalStorage _localStorage;
 
-    public CustomAuthStateProvider(LocalStorage localStorage)
+    public CustomAuthStateProvider(ILocalStorage localStorage)
     {
         _localStorage = localStorage;
     }

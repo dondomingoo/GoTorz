@@ -1,6 +1,6 @@
 ﻿@page "/bankaccounts"
 @inject HttpClient Http
-@inject LocalStorage LocalStorage
+@inject ILocalStorage LocalStorage
 @inject IClientAuthService AuthService
 @inject NavigationManager Navigation
 @using Shared
@@ -9,40 +9,40 @@
 
 @if (accounts == null)
 {
-    <p><em>Loading... List will never be populated if not logged in or only 'User' role because of [Authorize(Roles = 'Admin')] in BankAccountController</em></p>
+	<p><em>Loading... List will never be populated if not logged in or only 'User' role because of [Authorize(Roles = 'Admin')] in BankAccountController</em></p>
 }
 else
 {
-    <ul>
-        @foreach (var acc in accounts)
-        {
-            <li>@acc.Owner: @acc.Balance DKK</li>
-        }
-    </ul>
+	<ul>
+		@foreach (var acc in accounts)
+		{
+			<li>@acc.Owner: @acc.Balance DKK</li>
+		}
+	</ul>
 }
 
 @code {
-    private List<BankAccount> accounts;
+	private List<BankAccount> accounts;
 
-    protected override async Task OnInitializedAsync()                                                  
-    {
-        var request = await AuthService.CreateAuthorizedRequest(HttpMethod.Get, "api/bankaccount");     // Asks AuthService to Create an Authorized Request (JWR in header)
-        
-        if (request == null)                                                                            // If no JWT or it's invalid/expired
-        {
-            //Navigation.NavigateTo("/login");                                                          // Redirect somewhere, maybe
-            return;
-        }
-               
-        var response = await Http.SendAsync(request);                                                   // Send request to protected API
+	protected override async Task OnInitializedAsync()
+	{
+		var request = await AuthService.CreateAuthorizedRequest(HttpMethod.Get, "api/bankaccount");     // Asks AuthService to Create an Authorized Request (JWT in header)
 
-        if (response.IsSuccessStatusCode)
-        {
-            accounts = await response.Content.ReadFromJsonAsync<List<BankAccount>>();                   // Deserialize list of accounts
-        }
-        else
-        {
-            //Show friendly error if unauthorized, forbidden, etc.
-        }
-    }
+		if (request == null)
+		{
+			//Navigation.NavigateTo("/login");
+			return;
+		}
+
+		var response = await Http.SendAsync(request);
+
+		if (response.IsSuccessStatusCode)
+		{
+			accounts = await response.Content.ReadFromJsonAsync<List<BankAccount>>();
+		}
+		else
+		{
+			//Show friendly error if unauthorized, forbidden, etc.
+		}
+	}
 }

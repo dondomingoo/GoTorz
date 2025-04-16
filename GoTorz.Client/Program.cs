@@ -31,11 +31,11 @@ namespace GoTorz.Client
             builder.Services.AddScoped<TravelPriceCalculator>();
 
             // Authentication & Authorization
-            builder.Services.AddScoped<LocalStorage>();
+            builder.Services.AddScoped<ILocalStorage, LocalStorage>();
             builder.Services.AddScoped<CustomAuthStateProvider>();
             builder.Services.AddScoped<ICustomAuthStateProvider>(sp => sp.GetRequiredService<CustomAuthStateProvider>());
-            builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthStateProvider>()); // Any time AuthenticationStateProvider needs to check AuthState it calls our CustomAuthStateProvider
-            builder.Services.AddScoped<IClientAuthService, ClientAuthService>();
+            builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthStateProvider>()); // Inject this in components (not the interface or concrete type)
+            builder.Services.AddScoped<IClientAuthService, ClientAuthService>();           
             builder.Services.AddAuthorizationCore();
 
             await builder.Build().RunAsync();

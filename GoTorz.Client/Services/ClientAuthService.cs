@@ -5,13 +5,13 @@ using System.IdentityModel.Tokens.Jwt;
 public class ClientAuthService : IClientAuthService
 {
     private readonly HttpClient _http;
-    private readonly LocalStorage _localStorage;
+    private readonly ILocalStorage _localStorage;
     private readonly ICustomAuthStateProvider _authStateProvider;
 
     public string JwtToken { get; private set; } = string.Empty;
     public string Email { get; private set; } = string.Empty;
 
-    public ClientAuthService(HttpClient http, LocalStorage localStorage, ICustomAuthStateProvider authStateProvider)
+    public ClientAuthService(HttpClient http, ILocalStorage localStorage, ICustomAuthStateProvider authStateProvider)
     {
         _http = http;
         _localStorage = localStorage;
