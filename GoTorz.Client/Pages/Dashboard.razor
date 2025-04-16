@@ -11,15 +11,15 @@
 
 <div class="d-grid gap-3">
 
-    <button class="btn btn-success btn-lg text-start" @onclick="@(() => NavigateTo("/travelplanner"))">
+    <button class="btn btn-warning btn-lg text-start" @onclick="@(() => NavigateTo("/travelplanner"))">
         Create Travelpackage <small class="text-muted">Find destination, Hotel and flights and then combine to a travelpackage</small>
     </button>
 
-    <button class="btn btn-warning btn-lg text-start" @onclick="@(() => NavigateTo("/order-history"))">
+    <button class="btn btn-warning btn-lg text-start" @onclick="@(() => NavigateTo("/BookingHistory"))">
         Order History <small class="text-muted">Show Orders and delete future orders</small>
     </button>
 
-    <button class="btn btn-info btn-lg text-start" @onclick="@(() => NavigateTo("/user-management"))">
+    <button class="btn btn-secondary btn-lg text-start" @onclick="@(() => NavigateTo("/user-management"))">
         User admin panel <small class="text-muted">Create, edit or delete users (reset passwords)</small>
     </button>
 

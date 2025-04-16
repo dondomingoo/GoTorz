@@ -1,0 +1,146 @@
+﻿@page "/BookingHistory"
+@using GoTorz.Client.Services
+@using GoTorz.Client.Services.Interfaces
+@using GoTorz.Shared.Models
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@attribute [Authorize(Roles = "Admin")]
+@inject IBookingHistoryservice BookingService
+@inject IJSRuntime JS
+
+<h3 class="mb-4">Search Booking History</h3>
+
+<!-- Search form -->
+<div class="card p-4 mb-4">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">User ID</label>
+            <input class="form-control" @bind="userId" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Booking ID</label>
+            <input class="form-control" @bind="bookingId" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Order Date</label>
+            <input class="form-control" type="date" @bind="orderDate" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Arrival Date</label>
+            <input class="form-control" type="date" @bind="arrivalDate" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Departure Date</label>
+            <input class="form-control" type="date" @bind="departureDate" />
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-primary w-100" @onclick="SearchBookings">Search</button>
+        </div>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <p>Loading bookings...</p>
+}
+else if (bookings != null && bookings.Count > 0)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Booking ID</th>
+                <th>User</th>
+                <th>Arrival</th>
+                <th>Departure</th>
+                <th>Order Date</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in bookings)
+            {
+                <tr>
+                    <td>@booking.BookingId</td>
+                    <td>@booking.UserId</td>
+                    <td>@booking.TravelPackage.Arrival.ToShortDateString() </td>
+                    <td>@booking.TravelPackage.Departure.ToShortDateString() </td>
+                    <td>@booking.OrderDate.ToShortDateString() ?? </td>
+                    <td>@booking.PaymentStatus </td>
+                    <td>
+                        @if (booking.TravelPackage?.Arrival > DateTime.Today)
+                        {
+                            <button class="btn btn-sm btn-danger" @onclick="() => CancelBooking(booking.BookingId)">
+                                Cancel
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (bookings != null)
+{
+    <p>No bookings found.</p>
+}
+
+@if (!string.IsNullOrWhiteSpace(successMessage))
+{
+    <div class="alert alert-success mt-3">@successMessage</div>
+}
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger mt-3">@errorMessage</div>
+}
+
+@code {
+    private string? userId;
+    private string? bookingId;
+    private DateTime? arrivalDate;
+    private DateTime? departureDate;
+    private DateTime? orderDate;
+
+    private List<Booking>? bookings = new();
+    private bool isLoading = false;
+
+    private string? successMessage;
+    private string? errorMessage;
+
+    private async Task SearchBookings()
+    {
+        isLoading = true;
+        successMessage = errorMessage = null;
+
+        bookings = await BookingService.GetBookingHistoryAsync(
+            string.IsNullOrWhiteSpace(userId) ? null : userId,
+            string.IsNullOrWhiteSpace(bookingId) ? null : bookingId,
+            arrivalDate,
+            departureDate,
+            orderDate
+        );
+
+        isLoading = false;
+    }
+
+    private async Task CancelBooking(string bookingId)
+    {
+        successMessage = errorMessage = null;
+
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to cancel booking {bookingId}?");
+        if (!confirmed)
+            return;
+
+        var success = await BookingService.CancelBookingAsync(bookingId);
+
+        if (success)
+        {
+            successMessage = $"Booking {bookingId} was successfully cancelled.";
+            await SearchBookings();
+        }
+        else
+        {
+            errorMessage = $"Failed to cancel booking {bookingId}.";
+        }
+    }
+}

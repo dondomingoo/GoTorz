@@ -28,6 +28,7 @@ namespace GoTorz.Client
             builder.Services.AddScoped<IDestinationService, DestinationService>();
             builder.Services.AddScoped<ITravelService, TravelService>();
             builder.Services.AddScoped<IFlightDestinationService, FlightDestinationService>();
+            builder.Services.AddScoped<IBookingHistoryservice, BookingHistoryService>();
             builder.Services.AddScoped<TravelPriceCalculator>();
 
 
