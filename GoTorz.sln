@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoTorz.Api", "src\GoTorz.Api\GoTorz.Api.csproj", "{B7BF1761-5DF4-D569-DF66-52747DD9783A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoTorz.Client", "src\GoTorz.Client\GoTorz.Client.csproj", "{CC5752DE-0053-DA41-6867-D9FF41B5553E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoTorz.Shared", "src\GoTorz.Shared\GoTorz.Shared.csproj", "{472761EA-3D29-C1E4-5515-1E0DE99BEB7F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B7BF1761-5DF4-D569-DF66-52747DD9783A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7BF1761-5DF4-D569-DF66-52747DD9783A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7BF1761-5DF4-D569-DF66-52747DD9783A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7BF1761-5DF4-D569-DF66-52747DD9783A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC5752DE-0053-DA41-6867-D9FF41B5553E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC5752DE-0053-DA41-6867-D9FF41B5553E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC5752DE-0053-DA41-6867-D9FF41B5553E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC5752DE-0053-DA41-6867-D9FF41B5553E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{472761EA-3D29-C1E4-5515-1E0DE99BEB7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{472761EA-3D29-C1E4-5515-1E0DE99BEB7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{472761EA-3D29-C1E4-5515-1E0DE99BEB7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{472761EA-3D29-C1E4-5515-1E0DE99BEB7F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2C2AE0F7-9B5B-4933-98A6-FDA24AEBC4FC}
+	EndGlobalSection
+EndGlobal
