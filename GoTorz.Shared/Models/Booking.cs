@@ -1,20 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GoTorz.Shared.Models
 {
     public class Booking
     {
-        public string BookingId { get; set; }
-        public string CustomerId { get; set; }
-        public List<Traveller> Travellers { get; set; } = [];
-        public string TravelPackageId { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString(); // Use 'Id' to match EF Core convention
 
-        public string PaymentStatus { get; set; }
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string PassportNumber { get; set; } = string.Empty;
 
-        public DateTime OrderDate { get; set; }
+        public string TravelPackageId { get; set; } = string.Empty;
+        public TravelPackage? TravelPackage { get; set; } // Navigation property
+
+        public string PaymentStatus { get; set; } = "Pending"; // Could be "Pending", "Confirmed", "Failed"
+
+        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
+
+        public List<Traveller> Travellers { get; set; } = new();
     }
 }

@@ -1,8 +1,11 @@
 ﻿@page "/search"
 @inject ISearchTravelPackageService SearchService
+@inject HttpClient Http
 @inject NavigationManager Navigation
 @using GoTorz.Client.Components
 @using GoTorz.Client.Services.Interfaces
+@using GoTorz.Shared.Models
+@using GoTorz.Shared.DTOs
 
 <link rel="stylesheet" href="css/search.css" />
 
@@ -12,25 +15,76 @@
 
 <TravelPackageList Packages="travelPackages" OnPackageSelected="HandlePackageSelection" />
 
-<div style="margin-top: 10px; display: flex; gap: 15px;">
-    <button @onclick="BookSelectedPackage"
-        class="book-btn @(string.IsNullOrEmpty(selectedPackageId) ? "disabled" : "enabled")"
-        disabled="@(string.IsNullOrEmpty(selectedPackageId))">
-        Book
-    </button>
-</div>
+@if (selectedPackageDetails is not null)
+{
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <TravelPackageDetails Package="selectedPackageDetails" OnClose="CloseDetails" />
+        </div>
 
-<TravelPackageDetails Package="selectedPackageDetails" OnClose="CloseDetails" />
+        <div class="col-md-6">
+            <h5>Book this package</h5>
+            <EditForm Model="@bookingModel" OnValidSubmit="SubmitBooking">
+                <div class="mb-3">
+                    <label class="form-label">Full Name</label>
+                    <InputText class="form-control" @bind-Value="bookingModel.FullName" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <InputText class="form-control" @bind-Value="bookingModel.Email" type="email" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Passport Number</label>
+                    <InputText class="form-control" @bind-Value="bookingModel.PassportNumber" required />
+                </div>
+                <hr />
+                <h6>Additional Travellers</h6>
+
+                @foreach (var traveller in bookingModel.Travellers)
+                {
+                    <div class="mb-3 border p-2">
+                        <label>Traveller Name</label>
+                        <InputText class="form-control" @bind-Value="traveller.Name" />
+                        <label>Passport Number</label>
+                        <InputText class="form-control" @bind-Value="traveller.PassportNumber" />
+                        <button type="button" class="btn btn-sm btn-danger mt-2" @onclick="() => RemoveTraveller(traveller)">Remove</button>
+                    </div>
+                }
+
+                <button type="button" class="btn btn-outline-primary mb-3" @onclick="AddTraveller">+ Add Traveller</button>
+                <hr />
+                <h6>Total Price</h6>
+                <p><strong>@GetTotalPriceString()</strong></p>
+
+                <button type="submit" class="btn btn-success">Continue to Payment</button>
+
+            </EditForm>
+        </div>
+    </div>
+}
 
 @code {
-    private List<GoTorz.Shared.Models.TravelPackage> travelPackages = new();
+    private List<TravelPackage> travelPackages = new();
     private string selectedPackageId;
-    private GoTorz.Shared.Models.TravelPackage selectedPackageDetails;
+    private TravelPackage selectedPackageDetails;
+
+    private BookingRequestDto bookingModel = new();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadAllPackages();
     }
+
+    private string GetTotalPriceString()
+    {
+        if (selectedPackageDetails == null)
+            return "";
+
+        int totalPeople = 1 + bookingModel.Travellers.Count; // 1 is the booker
+        decimal total = totalPeople * selectedPackageDetails.Price;
+        return $"{total:0.00} {selectedPackageDetails.Currency}";
+    }
+
 
     private async Task LoadAllPackages()
     {
@@ -40,12 +94,37 @@
     private async Task HandleSearch((string destination, DateTime? arrivalDate, DateTime? departureDate) searchParams)
     {
         travelPackages = await SearchService.GetTravelPackagesAsync(searchParams.destination, searchParams.arrivalDate, searchParams.departureDate);
+        selectedPackageId = null;
+        selectedPackageDetails = null;
     }
+
+    private void AddTraveller()
+    {
+        bookingModel.Travellers.Add(new TravellerDto());
+    }
+
+    private void RemoveTraveller(TravellerDto traveller)
+    {
+        bookingModel.Travellers.Remove(traveller);
+    }
+
 
     private void HandlePackageSelection(string packageId)
     {
         selectedPackageId = packageId;
         selectedPackageDetails = travelPackages.FirstOrDefault(p => p.TravelPackageId == selectedPackageId);
+
+        bookingModel = new BookingRequestDto
+            {
+                PackageId = selectedPackageId,
+                FullName = "",
+                Email = "",
+                PassportNumber = "",
+                PaymentMethod = "card",
+                Currency = string.IsNullOrWhiteSpace(selectedPackageDetails.Currency)
+                ? "dkk"
+                : selectedPackageDetails.Currency.ToLower()
+            };
     }
 
     private void CloseDetails()
@@ -54,11 +133,20 @@
         selectedPackageDetails = null;
     }
 
-    private void BookSelectedPackage()
+    private async Task SubmitBooking()
     {
-        if (!string.IsNullOrEmpty(selectedPackageId))
+        var response = await Http.PostAsJsonAsync("api/Booking/submit-info", bookingModel);
+        if (response.IsSuccessStatusCode)
         {
-            Navigation.NavigateTo($"/register?packageId={selectedPackageId}");
+            var result = await response.Content.ReadFromJsonAsync<BookingResponseDto>();
+            if (!string.IsNullOrWhiteSpace(result?.RedirectUrl))
+            {
+                Navigation.NavigateTo(result.RedirectUrl!, forceLoad: true);
+            }
+        }
+        else
+        {
+            Console.WriteLine("Booking failed.");
         }
     }
 }

@@ -2,10 +2,12 @@ using GoTorz.Api.Data;
 using GoTorz.Api.Services;
 using GoTorz.Api.Services.Auth;
 using GoTorz.Shared;
+using Stripe;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+
 
 namespace GoTorz.Api
 {
@@ -19,7 +21,7 @@ namespace GoTorz.Api
             //travelPackage builders
             builder.Services.AddScoped<ITravelPackageRepository, TravelPackageRepository>();
             builder.Services.AddScoped<ITravelPackageService, TravelPackageService>();
-
+            builder.Services.AddScoped<IBookingService, BookingService>();
 
             // DbContext
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -29,7 +31,9 @@ namespace GoTorz.Api
             builder.Services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-           
+
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
             builder.Services.Configure<IdentityOptions>(options => // CHANGE LATER - We can delete this if we want defaults
             {
                 options.Password.RequireDigit = false;             // Default true
@@ -84,9 +88,7 @@ namespace GoTorz.Api
             });
             
             // TokenService
-            builder.Services.AddScoped<ITokenService, TokenService>();
-            builder.Services.AddScoped<ITravelPackageService, TravelPackageService>();
-
+            builder.Services.AddScoped<ITokenService, Services.Auth.TokenService>();
             // AuthService
             builder.Services.AddScoped<IAuthService, AuthService>();
 
