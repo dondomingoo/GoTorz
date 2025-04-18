@@ -1,5 +1,5 @@
 ﻿@page "/login"
-@inject ClientAuthService AuthService
+@inject IClientAuthService AuthService
 @inject NavigationManager Nav
 
 @using GoTorz.Shared.Auth
@@ -10,27 +10,27 @@
 <p>@Message</p>
 
 <EditForm Model="loginModel" OnValidSubmit="LoginUser">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+	<DataAnnotationsValidator />
+	<ValidationSummary />
 
-    <InputText @bind-Value="loginModel.Email" placeholder="Email" class="form-control" />
-    <InputText @bind-Value="loginModel.Password" placeholder="Password" type="password" class="form-control" />
+	<InputText @bind-Value="loginModel.Email" placeholder="Email" class="form-control" />
+	<InputText @bind-Value="loginModel.Password" placeholder="Password" type="password" class="form-control" />
 
-    <button type="submit" class="btn btn-primary">Login</button>
+	<button type="submit" class="btn btn-primary">Login</button>
 </EditForm>
 
 @code {
-    private LoginDTO loginModel = new();
-    private string Message;
+	private LoginDTO loginModel = new();
+	private string Message;
 
-    private async Task LoginUser()                                                              // Method triggered when form is valid and submitted
-    {
-        var success = await AuthService.LoginAsync(loginModel);                                 // Calls AuthService.LoginAsync with the loginModel (DTO)
-        Message = success ? "Login successful" : "Login failed";                                // Sets the message based on result
-        
-        if (success)
-        {                                 
-            //Nav.NavigateTo("/sooooome wheeeere over the raaainbow");        
-        }
-    }
+	private async Task LoginUser()
+	{
+		var success = await AuthService.LoginAsync(loginModel);
+		Message = success ? "Login successful" : "Login failed";
+
+		if (success)
+		{
+			//Nav.NavigateTo("/sooooome wheeeere over the raaainbow");
+		}
+	}
 }

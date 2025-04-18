@@ -1,5 +1,5 @@
 ﻿@page "/register"
-@inject ClientAuthService AuthService
+@inject IClientAuthService AuthService
 @inject NavigationManager Nav
 @using GoTorz.Shared.Auth
 
@@ -8,26 +8,26 @@
 <p>@Message</p>
 
 <EditForm Model="registerModel" OnValidSubmit="RegisterUser">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+	<DataAnnotationsValidator />
+	<ValidationSummary />
 
-    <InputText @bind-Value="registerModel.Email" placeholder="Email" class="form-control" />
-    <InputText @bind-Value="registerModel.Password" placeholder="Password" type="password" class="form-control" />
+	<InputText @bind-Value="registerModel.Email" placeholder="Email" class="form-control" />
+	<InputText @bind-Value="registerModel.Password" placeholder="Password" type="password" class="form-control" />
 
-    <button type="submit" class="btn btn-primary">Register</button>
+	<button type="submit" class="btn btn-primary">Register</button>
 </EditForm>
 
 <p>Users created are Role: Admin by default, if you want a normal Role: User for test, change AuthController or look in the forbidden area of the DB Harry Potter</p>
 
 @code {
-    private RegisterDTO registerModel = new();
-    private string Message;
+	private RegisterDTO registerModel = new();
+	private string Message;
 
-    private async Task RegisterUser()
-    {
-        var result = await AuthService.RegisterAsync(registerModel);                   // Calls AuthService to send data to API     
-        Message = result ? "Registration successful" : "Registration failed";
-        if (result)
-            Nav.NavigateTo("/login");
-    }
+	private async Task RegisterUser()
+	{
+		var result = await AuthService.RegisterAsync(registerModel);
+		Message = result ? "Registration successful" : "Registration failed";
+		if (result)
+			Nav.NavigateTo("/login");
+	}
 }
