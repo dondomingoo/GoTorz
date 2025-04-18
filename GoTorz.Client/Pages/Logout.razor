@@ -1,14 +1,14 @@
 ﻿@page "/logout"
-@inject ClientAuthService AuthService
+@inject IClientAuthService AuthService
 @inject NavigationManager Navigation
 
 <h3>Logging out...</h3>
 
 @code {
-    protected override async Task OnInitializedAsync()
-    {
-        await AuthService.LogoutAsync();                        // Removes JWT and clears AuthState
-        Navigation.NavigateTo("/bankaccounts");                 // Redirect user (could be changed to /login or /)
-    }
+	protected override async Task OnInitializedAsync()
+	{
+		await AuthService.LogoutAsync();
+		Navigation.NavigateTo("/bankaccounts");
+	}
 }
 
