@@ -19,6 +19,8 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<ReturnFlight> ReturnFlights => Set<ReturnFlight>();
     public DbSet<Flight> Flights => Set<Flight>(); // VIGTIGT for EF TPT!
 
+    public DbSet<Booking> Bookings => Set<Booking>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         //  Primærnøgle og tabelnavn for base class Flight
