@@ -1,4 +1,6 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">GoTorz.Client</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -48,6 +50,15 @@
             <NavLink class="nav-link" href="/search">
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Search 
             </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <NavLink href="/dashboard" class="nav-link">
+                        Admin Dashboard
+                    </NavLink>
+                </Authorized>
+            </AuthorizeView>
         </div>
     </nav>
 </div>
