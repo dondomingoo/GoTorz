@@ -23,6 +23,9 @@ namespace GoTorz.Api
 
             builder.Services.AddScoped<IBookingService, BookingService>();
 
+            //HttpCntextAccessor - for getting the current user
+            builder.Services.AddHttpContextAccessor();
+
             // DbContext
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

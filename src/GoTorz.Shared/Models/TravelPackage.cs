@@ -23,6 +23,8 @@ namespace GoTorz.Shared.Models
         public ReturnFlight ReturnFlight { get; set; } = null!;
         public bool IsBooked { get; set; } = false;
 
-        public string Currency { get; set; } = "dkk";
+        public string Currency { get; set; } = "EUR";
+
+        public int NumberOfTravellers { get; set; }
     }
 }

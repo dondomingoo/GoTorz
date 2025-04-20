@@ -6,6 +6,8 @@
 @using GoTorz.Client.Services.Interfaces
 @using GoTorz.Shared.Models
 @using GoTorz.Shared.DTOs
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <link rel="stylesheet" href="css/search.css" />
 
@@ -51,12 +53,28 @@
                     </div>
                 }
 
-                <button type="button" class="btn btn-outline-primary mb-3" @onclick="AddTraveller">+ Add Traveller</button>
+                @if (bookingModel.Travellers.Count < selectedPackageDetails.NumberOfTravellers - 1)
+                {
+                    <button type="button" class="btn btn-outline-primary mb-3" @onclick="AddTraveller">
+                        + Add Traveller
+                    </button>
+                }
+                else
+                {
+                    <p class="text-danger">You’ve reached the maximum number of travellers for this package.</p>
+                }
                 <hr />
                 <h6>Total Price</h6>
                 <p><strong>@GetTotalPriceString()</strong></p>
 
-                <button type="submit" class="btn btn-success">Continue to Payment</button>
+                @if (isAuthenticated)
+                {
+                    <button type="submit" class="btn btn-success">Continue to Payment</button>
+                }
+                else
+                {
+                    <p class="text-danger mt-3">You must be logged in to book this package.</p>
+                }
 
             </EditForm>
         </div>
@@ -69,10 +87,13 @@
     private TravelPackage selectedPackageDetails;
 
     private BookingRequestDto bookingModel = new();
+    private bool isAuthenticated = false;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadAllPackages();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
     }
 
     private string GetTotalPriceString()
@@ -80,9 +101,7 @@
         if (selectedPackageDetails == null)
             return "";
 
-        int totalPeople = 1 + bookingModel.Travellers.Count; // 1 is the booker
-        decimal total = totalPeople * selectedPackageDetails.Price;
-        return $"{total:0.00} {selectedPackageDetails.Currency}";
+        return $"{selectedPackageDetails.Price:0.00} {selectedPackageDetails.Currency}";
     }
 
 
@@ -100,7 +119,11 @@
 
     private void AddTraveller()
     {
-        bookingModel.Travellers.Add(new TravellerDto());
+        int maxAdditional = selectedPackageDetails.NumberOfTravellers - 1;
+        if (bookingModel.Travellers.Count < maxAdditional)
+        {
+            bookingModel.Travellers.Add(new TravellerDto());
+        }
     }
 
     private void RemoveTraveller(TravellerDto traveller)
@@ -122,7 +145,7 @@
                 PassportNumber = "",
                 PaymentMethod = "card",
                 Currency = string.IsNullOrWhiteSpace(selectedPackageDetails.Currency)
-                    ? "dkk"
+                    ? "eur"
                     : selectedPackageDetails.Currency.ToLower()
             };
     }
