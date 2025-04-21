@@ -57,6 +57,30 @@ namespace GoTorz.Api.Controllers
         /// <summary>
         /// get all bookings
         /// </summary>
-       
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllBookings(
+    [FromQuery] string? userId,
+    [FromQuery] string? bookingId,
+    [FromQuery] DateTime? arrivalDate,
+    [FromQuery] DateTime? departureDate,
+    [FromQuery] DateTime? orderDate,
+    [FromQuery] string? email)
+        {
+            var bookings = await _bookingService.GetAllBookingsAsync(
+                userId, bookingId, arrivalDate, departureDate, orderDate, email);
+            return Ok(bookings);
+        }
+
+
+
+        /// <summary>
+        /// Delete a booking by ID.
+        /// </summary>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> CancelBooking(string id)
+        {
+            var result = await _bookingService.CancelBookingAsync(id);
+            return result ? Ok() : NotFound("Booking not found or could not be cancelled.");
+        }
     }
 }

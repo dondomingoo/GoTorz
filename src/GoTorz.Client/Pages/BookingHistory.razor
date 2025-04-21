@@ -1,6 +1,7 @@
 ﻿@page "/BookingHistory"
 @using GoTorz.Client.Services
 @using GoTorz.Client.Services.Interfaces
+@using GoTorz.Shared.DTOs
 @using GoTorz.Shared.Models
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
@@ -33,6 +34,11 @@
             <label class="form-label">Departure Date</label>
             <input class="form-control" type="date" @bind="departureDate" />
         </div>
+        <div class="col-md-4">
+            <label class="form-label">Email</label>
+            <input class="form-control" @bind="email" />
+        </div>
+
         <div class="col-md-4 d-flex align-items-end">
             <button class="btn btn-primary w-100" @onclick="SearchBookings">Search</button>
         </div>
@@ -62,13 +68,13 @@ else if (bookings != null && bookings.Count > 0)
             {
                 <tr>
                     <td>@booking.Id</td>
-                    <td>@booking.UserId</td>
-                    <td>@booking.TravelPackage.Arrival.ToShortDateString() </td>
-                    <td>@booking.TravelPackage.Departure.ToShortDateString() </td>
-                    <td>@booking.OrderDate.ToShortDateString() ?? </td>
-                    <td>@booking.PaymentStatus </td>
+                    <td>@booking.Email</td>
+                    <td>@booking.Arrival.ToShortDateString()</td>
+                    <td>@booking.Departure.ToShortDateString()</td>
+                    <td>@booking.OrderDate.ToShortDateString()</td>
+                    <td>@booking.Status</td>
                     <td>
-                        @if (booking.TravelPackage?.Arrival > DateTime.Today)
+                        @if (booking.Arrival > DateTime.Today)
                         {
                             <button class="btn btn-sm btn-danger" @onclick="() => CancelBooking(booking.Id)">
                                 Cancel
@@ -100,8 +106,9 @@ else if (bookings != null)
     private DateTime? arrivalDate;
     private DateTime? departureDate;
     private DateTime? orderDate;
+    private string? email;
 
-    private List<Booking>? bookings = new();
+    private List<BookingDto>? bookings = new();
     private bool isLoading = false;
 
     private string? successMessage;
@@ -113,12 +120,13 @@ else if (bookings != null)
         successMessage = errorMessage = null;
 
         bookings = await BookingService.GetBookingHistoryAsync(
-            string.IsNullOrWhiteSpace(userId) ? null : userId,
-            string.IsNullOrWhiteSpace(bookingId) ? null : bookingId,
-            arrivalDate,
-            departureDate,
-            orderDate
-        );
+    string.IsNullOrWhiteSpace(userId) ? null : userId,
+    string.IsNullOrWhiteSpace(bookingId) ? null : bookingId,
+    arrivalDate,
+    departureDate,
+    orderDate,
+    string.IsNullOrWhiteSpace(email) ? null : email
+    );
 
         isLoading = false;
     }

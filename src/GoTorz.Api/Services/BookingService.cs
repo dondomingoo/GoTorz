@@ -283,5 +283,61 @@ namespace GoTorz.Api.Services
             await _db.SaveChangesAsync();
             return new PaymentResponseDto { Success = false, Message = "Payment failed." };
         }
+
+        public async Task<IEnumerable<BookingDto>> GetAllBookingsAsync(
+    string? userId = null,
+    string? bookingId = null,
+    DateTime? arrivalDate = null,
+    DateTime? departureDate = null,
+    DateTime? orderDate = null,
+    string? email = null)
+        {
+            var query = _db.Bookings
+                .Include(b => b.TravelPackage)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(userId))
+                query = query.Where(b => b.UserId == userId);
+
+            if (!string.IsNullOrWhiteSpace(bookingId))
+                query = query.Where(b => b.Id == bookingId);
+
+            if (arrivalDate.HasValue)
+                query = query.Where(b => b.TravelPackage.Arrival.Date == arrivalDate.Value.Date);
+
+            if (departureDate.HasValue)
+                query = query.Where(b => b.TravelPackage.Departure.Date == departureDate.Value.Date);
+
+            if (orderDate.HasValue)
+                query = query.Where(b => b.OrderDate.Date == orderDate.Value.Date);
+
+            if (!string.IsNullOrWhiteSpace(email))
+                query = query.Where(b => b.Email == email);
+
+            return await query
+                .Select(b => new BookingDto
+                {
+                    Id = b.Id,
+                    Email = b.Email,
+                    CustomerName = b.FullName,
+                    OrderDate = b.OrderDate,
+                    Status = b.PaymentStatus,
+                    Arrival = b.TravelPackage.Arrival,
+                    Departure = b.TravelPackage.Departure
+                })
+                .ToListAsync();
+        }
+
+
+
+        public async Task<bool> CancelBookingAsync(string bookingId)
+        {
+            var booking = await _db.Bookings.FindAsync(bookingId);
+            if (booking == null) return false;
+
+            _db.Bookings.Remove(booking);
+            await _db.SaveChangesAsync();
+            return true;
+        }
     }
 }
