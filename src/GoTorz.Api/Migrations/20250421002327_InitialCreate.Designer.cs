@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GoTorz.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250419184647_BookingFeature")]
-    partial class BookingFeature
+    [Migration("20250421002327_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,6 +52,10 @@ namespace GoTorz.Api.Migrations
                     b.Property<string>("TravelPackageId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -147,6 +151,9 @@ namespace GoTorz.Api.Migrations
 
                     b.Property<bool>("IsBooked")
                         .HasColumnType("bit");
+
+                    b.Property<int>("NumberOfTravellers")
+                        .HasColumnType("int");
 
                     b.Property<int>("OutboundFlightId")
                         .HasColumnType("int");

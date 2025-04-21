@@ -14,6 +14,7 @@ namespace GoTorz.Shared.DTOs
         public string PassportNumber { get; set; }
         public string PaymentMethod { get; set; }
         public string Currency { get; set; }
+        public string UserId { get; set; }
 
         public List<TravellerDto> Travellers { get; set; } = new();
 

@@ -129,6 +129,8 @@
 using GoTorz.Api.Data;
 using GoTorz.Shared.DTOs;
 using GoTorz.Shared.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Stripe.Checkout;
 
 namespace GoTorz.Api.Services
@@ -148,10 +150,23 @@ namespace GoTorz.Api.Services
         {
             try
             {
-                var package = await _db.TravelPackages.FindAsync(request.PackageId);
-                if (package == null || package.IsBooked)
+                Console.WriteLine($"[Booking] Start booking for: {request.FullName}, Package: {request.PackageId}");
+
+                var package = await _db.TravelPackages
+            .Include(p => p.Hotel)
+            .Include(p => p.OutboundFlight)
+            .Include(p => p.ReturnFlight)
+            .FirstOrDefaultAsync(p => p.TravelPackageId == request.PackageId);
+                if (package == null)
                 {
-                    return new BookingResponseDto { Success = false, Message = "Package not available." };
+                    Console.WriteLine($"[Booking] Package not found: {request.PackageId}");
+                    return new BookingResponseDto { Success = false, Message = "Package not found." };
+                }
+
+                if (package.IsBooked)
+                {
+                    Console.WriteLine($"[Booking] Package already booked: {package.TravelPackageId}");
+                    return new BookingResponseDto { Success = false, Message = "Package already booked." };
                 }
 
                 var booking = new Booking
@@ -161,18 +176,26 @@ namespace GoTorz.Api.Services
                     FullName = request.FullName,
                     Email = request.Email,
                     PassportNumber = request.PassportNumber,
-                    PaymentStatus = "Pending"
-                    // UserId er fjernet
+                    PaymentStatus = "Pending",
+                    UserId = request.UserId,
                 };
 
                 await _db.Bookings.AddAsync(booking);
                 await _db.SaveChangesAsync();
 
-                var totalPrice = package.Price;
+                // Brug totalpris fra pakken direkte
+                decimal totalPrice = package.Price;
+
                 var currency = string.IsNullOrWhiteSpace(request.Currency)
-                    ? package.Currency?.ToLower() ?? "eur"
+                    ? (package.Currency?.ToLower() ?? "eur")
                     : request.Currency.ToLower();
+
                 var domain = _config["AppSettings:BaseUrl"];
+                if (string.IsNullOrWhiteSpace(domain))
+                {
+                    Console.WriteLine("[Booking] BaseUrl missing in config.");
+                    return new BookingResponseDto { Success = false, Message = "Internal configuration error." };
+                }
 
                 var sessionOptions = new SessionCreateOptions
                 {
@@ -197,11 +220,16 @@ namespace GoTorz.Api.Services
                     Mode = "payment",
                     SuccessUrl = $"{domain}/booking-success?bookingId={booking.Id}",
                     CancelUrl = $"{domain}/booking-cancel?bookingId={booking.Id}",
-                    Metadata = new Dictionary<string, string> { { "bookingId", booking.Id } }
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "bookingId", booking.Id }
+                    }
                 };
 
                 var service = new SessionService();
                 var session = await service.CreateAsync(sessionOptions);
+
+                Console.WriteLine($"[Booking] Stripe session created: {session.Id}");
 
                 return new BookingResponseDto
                 {
@@ -216,7 +244,7 @@ namespace GoTorz.Api.Services
                 return new BookingResponseDto
                 {
                     Success = false,
-                    Message = "An unexpected error occurred during booking."
+                    Message = "An unexpected error occurred during booking. Please try again later."
                 };
             }
         }

@@ -24,8 +24,4 @@
     <ProjectReference Include="..\GoTorz.Shared\GoTorz.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
 </Project>

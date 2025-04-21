@@ -54,5 +54,9 @@ namespace GoTorz.Api.Controllers
             var result = await _bookingService.RetryPaymentAsync(retry);
             return result.Success ? Ok(result) : BadRequest(result.Message);
         }
+        /// <summary>
+        /// get all bookings
+        /// </summary>
+       
     }
 }

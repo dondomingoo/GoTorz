@@ -7,6 +7,7 @@
 @using GoTorz.Shared.Models
 @using GoTorz.Shared.DTOs
 @using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <link rel="stylesheet" href="css/search.css" />
@@ -132,10 +133,14 @@
     }
 
 
-    private void HandlePackageSelection(string packageId)
+    private async void HandlePackageSelection(string packageId)
     {
         selectedPackageId = packageId;
         selectedPackageDetails = travelPackages.FirstOrDefault(p => p.TravelPackageId == selectedPackageId);
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
         bookingModel = new BookingRequestDto
             {
@@ -144,11 +149,11 @@
                 Email = "",
                 PassportNumber = "",
                 PaymentMethod = "card",
-                Currency = string.IsNullOrWhiteSpace(selectedPackageDetails.Currency)
-                    ? "eur"
-                    : selectedPackageDetails.Currency.ToLower()
+                Currency = selectedPackageDetails.Currency?.ToLower() ?? "eur",
+                UserId = userId 
             };
     }
+
 
     private void CloseDetails()
     {
