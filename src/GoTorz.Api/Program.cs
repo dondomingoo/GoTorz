@@ -61,8 +61,10 @@ namespace GoTorz.Api
                     };
                 });
                       
-            // Configuration binding (JWT)
+            // Configuration bindings
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+            builder.Services.Configure<RapidApiSettings>(builder.Configuration.GetSection("RapidApiSettings"));
+
 
             // Authorization
             builder.Services.AddAuthorization();
