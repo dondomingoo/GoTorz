@@ -1,4 +1,5 @@
-﻿@code {
+﻿@using GoTorz.Client.Utilities
+@code {
     [Parameter] public GoTorz.Shared.Models.TravelPackage Package { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
 
@@ -13,18 +14,20 @@
     <div class="details-box">
         <h4>Hotel</h4>
         <div class="details-grid">
-            <p><strong>Navn:</strong> @Package.Hotel.Name</p>
-            <p><strong>Antal Værelser:</strong> @Package.Hotel.Rooms</p>
+            <p><strong>Name:</strong> @Package.Hotel.Name</p>
+            <p><strong>Rooms:</strong> @Package.Hotel.Rooms</p>
+            <p><strong>Max. number of travellers:</strong> @Package.NumberOfTravellers</p>
         </div>
 
-        <h4>Fly</h4>
+        <h4>Flight</h4>
         <div class="details-grid">
-            <p><strong>Afrejse:</strong> @Package.Departure.ToString("g")</p>
-            <p><strong>Ankomst:</strong> @Package.Arrival.ToString("g")</p>
-            <p><strong>Afgangsfly:</strong> @Package.OutboundFlight</p>
-            <p><strong>Returfly:</strong> @Package.ReturnFlight</p>
+            <h5>Outbound</h5>
+            <FlightCard Flight="@FlightDisplayMapper.FromModel(Package.OutboundFlight)" />
+
+            <h5>Return</h5>
+            <FlightCard Flight="@FlightDisplayMapper.FromModel(Package.ReturnFlight)" />
         </div>
 
-        <button class="close-btn" @onclick="CloseDetails">Luk</button>
+        <button class="close-btn" @onclick="CloseDetails">Close</button>
     </div>
 }

@@ -1,4 +1,5 @@
 ﻿@page "/travel"
+@page "/travelplanner"
 @using GoTorz.Client.Components
 @using GoTorz.Client.Services.Helpers
 @using GoTorz.Client.Utilities
@@ -6,7 +7,9 @@
 @using GoTorz.Shared.DTOs
 @inject ITravelService TravelService
 @inject TravelPriceCalculator PriceCalculator
-
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@attribute [Authorize(Roles = "Admin")]
 
 <h3>Plan Your Trip</h3>
 
@@ -162,6 +165,7 @@
     {
         if (selectedDestination != null && selectedHotel != null && flightResult != null)
         {
+			var numberOfTravelers = Adults + ChildrenAges.Count;
             var package = DtoModelMapper.CreateTravelPackage(
                 selectedDestination.Name,
                 CheckinDate,
@@ -170,18 +174,19 @@
                 flightResult.OutboundFlight,
                 flightResult.ReturnFlight,
                 flightResult.TotalPrice,
-                MarkupPercentage);
+                MarkupPercentage,
+                numberOfTravelers);
 
             var success = await TravelService.CreateTravelPackageAsync(package);
 
             if (success)
             {
-                await JS.InvokeVoidAsync("alert", "Rejsepakken blev oprettet!");
+                await JS.InvokeVoidAsync("alert", "Travelpackage created!");
                 NavManager.NavigateTo("/");
             }
             else
             {
-                await JS.InvokeVoidAsync("alert", "Noget gik galt under oprettelsen.");
+                await JS.InvokeVoidAsync("alert", "Something went wrong durring creation");
             }
         }
     }

@@ -232,10 +232,13 @@ namespace GoTorz.Api.Migrations
                     Destination = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Arrival = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Departure = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Price = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     HotelId = table.Column<int>(type: "int", nullable: false),
                     OutboundFlightId = table.Column<int>(type: "int", nullable: false),
-                    ReturnFlightId = table.Column<int>(type: "int", nullable: false)
+                    ReturnFlightId = table.Column<int>(type: "int", nullable: false),
+                    IsBooked = table.Column<bool>(type: "bit", nullable: false),
+                    Currency = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NumberOfTravellers = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -258,6 +261,52 @@ namespace GoTorz.Api.Migrations
                         principalTable: "ReturnFlights",
                         principalColumn: "FlightId",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Bookings",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PassportNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TravelPackageId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PaymentStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Bookings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Bookings_TravelPackages_TravelPackageId",
+                        column: x => x.TravelPackageId,
+                        principalTable: "TravelPackages",
+                        principalColumn: "TravelPackageId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Traveller",
+                columns: table => new
+                {
+                    TravellerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Age = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PassportNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BookingId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Traveller", x => x.TravellerId);
+                    table.ForeignKey(
+                        name: "FK_Traveller_Bookings_BookingId",
+                        column: x => x.BookingId,
+                        principalTable: "Bookings",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -300,6 +349,16 @@ namespace GoTorz.Api.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Bookings_TravelPackageId",
+                table: "Bookings",
+                column: "TravelPackageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Traveller_BookingId",
+                table: "Traveller",
+                column: "BookingId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TravelPackages_HotelId",
                 table: "TravelPackages",
                 column: "HotelId");
@@ -334,13 +393,19 @@ namespace GoTorz.Api.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "TravelPackages");
+                name: "Traveller");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Bookings");
+
+            migrationBuilder.DropTable(
+                name: "TravelPackages");
 
             migrationBuilder.DropTable(
                 name: "Hotels");

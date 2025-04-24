@@ -1,16 +1,19 @@
-﻿@using GoTorz.Shared.DTOs
+﻿@using GoTorz.Client.Models.UIContracts
 
-@if (Outbound != null)
+@if (Flight != null)
 {
     <div class="card p-3 shadow-sm mb-3">
-        <p><strong>Flight:</strong> @Outbound.FlightNumber</p>
-        <p><strong>From:</strong> @Outbound.Departure</p>
-        <p><strong>To:</strong> @Outbound.Destination</p>
-        <p><strong>Departure:</strong> @Outbound.DepartureTime.ToString("f")</p>
-        <p><strong>Arrival:</strong> @Outbound.ArrivalTime.ToString("f")</p>
+        <p><strong>Flight:</strong> @Flight.FlightNumber</p>
+        <p><strong>From:</strong> @Flight.Departure</p>
+        <p><strong>To:</strong> @Flight.Destination</p>
+        <p><strong>Departure:</strong> @Flight.DepartureTime.ToString("dd.MM.yyyy HH:mm")</p>
+        <p><strong>Arrival:</strong> @Flight.ArrivalTime.ToString("dd.MM.yyyy HH:mm")</p>
     </div>
 }
 
 @code {
-    [Parameter] public OutboundFlightDto? Outbound { get; set; }
+    /// <summary>
+    /// A flight object to display, supports both DTOs and models via interface.
+    /// </summary>
+    [Parameter] public IFlightInfo? Flight { get; set; }
 }
