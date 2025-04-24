@@ -1,4 +1,5 @@
 ﻿@using GoTorz.Client.Services.Interfaces
+@using GoTorz.Client.Utilities
 @using GoTorz.Shared.DTOs
 @inject IFlightService FlightService
 
@@ -13,11 +14,11 @@ else if (flightResult != null)
     <div class="row">
         <div class="col-md-6">
             <h5>Outbound Flight</h5>
-            <FlightCard Outbound="@flightResult.OutboundFlight" />
+            <FlightCard Flight="@FlightDisplayMapper.FromDto(flightResult.OutboundFlight)" />
         </div>
         <div class="col-md-6">
             <h5>Return Flight</h5>
-            <FlightCard Outbound="@flightResult.ReturnFlight" />
+            <FlightCard Flight="@FlightDisplayMapper.FromDto(flightResult.ReturnFlight)" />
         </div>
     </div>
 

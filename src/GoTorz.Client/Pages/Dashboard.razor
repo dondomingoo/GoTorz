@@ -1,0 +1,54 @@
+﻿@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@page "/dashboard"
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@attribute [Authorize(Roles = "Admin")]
+
+<h3>Dashboard</h3>
+
+<p>@message</p>
+
+<div class="d-grid gap-3">
+
+    <button class="btn btn-warning btn-lg text-start" @onclick="@(() => NavigateTo("/travelplanner"))">
+        Create Travelpackage <small class="text-muted">Find destination, Hotel and flights and then combine to a travelpackage</small>
+    </button>
+
+    <button class="btn btn-warning btn-lg text-start" @onclick="@(() => NavigateTo("/BookingHistory"))">
+        Order History <small class="text-muted">Show Orders and delete future orders</small>
+    </button>
+
+    <button class="btn btn-secondary btn-lg text-start" @onclick="@(() => NavigateTo("/user-management"))">
+        User admin panel <small class="text-muted">Create, edit or delete users (reset passwords)</small>
+    </button>
+
+    <button class="btn btn-secondary btn-lg text-start" @onclick="@(() => NavigateTo("/chat"))">
+        Customer chat <small class="text-muted"></small>
+    </button>
+
+    <button class="btn btn-secondary btn-lg text-start" @onclick="@(() => NavigateTo("/logs"))">
+        Log <small class="text-muted">errors etc. </small>
+    </button>
+
+</div>
+@code {
+    private string message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            message = $"User logged ind as: {user.Identity.Name}. Role: {string.Join(", ", user.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value))}";
+        }
+
+    }
+
+    private void NavigateTo(string url)
+    {
+        Navigation.NavigateTo(url);
+    }
+}

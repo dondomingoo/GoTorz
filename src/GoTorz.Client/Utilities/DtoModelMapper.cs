@@ -49,7 +49,8 @@ namespace GoTorz.Client.Utilities
      OutboundFlightDto outboundDto,
      ReturnFlightDto returnDto,
      string flightTotalPrice,
-     decimal markupPercentage)
+     decimal markupPercentage,
+     int numberOfTravellers)
         {
             // Parse flypris (fx "435.00 EUR")
             var flightPrice = ParsePrice(flightTotalPrice);
@@ -66,6 +67,7 @@ namespace GoTorz.Client.Utilities
                 OutboundFlight = MapToModel(outboundDto),
                 ReturnFlight = MapToModel(returnDto),
                 Price = totalWithMarkup,
+                NumberOfTravellers = numberOfTravellers,
             };
         }
 
