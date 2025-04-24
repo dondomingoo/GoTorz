@@ -1,0 +1,59 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build all projects
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run API tests (expecting zero for now)
+        run: dotnet test ./tests/GoTorz.Api.Tests/GoTorz.Api.Tests.csproj --no-build --verbosity normal || true
+
+      - name: Run Client tests (expecting zero for now)
+        run: dotnet test ./tests/GoTorz.Client.Tests/GoTorz.Client.Tests.csproj --no-build --verbosity normal || true
+
+      - name: Run tests with coverage
+        run: dotnet test --collect:"XPlat Code Coverage" --verbosity normal -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+      - name: Generate coverage report
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.1.9
+        with:
+          reports: '**/coverage.cobertura.xml'
+          targetdir: 'coveragereport'
+          reporttypes: 'HtmlInline;Cobertura'
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coveragereport
+
+     # Static codeanalysis
+      - name: Install dotnet format
+        run: dotnet tool install -g dotnet-format
+
+      - name: Fix code formatting issues
+        run: dotnet format --verbosity diagnostic
+
+     # Skip strict check for now
+     # - name: Verify no changes
+     #   run: dotnet format --verify-no-changes --verbosity diagnostic
+
