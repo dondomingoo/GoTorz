@@ -97,7 +97,8 @@ namespace GoTorz.Api
             // External App Services (via HTTP)
             builder.Services.AddHttpClient<IDestinationService, DestinationService>();
             builder.Services.AddHttpClient<IFlightService, FlightService>();
-            
+            builder.Services.AddHttpClient<IHotelService, HotelService>();
+
             // System-level Services (HttpContextAccessor - for getting the current user)
             builder.Services.AddHttpContextAccessor();
 
