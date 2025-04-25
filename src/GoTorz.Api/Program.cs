@@ -92,9 +92,9 @@ namespace GoTorz.Api
             builder.Services.AddScoped<ITokenService, Services.Auth.TokenService>();
             builder.Services.AddScoped<ITravelPackageRepository, TravelPackageRepository>();
             builder.Services.AddScoped<ITravelPackageService, TravelPackageService>();
-            builder.Services.AddScoped<IBookingService, BookingService>();           
 
             // External App Services (via HTTP)
+            builder.Services.AddScoped<IBookingService, BookingService>(); // Stripe SDK internally uses HTTP - so external       
             builder.Services.AddHttpClient<IDestinationService, DestinationService>();
             builder.Services.AddHttpClient<IFlightService, FlightService>();
             builder.Services.AddHttpClient<IHotelService, HotelService>();
