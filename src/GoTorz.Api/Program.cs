@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Stripe;
+using DotNetEnv;
 
 namespace GoTorz.Api
 {
@@ -14,8 +15,10 @@ namespace GoTorz.Api
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
+            Env.Load();
 
+            var builder = WebApplication.CreateBuilder(args);
+            
             // Add services to the container.
             //travelPackage builders
             builder.Services.AddScoped<ITravelPackageRepository, TravelPackageRepository>();

@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using GoTorz.Shared.DTOs;
-using System.Net.Http;
+﻿using GoTorz.Shared.DTOs;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace GoTorz.Api.Controllers
@@ -9,7 +9,12 @@ namespace GoTorz.Api.Controllers
     [Route("api/[controller]")]
     public class DestinationController : ControllerBase
     {
-        readonly string ApiKey = "f63472ff3dmsh48a6a25a8a05abap1790dcjsn7ea0f9022bcc";
+        private readonly RapidApiSettings _rapidApiSettings;
+
+        public DestinationController(IOptions<RapidApiSettings> rapidApiSettings)
+        {
+            _rapidApiSettings = rapidApiSettings.Value;
+        }
 
         [HttpGet]
         public async Task<IActionResult> SearchDestination([FromQuery] string query = "man")
@@ -27,8 +32,8 @@ namespace GoTorz.Api.Controllers
                 RequestUri = new Uri(url),
                 Headers =
                 {
-                    { "x-rapidapi-key", ApiKey },
-                    { "x-rapidapi-host", "booking-com15.p.rapidapi.com" },
+                    { "x-rapidapi-key", _rapidApiSettings.ApiKey },
+                    { "x-rapidapi-host", _rapidApiSettings.Host },
                 },
             };
 
