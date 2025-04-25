@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using DotNetEnv;
+using Microsoft.Extensions.Options;
 
 namespace GoTorz.Api
 {
@@ -19,15 +20,7 @@ namespace GoTorz.Api
 
             var builder = WebApplication.CreateBuilder(args);
             
-            // Add services to the container.
-            //travelPackage builders
-            builder.Services.AddScoped<ITravelPackageRepository, TravelPackageRepository>();
-            builder.Services.AddScoped<ITravelPackageService, TravelPackageService>();
-
-            builder.Services.AddScoped<IBookingService, BookingService>();
-
-            //HttpCntextAccessor - for getting the current user
-            builder.Services.AddHttpContextAccessor();
+            // Add services to the container.       
 
             // DbContext
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -37,8 +30,6 @@ namespace GoTorz.Api
             builder.Services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-
-            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
             builder.Services.Configure<IdentityOptions>(options => // CHANGE LATER - We can delete this if we want defaults
             {
@@ -75,7 +66,8 @@ namespace GoTorz.Api
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
             builder.Services.Configure<RapidApiSettings>(builder.Configuration.GetSection("RapidApiSettings"));
 
-
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+            
             // Authorization
             builder.Services.AddAuthorization();
           
@@ -95,13 +87,21 @@ namespace GoTorz.Api
                 });
             });
 
-            builder.Services.AddScoped<ITokenService, Services.Auth.TokenService>();
-
-            // AuthService
+            // Internal App Services
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<ITokenService, Services.Auth.TokenService>();
+            builder.Services.AddScoped<ITravelPackageRepository, TravelPackageRepository>();
+            builder.Services.AddScoped<ITravelPackageService, TravelPackageService>();
+            builder.Services.AddScoped<IBookingService, BookingService>();           
 
+            // External App Services (via HTTP)
+            builder.Services.AddHttpClient<IDestinationService, DestinationService>();
+            
+            // System-level Services (HttpContextAccessor - for getting the current user)
+            builder.Services.AddHttpContextAccessor();
 
             var app = builder.Build();
+
 
             // Configure the HTTP request pipeline. 
             if (app.Environment.IsDevelopment())
