@@ -21,9 +21,9 @@
                         @onclick="() => SelectPackage(package.TravelPackageId)">
                     <strong>@package.Destination</strong> <br />
                     Hotel: @package.Hotel.Name <br />
-                    Afrejse: @package.Arrival.ToString("d") <br />
-                    Hjemrejse: @package.Departure.ToString("d") <br />
-                    Pris: @package.Price DKK
+                    Departure: @package.Arrival.ToString("d") <br />
+                    Return: @package.Departure.ToString("d") <br />
+                    Price: @package.Price EUR
                 </button>
             </li>
         }

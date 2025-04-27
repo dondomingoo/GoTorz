@@ -48,10 +48,11 @@ namespace GoTorz.Api.Controllers
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<TravelPackage>>> Search(
             string? destination = null,
+            int? numberOfTravellers = null,
             DateTime? arrivalDate = null,
             DateTime? departureDate = null)
         {
-            var packages = await _service.GetTravelPackagesAsync(destination, arrivalDate, departureDate);
+            var packages = await _service.GetTravelPackagesAsync(destination, numberOfTravellers, arrivalDate, departureDate);
             return Ok(packages.ToList());
         }
     }

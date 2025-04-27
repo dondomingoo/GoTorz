@@ -1,13 +1,14 @@
 ﻿@code {
-    [Parameter] public EventCallback<(string, DateTime?, DateTime?)> OnSearch { get; set; }
+    [Parameter] public EventCallback<(string, int, DateTime?, DateTime?)> OnSearch { get; set; }
 
     private string destination;
+    private int numberOfTravellers;
     private DateTime? arrivalDate;
     private DateTime? departureDate;
 
     private async Task Search()
     {
-        await OnSearch.InvokeAsync((destination, arrivalDate, departureDate));
+        await OnSearch.InvokeAsync((destination, numberOfTravellers, arrivalDate, departureDate));
     }
 }
 
@@ -17,15 +18,20 @@
         <input id="destination" @bind="destination" class="input-field" />
     </div>
 
+	<div class="input-group">
+		<label for="numberOfTravellers">Number of travellers:</label>
+		<input id="numberOfTravellers" type="number" @bind="numberOfTravellers" class="input-field" />
+	</div>
+
     <div class="input-group">
-        <label for="arrivalDate">Tur:</label>
+        <label for="arrivalDate">Departure:</label>
         <input id="arrivalDate" type="date" @bind="arrivalDate" class="input-field" />
     </div>
 
     <div class="input-group">
-        <label for="departureDate">Retur:</label>
+        <label for="departureDate">Return:</label>
         <input id="departureDate" type="date" @bind="departureDate" class="input-field" />
     </div>
 
-    <button class="search-btn" @onclick="Search">Søg</button>
+    <button class="search-btn" @onclick="Search">Search</button>
 </div>
