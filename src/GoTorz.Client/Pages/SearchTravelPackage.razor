@@ -108,12 +108,12 @@
 
     private async Task LoadAllPackages()
     {
-        travelPackages = await SearchService.GetTravelPackagesAsync(null, null, null, null);
+        travelPackages = await SearchService.GetTravelPackagesAsync(null, null, null);
     }
 
-    private async Task HandleSearch((string destination, int numberOfTravellers, DateTime? arrivalDate, DateTime? departureDate) searchParams)
+    private async Task HandleSearch((string destination, DateTime? arrivalDate, DateTime? departureDate) searchParams)
     {
-        travelPackages = await SearchService.GetTravelPackagesAsync(searchParams.destination, searchParams.numberOfTravellers, searchParams.arrivalDate, searchParams.departureDate);
+        travelPackages = await SearchService.GetTravelPackagesAsync(searchParams.destination, searchParams.arrivalDate, searchParams.departureDate);
         selectedPackageId = null;
         selectedPackageDetails = null;
     }

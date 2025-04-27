@@ -4,6 +4,6 @@ namespace GoTorz.Client.Services.Interfaces
 {
     public interface ISearchTravelPackageService
     {
-        Task<List<TravelPackage>> GetTravelPackagesAsync(string? destination, int? numberOfTravellers, DateTime? arrivalDate, DateTime? departureDate);
+        Task<List<TravelPackage>> GetTravelPackagesAsync(string? destination, DateTime? arrivalDate, DateTime? departureDate);
     }
 }
