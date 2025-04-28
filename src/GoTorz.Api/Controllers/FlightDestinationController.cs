@@ -24,8 +24,15 @@ namespace GoTorz.Api.Controllers
             if (string.IsNullOrWhiteSpace(query))
                 return BadRequest("Query is required.");
 
-            var results = await _flightService.SearchFlightDestinationsAsync(query);
-            return Ok(results);
+            try
+            {
+                var results = await _flightService.SearchFlightDestinationsAsync(query);
+                return Ok(results);
+            }
+            catch (Exception)
+            {
+                return StatusCode(502, "Error retrieving flight destinations.");
+            }
         }
     }
 }

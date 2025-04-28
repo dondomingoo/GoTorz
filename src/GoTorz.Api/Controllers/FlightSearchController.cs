@@ -23,10 +23,17 @@ namespace GoTorz.Api.Controllers
             [FromQuery] int adults = 1,
             [FromQuery] string children = "")
         {
-            var result = await _flightService.SearchFlightsAsync(
-                fromId, toId, departureDate, returnDate, adults, children);
+            try
+            {
+                var result = await _flightService.SearchFlightsAsync(
+                    fromId, toId, departureDate, returnDate, adults, children);
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return StatusCode(502, "Error retrieving flight search results.");
+            }
         }
     }
 }

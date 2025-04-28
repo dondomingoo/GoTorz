@@ -19,16 +19,9 @@ namespace GoTorz.Api.Services
         {
             string url = $"https://booking-com15.p.rapidapi.com/api/v1/hotels/searchDestination?query={query}";
 
-            var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(url),
-                Headers =
-                {
-                    { "x-rapidapi-key", _rapidApiSettings.ApiKey },
-                    { "x-rapidapi-host", _rapidApiSettings.Host },
-                },
-            };
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Add("x-rapidapi-key", _rapidApiSettings.ApiKey);
+            request.Headers.Add("x-rapidapi-host", _rapidApiSettings.Host);
 
             var response = await _httpClient.SendAsync(request);
             if (!response.IsSuccessStatusCode)
