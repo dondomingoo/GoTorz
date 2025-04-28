@@ -20,4 +20,5 @@ public class SearchTravelPackageService : ISearchTravelPackageService
         string query = $"?destination={destination}&arrivalDate={arrivalDate?.ToString("yyyy-MM-dd")}&departureDate={departureDate?.ToString("yyyy-MM-dd")}";
         return await _httpClient.GetFromJsonAsync<List<TravelPackage>>($"api/travelpackages/search{query}");
     }
+
 }
