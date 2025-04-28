@@ -1,7 +1,9 @@
-﻿using GoTorz.Shared.DTOs;
+﻿using GoTorz.Api.Services;
+using GoTorz.Client.Services.Interfaces;
+using GoTorz.Shared.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using System.Text.Json;
+using IFlightServiceBackend = GoTorz.Api.Services.IFlightService;
+
 
 namespace GoTorz.Api.Controllers
 {
@@ -9,11 +11,11 @@ namespace GoTorz.Api.Controllers
     [Route("api/[controller]")]
     public class FlightsController : ControllerBase
     {
-        private readonly RapidApiSettings _rapidApiSettings;
+        private readonly IFlightServiceBackend _flightService;
 
-        public FlightsController(IOptions<RapidApiSettings> rapidApiSettings)
+        public FlightsController(IFlightServiceBackend flightService)
         {
-            _rapidApiSettings = rapidApiSettings.Value;
+            _flightService = flightService;
         }
 
         [HttpGet("search-flight-destinations")]
@@ -22,47 +24,8 @@ namespace GoTorz.Api.Controllers
             if (string.IsNullOrWhiteSpace(query))
                 return BadRequest("Query is required.");
 
-            string url = $"https://booking-com15.p.rapidapi.com/api/v1/flights/searchDestination?query={query}";
-
-            var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(url),
-                Headers =
-            {
-                { "x-rapidapi-key", _rapidApiSettings.ApiKey },
-                { "x-rapidapi-host", _rapidApiSettings.Host },
-            },
-            };
-
-            try
-            {
-                using var client = new HttpClient();
-                var response = await client.SendAsync(request);
-
-                if (!response.IsSuccessStatusCode)
-                    return StatusCode((int)response.StatusCode, "Error retrieving flight destinations.");
-
-                var json = await response.Content.ReadAsStringAsync();
-                var parsed = JsonDocument.Parse(json);
-
-                var results = parsed.RootElement
-                    .GetProperty("data")
-                    .EnumerateArray()
-                    .Select(e => new FlightDestinationDto
-                    {
-                        Name = e.GetProperty("name").GetString() ?? "",
-                        Id = e.GetProperty("id").GetString() ?? ""
-                    })
-                    .ToList();
-
-                return Ok(results);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            var results = await _flightService.SearchFlightDestinationsAsync(query);
+            return Ok(results);
         }
     }
-
 }
