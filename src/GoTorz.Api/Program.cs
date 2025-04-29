@@ -79,9 +79,13 @@ namespace GoTorz.Api
             // CORS
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("ClientPolicy", policy =>
+                options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy.WithOrigins("https://localhost:7272")
+                    policy
+                        .WithOrigins(
+                            "https://gotorz-client-app-g4a8c3cgg9beckfy.swedencentral-01.azurewebsites.net",
+                            "https://localhost:7272"
+                        )
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });
@@ -116,7 +120,7 @@ namespace GoTorz.Api
 
             // --- Security ---
             app.UseHttpsRedirection();
-            app.UseCors("ClientPolicy");
+            app.UseCors("AllowFrontend");
             app.UseAuthentication();
             app.UseAuthorization();
 
