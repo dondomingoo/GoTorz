@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Stripe;
 using DotNetEnv;
 using Microsoft.Extensions.Options;
+using GoTorz.Api.Adapters;
 
 namespace GoTorz.Api
 {
@@ -92,12 +93,19 @@ namespace GoTorz.Api
             builder.Services.AddScoped<ITokenService, Services.Auth.TokenService>();
             builder.Services.AddScoped<ITravelPackageRepository, TravelPackageRepository>();
             builder.Services.AddScoped<ITravelPackageService, TravelPackageService>();
+            builder.Services.AddScoped<IFlightService, FlightService>();
+            builder.Services.AddScoped<IHotelService, HotelService>();
+            builder.Services.AddScoped<IDestinationService, DestinationService>();
+
+
+
 
             // External App Services (via HTTP)
             builder.Services.AddScoped<IBookingService, BookingService>(); // Stripe SDK internally uses HTTP - so external       
-            builder.Services.AddHttpClient<IDestinationService, DestinationService>();
-            builder.Services.AddHttpClient<IFlightService, FlightService>();
-            builder.Services.AddHttpClient<IHotelService, HotelService>();
+            builder.Services.AddHttpClient<IFlightApiAdapter, RapidApiFlightAdapter>();
+            builder.Services.AddHttpClient<IHotelApiAdapter, RapidApiHotelAdapter>();
+            builder.Services.AddHttpClient<IDestinationApiAdapter, RapidApiDestinationAdapter>();
+
 
             // System-level Services (HttpContextAccessor - for getting the current user)
             builder.Services.AddHttpContextAccessor();
