@@ -96,6 +96,8 @@ namespace GoTorz.Api
             builder.Services.AddScoped<IFlightService, FlightService>();
             builder.Services.AddScoped<IHotelService, HotelService>();
             builder.Services.AddScoped<IDestinationService, DestinationService>();
+            builder.Services.AddScoped<IPaymentAdapter, StripePaymentAdapter>();
+
 
 
 
