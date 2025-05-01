@@ -23,8 +23,14 @@ namespace GoTorz.Client
 
 
             // Http
+            builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
+
+            var apiBaseUrl = builder.Configuration["ApiBaseUrl"]
+                ?? throw new InvalidOperationException("Missing ApiBaseUrl in configuration.");
+
             builder.Services.AddScoped(sp =>
-                new HttpClient { BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]!) });
+                new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
+
 
 
             //travelpackage etc.
