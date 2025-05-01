@@ -12,17 +12,20 @@ namespace GoTorz.Client
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
+            builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
-            
+
+
             //service
             builder.Services.AddScoped<ISearchTravelPackageService, SearchTravelPackageService>();
             builder.Services.AddScoped<IBookingHistoryservice, BookingHistoryService>();
-            
+
 
             // Http
-            builder.Services.AddScoped(sp => 
-                new HttpClient { BaseAddress = new Uri("https://localhost:7111/") });
+            builder.Services.AddScoped(sp =>
+                new HttpClient { BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]!) });
+
 
             //travelpackage etc.
             builder.Services.AddScoped<IHotelService, HotelService>();

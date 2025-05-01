@@ -1,4 +1,4 @@
-name: Build and Test
+name: build-and-test
 
 on:
   push:
@@ -7,9 +7,10 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  ci:
+    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
-
+    name: CI - Build/Test on develop
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,17 +23,12 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build all projects
+      - name: Build solution
         run: dotnet build --no-restore --configuration Release
-
-      - name: Run API tests (expecting zero for now)
-        run: dotnet test ./tests/GoTorz.Api.Tests/GoTorz.Api.Tests.csproj --no-build --verbosity normal || true
-
-      - name: Run Client tests (expecting zero for now)
-        run: dotnet test ./tests/GoTorz.Client.Tests/GoTorz.Client.Tests.csproj --no-build --verbosity normal || true
 
       - name: Run tests with coverage
         run: dotnet test --collect:"XPlat Code Coverage" --verbosity normal -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+
       - name: Generate coverage report
         uses: danielpalme/ReportGenerator-GitHub-Action@5.1.9
         with:
@@ -46,14 +42,35 @@ jobs:
           name: coverage-report
           path: coveragereport
 
-     # Static codeanalysis
-      - name: Install dotnet format
-        run: dotnet tool install -g dotnet-format
 
-      - name: Fix code formatting issues
-        run: dotnet format --verbosity diagnostic
+# We push manually because our Azure Student Accounts do not have access to app registrations which is needed to make github push images automatically
+# cd:
+ #  if: github.ref == 'refs/heads/main'
+  # runs-on: ubuntu-latest
+   # name: CD - (disabled) Manual Docker Push instead
+     # steps:
+      # - name: Checkout code
+      #  uses: actions/checkout@v4
 
-     # Skip strict check for now
-     # - name: Verify no changes
-     #   run: dotnet format --verify-no-changes --verbosity diagnostic
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v3
+
+      # - name: Log in to Azure
+      #   uses: azure/login@v2
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # - name: Log in to ACR
+      #   run: az acr login --name gotorzacr
+
+      # - name: Build and push API image
+      #   run: |
+      #     docker build -t gotorzacr.azurecr.io/gotorz-api:latest -f GoTorz.API/Dockerfile .
+      #     docker push gotorzacr.azurecr.io/gotorz-api:latest
+
+      # - name: Build and push Client image
+      #   run: |
+      #     docker build -t gotorzacr.azurecr.io/gotorz-client:latest -f GoTorz.Client/Dockerfile .
+      #     docker push gotorzacr.azurecr.io/gotorz-client:latest
+
 
