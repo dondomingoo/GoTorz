@@ -1,0 +1,18 @@
+﻿@page "/AdminDashboardChat"
+@using Microsoft.AspNetCore.Authorization
+@using GoTorz.Client.Components.Admin
+@attribute [Authorize(Roles = "Admin")]
+
+
+
+<h3>Support Chat</h3>
+
+
+<AdminSupportChat />
+
+
+
+
+@code {
+
+}
