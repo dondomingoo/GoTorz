@@ -65,10 +65,11 @@ If you skip this step, the app will start but fail when accessing data.
 1. Open **Visual Studio**
 2. Select `File → Open → Project/Solution`
 3. Open the file named `GoTorz.sln`
-4. In **Solution Explorer**, right-click the solution (`GoTorz`) → **Set Startup Projects...**
+4. In **Solution Explorer**, right-click the solution (`GoTorz`) → **Configure Startup Projects...**
 5. In the popup:
    - Choose **Multiple startup projects**
    - Set both `GoTorz.API` and `GoTorz.Client` to **Start**
+   - Apply changes and click **OK**
 6. Press **Ctrl+F5** (Start Without Debugging)
 
 This will launch:
