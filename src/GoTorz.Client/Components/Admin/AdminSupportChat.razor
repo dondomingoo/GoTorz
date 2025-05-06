@@ -46,7 +46,7 @@
         adminName = user.Identity?.Name ?? "Unknown";
 
         hubConnection = new HubConnectionBuilder()
-        .WithUrl($"{Http.BaseAddress}/supportchathub", options =>
+        .WithUrl($"{Http.BaseAddress}supportchathub", options =>
         {
             options.AccessTokenProvider = async () => await AuthStateProvider.GetJwtAsync() ?? string.Empty;
         })
