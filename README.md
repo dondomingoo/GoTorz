@@ -46,9 +46,11 @@ The `.env` file with all required secrets is already included in the `GoTorz.API
 
 This project uses Entity Framework Core for database management.
 
-After unpacking the project, run this command **once** to create the database schema:
+After unpacking the project, navigate to the `GoTorz.API` project folder and 
+run these commands **once** to create the database schema:
 
 ```bash
+cd GoTorz.API
 dotnet ef database update
 ```
 
