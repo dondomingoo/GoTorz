@@ -61,6 +61,26 @@ namespace GoTorz.Api
                         IssuerSigningKey = new SymmetricSecurityKey(
                             System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!))
                     };
+
+                    // Special handling for SignalR connections
+                    // SignalR cannot use the Authorization header, so it passes the token as ?access_token=...
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+
+                            // Only apply this logic when connecting to the SignalR /supportchathub
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                                path.StartsWithSegments("/supportchathub"))
+                            {
+                                context.Token = accessToken;
+                            }
+
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
                       
             // Configuration bindings
@@ -116,6 +136,10 @@ namespace GoTorz.Api
             // System-level Services (HttpContextAccessor - for getting the current user)
             builder.Services.AddHttpContextAccessor();
 
+            // SignalR
+            builder.Services.AddSignalR();
+
+
             var app = builder.Build();
 
 
@@ -136,6 +160,7 @@ namespace GoTorz.Api
 
             // --- Routing ---
             app.MapControllers();
+            app.MapHub<SupportChatHub>("/supportchathub");
 
             app.Run();
         }

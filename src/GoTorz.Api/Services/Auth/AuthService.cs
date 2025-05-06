@@ -27,7 +27,7 @@ namespace GoTorz.Api.Services.Auth
             if (!result.Succeeded)
                 return result;
 
-            var DefaultRole = "Admin";
+            var DefaultRole = "User";
             if (!await _roleManager.RoleExistsAsync(DefaultRole))
                 await _roleManager.CreateAsync(new IdentityRole(DefaultRole));
 
