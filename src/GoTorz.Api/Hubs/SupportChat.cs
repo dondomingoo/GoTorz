@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.SignalR;
 
 /// <summary>
@@ -9,6 +10,10 @@ using Microsoft.AspNetCore.SignalR;
 [Authorize]
 public class SupportChatHub : Hub
 {
+
+    private static readonly HashSet<string> _connectedUsernames = new();
+    private static readonly object _lock = new();
+
     /// <summary>
     /// Called automatically when a client connects to the hub.
     /// Each user is placed into a private group based on their username.
@@ -16,12 +21,19 @@ public class SupportChatHub : Hub
     public override async Task OnConnectedAsync()
     {
         var username = Context.User?.Identity?.Name;
+        var isAdmin = Context.User?.IsInRole("Admin") == true;
+
         Console.WriteLine($"[OnConnectedAsync] Connected as: '{username}'");
 
-        if (!string.IsNullOrWhiteSpace(username))
+        if (!string.IsNullOrWhiteSpace(username) && !isAdmin)
         {
+            lock (_lock)
+            {
+                _connectedUsernames.Add(username);
+            }
+
             await Groups.AddToGroupAsync(Context.ConnectionId, $"private-{username}");
-            Console.WriteLine($"[OnConnectedAsync] Added to group: private-{username}");
+            Console.WriteLine($"[OnConnectedAsync] User '{username}' added to group.");
         }
         else
         {
@@ -29,6 +41,31 @@ public class SupportChatHub : Hub
         }
 
         await base.OnConnectedAsync();
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        var username = Context.User?.Identity?.Name;
+        var isAdmin = Context.User?.IsInRole("Admin") == true;
+
+        if (!string.IsNullOrWhiteSpace(username) && !isAdmin)
+        {
+            lock (_lock)
+            {
+                _connectedUsernames.Remove(username);
+            }
+        }
+
+        await base.OnDisconnectedAsync(exception);
+    }
+
+    [Authorize(Roles = "Admin")]
+    public Task<List<string>> GetConnectedUsers()
+    {
+        lock (_lock)
+        {
+            return Task.FromResult(_connectedUsernames.ToList());
+        }
     }
 
     /// <summary>

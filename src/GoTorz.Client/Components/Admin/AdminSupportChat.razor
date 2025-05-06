@@ -15,6 +15,16 @@
 
 <button @onclick="JoinRoom">Join User Room</button>
 
+<ul>
+    @foreach (var user in OnlineUsers)
+    {
+        <li>
+            @user
+            <button @onclick="() => JoinUserRoom(user)">Join</button>
+        </li>
+    }
+</ul>
+
 @if (isInRoom)
 {
     <p>Connected to private chat with: @targetUser</p>
@@ -38,6 +48,8 @@
     private bool isInRoom = false;
     private List<string> messages = new();
 
+    private List<string> OnlineUsers = new();
+
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
@@ -59,6 +71,8 @@
         });
 
         await hubConnection.StartAsync();
+
+        OnlineUsers = await hubConnection.InvokeAsync<List<string>>("GetConnectedUsers");
     }
 
     private async Task JoinRoom()
@@ -68,6 +82,13 @@
             await hubConnection.InvokeAsync("JoinSupportRoom", targetUser);
             isInRoom = true;
         }
+    }
+
+    private async Task JoinUserRoom(string user)
+    {
+        targetUser = user;
+        await hubConnection.InvokeAsync("JoinSupportRoom", user);
+        isInRoom = true;
     }
 
     private async Task Send()
