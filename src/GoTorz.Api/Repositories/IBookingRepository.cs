@@ -16,4 +16,5 @@ public interface IBookingRepository
         string? email = null);
     Task DeleteAsync(string bookingId);
     Task SaveChangesAsync();
+    Task<bool> HasUpcomingBookingsAsync(string userId);
 }

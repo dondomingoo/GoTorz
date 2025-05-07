@@ -45,6 +45,10 @@ namespace GoTorz.Shared.DTOs
         public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;
         public string RedirectUrl { get; set; } = string.Empty;
+
+        public string? Destination { get; set; }
+        public DateTime? Arrival { get; set; }
+        public DateTime? Departure { get; set; }
     }
 
     public class RetryPaymentDto

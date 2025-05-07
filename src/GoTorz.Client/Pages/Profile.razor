@@ -1,0 +1,138 @@
+﻿@page "/profile"
+@using GoTorz.Client.Services.Interfaces
+@using GoTorz.Shared.DTOs
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@inject IClientAuthService AuthService
+@inject ILocalStorage LocalStorage
+@inject IProfileService ProfileService
+@inject NavigationManager Navigation
+@attribute [Authorize]
+
+<h3>Your Profile</h3>
+
+@if (!string.IsNullOrWhiteSpace(email))
+{
+    <p><strong>Email:</strong> @email</p>
+    <button class="btn btn-danger mb-3" @onclick="DeleteProfile">Delete My Profile</button>
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert @(isSuccess ? "alert-success" : "alert-danger")">@message</div>
+}
+
+@if (loadingBookings)
+{
+    <p>Loading your bookings...</p>
+}
+else
+{
+    <h4>Upcoming Trips</h4>
+    @if (upcomingBookings.Count == 0)
+    {
+        <p>No upcoming trips.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Arrival</th>
+                    <th>Departure</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var booking in upcomingBookings)
+                {
+                    <tr>
+                        <td>@booking.Arrival.ToShortDateString()</td>
+                        <td>@booking.Departure.ToShortDateString()</td>
+                        <td>@booking.Status</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <h4 class="mt-4">Past Trips</h4>
+    @if (pastBookings.Count == 0)
+    {
+        <p>You have no completed trips yet.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Arrival</th>
+                    <th>Departure</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var booking in pastBookings)
+                {
+                    <tr>
+                        <td>@booking.Arrival.ToShortDateString()</td>
+                        <td>@booking.Departure.ToShortDateString()</td>
+                        <td>@booking.Status</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    private string? email;
+    private string? userId;
+    private string? message;
+    private bool isSuccess;
+    private bool loadingBookings = true;
+
+    private List<BookingDto> upcomingBookings = new();
+    private List<BookingDto> pastBookings = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        email = await LocalStorage.GetItemAsync("email");
+        var token = await LocalStorage.GetItemAsync("jwt");
+        userId = ParseUserIdFromJwt(token);
+
+        if (!string.IsNullOrWhiteSpace(userId))
+        {
+            var (upcoming, past) = await ProfileService.GetBookingsByUserAsync(userId);
+            upcomingBookings = upcoming;
+            pastBookings = past;
+        }
+
+        loadingBookings = false;
+    }
+
+    private async Task DeleteProfile()
+    {
+        message = null;
+
+        if (string.IsNullOrWhiteSpace(userId)) return;
+
+        var (success, msg) = await ProfileService.DeleteUserAsync(userId);
+        isSuccess = success;
+        message = msg;
+
+        if (success)
+        {
+            await AuthService.LogoutAsync();
+            Navigation.NavigateTo("/");
+        }
+    }
+
+    private string? ParseUserIdFromJwt(string? jwt)
+    {
+        if (string.IsNullOrWhiteSpace(jwt)) return null;
+        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+        var token = handler.ReadJwtToken(jwt);
+        return token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+    }
+}

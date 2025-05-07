@@ -20,5 +20,6 @@ namespace GoTorz.Api.Services
 );
 
         Task<bool> CancelBookingAsync(string bookingId);
+        Task<bool> HasUpcomingBookingsAsync(string userId);
     }
 }
