@@ -159,7 +159,7 @@ To test the support chat feature:
 
 ## 🌐 Live Deployment (Coming Soon)
 
-This GitHub-hosted version is intended for development and demonstration.
+This version is intended for development and demonstration.
 
 The team is currently implementing a CI/CD pipeline using GitHub Actions and Azure. Once completed, the project will be automatically built, tested, and deployed to a public domain.
 
