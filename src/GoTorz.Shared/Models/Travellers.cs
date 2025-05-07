@@ -8,12 +8,11 @@ namespace GoTorz.Shared.Models
 {
     public class Traveller
     {
-        public string TravellerId { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
-        public string Email { get; set; }
-        public string Age { get; set; }
-        public string PhoneNumber { get; set; }
         public string PassportNumber { get; set; }
 
+        public string BookingId { get; set; }     // FK
+        public Booking Booking { get; set; }      // Navigation
     }
 }

@@ -101,6 +101,8 @@ namespace GoTorz.Api
             builder.Services.AddScoped<IHotelService, HotelService>();
             builder.Services.AddScoped<IDestinationService, DestinationService>();
             builder.Services.AddScoped<IPaymentAdapter, StripePaymentAdapter>();
+            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+
 
 
 

@@ -9,5 +9,7 @@
         public string Status { get; set; }
         public DateTime Arrival { get; set; }
         public DateTime Departure { get; set; }
+
+        public List<TravellerDto> Travellers { get; set; } = new();
     }
 }
