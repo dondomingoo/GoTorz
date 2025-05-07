@@ -10,12 +10,13 @@ using Stripe;
 using DotNetEnv;
 using Microsoft.Extensions.Options;
 using GoTorz.Api.Adapters;
+using GoTorz.API.Data;
 
 namespace GoTorz.Api
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             Env.Load();
 
@@ -144,6 +145,14 @@ namespace GoTorz.Api
 
             var app = builder.Build();
 
+            // Ensure roles and users are seeded before the app runs
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+                var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                await IdentitySeeder.SeedAsync(userManager, roleManager);  // Run the seeder
+            }
 
             // Configure the HTTP request pipeline. 
             if (app.Environment.IsDevelopment())
