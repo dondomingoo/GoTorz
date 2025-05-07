@@ -1,15 +1,15 @@
 ![Build Status](https://github.com/dondomingoo/GoTorz/actions/workflows/build-and-test.yml/badge.svg)
 
-
 # GoTorz – Setup Guide
 
-This guide explains how to run the GoTorz application for demonstration or review purposes. The project is provided as a ready-to-run `.zip` file with everything pre-configured, including the required `.env` file.
+This guide explains how to run the GoTorz application locally for demonstration and review purposes.  
+The full source code is hosted in this GitHub repository. Required environment secrets are provided in the exam PDF submitted on WiseFlow.
 
 ---
 
 ## 📄 System Description
 
-GoTorz is a travel booking and management platform that allows users to **create**, **search**, and **book** travel packages. It features role-based access with Admin, Sales Representative, and Regular User accounts. The system integrates with external APIs for real-time flight and hotel data, enabling users to plan their trips efficiently.
+GoTorz is a travel booking and management platform that allows users to **create**, **search**, and **book** travel packages. It features role-based access with Admin, Sales Representative and Regular User accounts. The system integrates with external APIs for real-time flight and hotel data, enabling users to plan their trips efficiently.
 
 Key features include:
 - **User authentication** and **role-based access** (Admin, Sales Rep, User)
@@ -17,13 +17,6 @@ Key features include:
 - **Payment processing** via Stripe (test mode)
 - **Real-time support chat** for users and admins
 - **Admin and Sales dashboards** for managing bookings and users
-
----
-
-## 🗂 Unpack the Project
-
-1. Locate the `.zip` file you received.
-2. Extract all contents to a location of your choice (e.g., `C:\Projects\GoTorz`).
 
 ---
 
@@ -44,14 +37,27 @@ dotnet tool install --global dotnet-ef
 
 ## ⚙️ Environment Configuration
 
-The `.env` file with all required secrets is already included in the `GoTorz.API` project folder.
+Before running the application, you must create a `.env` file in the root of the `GoTorz.API` project.
 
-**No manual setup is needed.**
+1. Copy the provided `.env.example` file:
 
-> Note: The `.env` file contains an active API key for travel data.
-> The key is limited to 600 total calls per month. This is enough for basic testing but may stop working if overused.
-> Contact us if you need a fresh key.
+```bash
+cp .env.example .env
+```
 
+2. Open the `.env` file and insert the real secret values.
+
+   - These values are included in the exam PDF (WiseFlow submission).
+
+The following values are required:
+
+- `JwtSettings__SecretKey`: used for signing JWT tokens.
+- `RapidApiSettings__ApiKey`: used for hotel/flight data.
+- `RapidApiSettings__Host`: the API host (not a secret - already filled in).
+- `Stripe__SecretKey`: used for test payment processing.
+
+> **Tip:** The `.env` file may not appear in Visual Studio’s Solution Explorer because it is excluded by `.gitignore`.  
+> You can still open it manually using **File → Open → File…**, or by browsing directly to the file in your project folder.
 
 ---
 
@@ -59,7 +65,7 @@ The `.env` file with all required secrets is already included in the `GoTorz.API
 
 This project uses Entity Framework Core for database management.
 
-After unpacking the project, navigate to the `GoTorz.API` project folder and 
+After cloning or downloading the project, navigate to the `GoTorz.API` project folder and 
 run these commands **once** to create the database schema:
 
 ```bash
@@ -153,7 +159,7 @@ To test the support chat feature:
 
 ## 🌐 Live Deployment (Coming Soon)
 
-This `.zip` version is intended for local testing and demonstration.
+This GitHub-hosted version is intended for development and demonstration.
 
 The team is currently implementing a CI/CD pipeline using GitHub Actions and Azure. Once completed, the project will be automatically built, tested, and deployed to a public domain.
 
