@@ -7,6 +7,19 @@ This guide explains how to run the GoTorz application for demonstration or revie
 
 ---
 
+## 📄 System Description
+
+GoTorz is a travel booking and management platform that allows users to **create**, **search**, and **book** travel packages. It features role-based access with Admin, Sales Representative, and Regular User accounts. The system integrates with external APIs for real-time flight and hotel data, enabling users to plan their trips efficiently.
+
+Key features include:
+- **User authentication** and **role-based access** (Admin, Sales Rep, User)
+- **Create**, **search**, and **book** travel packages
+- **Payment processing** via Stripe (test mode)
+- **Real-time support chat** for users and admins
+- **Admin and Sales dashboards** for managing bookings and users
+
+---
+
 ## 🗂 Unpack the Project
 
 1. Locate the `.zip` file you received.
