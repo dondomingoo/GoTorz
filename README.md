@@ -37,9 +37,10 @@ dotnet tool install --global dotnet-ef
 
 ## ⚙️ Environment Configuration
 
-Before running the application, you must create a `.env` file in the root of the `GoTorz.API` project.
+Before running the application, you must create a `.env` file in the root of the **GoTorz.API** project.
 
-1. Copy the provided `.env.example` file:
+1. Navigate to the root of the `GoTorz.API` project (where `.env.example` is located).
+2. Copy the provided `.env.example` file:
 
 ```bash
 cp .env.example .env
