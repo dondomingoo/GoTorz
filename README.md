@@ -149,11 +149,14 @@ To test the support chat feature:
    - **Click "Join"** to enter the user's chat room
 5. You can now chat between the two roles using the two separate browser windows
 
+> **Tip**: Opening the Admin window in **Incognito/Private Mode** ensures there are no session conflicts from the regular user’s login.
+
 ---
 
 ## ✅ Features You Can Explore
 
-- User registration & login
+- User registration, login and user profile
+- Account Deletion (test users will be recreated automatically on appication restart)
 - JWT authentication and role-based access
 - Travel package search and booking
 - 1-on-1 and group chat
