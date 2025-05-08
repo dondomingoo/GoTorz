@@ -1,4 +1,4 @@
-﻿using GoTorz.Shared.DTOs;
+﻿using GoTorz.Shared.DTOs.Travelplanner;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 

@@ -1,4 +1,4 @@
-﻿using GoTorz.Shared.Auth;
+﻿using GoTorz.Shared.DTOs.Auth;
 
 /// <summary>
 /// Service responsible for handling Authentication-related operations in the Blazor Client.

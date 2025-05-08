@@ -1,4 +1,4 @@
-﻿using GoTorz.Shared.DTOs;
+﻿using GoTorz.Shared.DTOs.Booking;
 using GoTorz.Shared.Models;
 
 namespace GoTorz.Client.Services.Interfaces

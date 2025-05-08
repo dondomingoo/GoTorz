@@ -2,7 +2,7 @@
 using GoTorz.Api.Adapters;
 using GoTorz.Api.Data;
 using GoTorz.Api.Services;
-using GoTorz.Shared.DTOs;
+using GoTorz.Shared.DTOs.Booking;
 using GoTorz.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 

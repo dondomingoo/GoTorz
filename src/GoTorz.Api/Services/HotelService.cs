@@ -1,6 +1,6 @@
 ﻿using GoTorz.Api.Adapters;
 using GoTorz.Api.Services;
-using GoTorz.Shared.DTOs;
+using GoTorz.Shared.DTOs.Travelplanner;
 using Microsoft.Extensions.Options;
 using System.Net.Http;
 using System.Text.Json;

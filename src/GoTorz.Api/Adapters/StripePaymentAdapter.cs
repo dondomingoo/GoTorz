@@ -1,5 +1,5 @@
 ﻿using GoTorz.Api.Adapters;
-using GoTorz.Shared.DTOs;
+using GoTorz.Shared.DTOs.Booking;
 using Microsoft.Extensions.Configuration;
 using Stripe.Checkout;
 

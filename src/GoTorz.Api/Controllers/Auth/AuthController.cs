@@ -1,6 +1,6 @@
 ﻿using GoTorz.Api.Services;
 using GoTorz.Api.Services.Auth;
-using GoTorz.Shared.Auth;
+using GoTorz.Shared.DTOs.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/[controller]")]

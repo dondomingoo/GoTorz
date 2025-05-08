@@ -1,5 +1,5 @@
 ﻿using GoTorz.Api.Data;
-using GoTorz.Shared.DTOs;
+using GoTorz.Shared.DTOs.Booking;
 using GoTorz.Shared.Models;
 
 namespace GoTorz.Api.Services
