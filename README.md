@@ -142,11 +142,12 @@ To test the support chat feature:
 2. In the user dashboard, **click "Support"** and wait for a support agent to join  
    - This puts the user into a waiting state, visible to admins
 3. **Open a private/incognito window** and:
+   - Type **`https://localhost:7272/`** into the address bar.
    - Log in as the admin (1@1)
    - Go to the **Admin Dashboard → Support Chat**
    - You will see a list of users waiting for support
    - **Click "Join"** to enter the user's chat room
-4. You can now chat between the two roles using the two separate browser windows
+5. You can now chat between the two roles using the two separate browser windows
 
 ---
 
