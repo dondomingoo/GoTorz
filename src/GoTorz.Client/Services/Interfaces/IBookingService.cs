@@ -6,7 +6,7 @@ namespace GoTorz.Client.Services.Interfaces
     public interface IBookingService
     {
         /// <summary>
-        /// Sends Bookingdata to backend og recieves paymentlink.
+        /// Sends Bookingdata to backend and receives paymentlink.
         /// </summary>
         Task<BookingResponseDto> SubmitBookingAsync(BookingRequestDto request);
 
