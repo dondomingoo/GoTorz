@@ -10,6 +10,8 @@ namespace GoTorz.Api.Services.Auth
     {
         Task<IdentityResult> RegisterUserAsync(RegisterDTO dto);
         Task<LoginResponseDTO> LoginUserAsync(LoginDTO dto);
+        Task<bool> DeleteUserAsync(string userId);
+
     }
 
 }

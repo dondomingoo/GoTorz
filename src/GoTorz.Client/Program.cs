@@ -20,6 +20,8 @@ namespace GoTorz.Client
             //service
             builder.Services.AddScoped<ISearchTravelPackageService, SearchTravelPackageService>();
             builder.Services.AddScoped<IBookingHistoryservice, BookingHistoryService>();
+            builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
 
 
             // Http

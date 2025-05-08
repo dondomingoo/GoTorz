@@ -51,5 +51,15 @@ namespace GoTorz.Api.Services.Auth
                 Token = token,
             };
         }
+
+        public async Task<bool> DeleteUserAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return false;
+
+            var result = await _userManager.DeleteAsync(user);
+            return result.Succeeded;
+        }
+
     }
 }

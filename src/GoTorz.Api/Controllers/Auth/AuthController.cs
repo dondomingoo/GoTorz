@@ -1,4 +1,5 @@
-﻿using GoTorz.Api.Services.Auth;
+﻿using GoTorz.Api.Services;
+using GoTorz.Api.Services.Auth;
 using GoTorz.Shared.Auth;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,10 +8,13 @@ using Microsoft.AspNetCore.Mvc;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IBookingService _bookingService;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, IBookingService bookingService)
     {
         _authService = authService;
+        _bookingService = bookingService;
+
     }
 
     [HttpPost("register")]
@@ -32,6 +36,18 @@ public class AuthController : ControllerBase
 
         return Ok(loginResult);
     }
+
+    [HttpDelete("delete/{userId}")]
+    public async Task<IActionResult> DeleteUser(string userId)
+    {
+        var hasUpcomingBookings = await _bookingService.HasUpcomingBookingsAsync(userId);
+        if (hasUpcomingBookings)
+            return BadRequest("You have upcoming bookings and cannot delete your profile.");
+
+        var result = await _authService.DeleteUserAsync(userId);
+        return result ? Ok("User deleted.") : StatusCode(500, "Failed to delete user.");
+    }
+
 
 }
 

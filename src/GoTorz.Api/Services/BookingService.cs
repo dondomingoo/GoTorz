@@ -114,7 +114,14 @@ public class BookingService : IBookingService
 
             await _bookingRepository.SaveChangesAsync();
 
-            return new PaymentResponseDto { Success = true, Message = "Booking confirmed." };
+            return new PaymentResponseDto
+            {
+                Success = true,
+                Message = $"Thank you! Your trip to {package?.Destination} from {package?.Arrival:MMMM d, yyyy} to {package?.Departure:MMMM d, yyyy} has been successfully booked.",
+                Destination = package?.Destination,
+                Arrival = package?.Arrival,
+                Departure = package?.Departure
+            };
         }
 
         booking.PaymentStatus = "PaymentFailed";
@@ -167,6 +174,13 @@ public class BookingService : IBookingService
         await _bookingRepository.SaveChangesAsync();
         return true;
     }
+
+    public async Task<bool> HasUpcomingBookingsAsync(string userId)
+    {
+        return await _bookingRepository.HasUpcomingBookingsAsync(userId);
+    }
+
+
 }
 
 

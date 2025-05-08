@@ -59,4 +59,15 @@ public class BookingRepository : IBookingRepository
     {
         await _context.SaveChangesAsync();
     }
+
+    public async Task<bool> HasUpcomingBookingsAsync(string userId)
+    {
+        var today = DateTime.UtcNow.Date;
+
+        return await _context.Bookings
+            .Include(b => b.TravelPackage)
+            .AnyAsync(b =>
+                b.UserId == userId &&
+                b.TravelPackage.Departure.Date >= today);
+    }
 }
