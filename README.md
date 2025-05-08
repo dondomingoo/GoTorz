@@ -156,7 +156,7 @@ To test the support chat feature:
 ## ✅ Features You Can Explore
 
 - User registration, login and user profile
-- Account Deletion (test users will be recreated automatically on appication restart)
+- Account Deletion (test users will be recreated automatically on application restart)
 - JWT authentication and role-based access
 - Travel package search and booking
 - 1-on-1 and group chat
