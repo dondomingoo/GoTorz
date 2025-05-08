@@ -1,4 +1,4 @@
-﻿using GoTorz.Shared.Auth;
+﻿using GoTorz.Shared.DTOs.Auth;
 using Microsoft.AspNetCore.Identity;
 
 namespace GoTorz.Api.Services.Auth

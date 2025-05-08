@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GoTorz.Shared.DTOs
+namespace GoTorz.Shared.DTOs.Travelplanner
 {
-    public class DestinationDto
+    public class FlightDestinationDto
     {
         public string Name { get; set; } = "";
-        public string DestinationId { get; set; } = "";
-        public string ImageUrl { get; set; } = "";
+        public string Id { get; set; } = "";
     }
 }

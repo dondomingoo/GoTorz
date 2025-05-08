@@ -1,4 +1,4 @@
-﻿namespace GoTorz.Shared.DTOs
+﻿namespace GoTorz.Shared.DTOs.Booking
 {
     public class BookingDto
     {

@@ -1,7 +1,7 @@
-﻿using GoTorz.Shared.DTOs;
-using GoTorz.Shared.Models;
+﻿using GoTorz.Shared.Models;
 using GoTorz.Client.Models.Adapters;
 using GoTorz.Client.Models.UIContracts;
+using GoTorz.Shared.DTOs.Travelplanner;
 
 namespace GoTorz.Client.Utilities
 {

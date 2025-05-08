@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace GoTorz.Shared.Auth;
+namespace GoTorz.Shared.DTOs.Auth;
 
 public class RegisterDTO
 {

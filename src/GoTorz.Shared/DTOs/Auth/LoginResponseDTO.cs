@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace GoTorz.Shared.Auth;
+namespace GoTorz.Shared.DTOs.Auth;
 
 public class LoginResponseDTO
 {

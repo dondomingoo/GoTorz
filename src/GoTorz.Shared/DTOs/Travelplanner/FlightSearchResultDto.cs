@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GoTorz.Shared.DTOs
+namespace GoTorz.Shared.DTOs.Travelplanner
 {
     public class FlightSearchResultDto
     {

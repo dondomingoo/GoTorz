@@ -1,5 +1,5 @@
 ﻿using GoTorz.Client.Services.Interfaces;
-using GoTorz.Shared.DTOs;
+using GoTorz.Shared.DTOs.Booking;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
