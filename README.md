@@ -105,7 +105,11 @@ Stripe test payments **only work when running without debugging**.
 
 To test payments:
 - Use **Ctrl+F5** in Visual Studio (Start Without Debugging)
-- The payment flow should now work correctly in test mode
+- The payment flow should now work correctly in test mode.
+- Use the following **test card details** for making payments:
+  - **Card Number**: `4242 4242 4242 4242` (This is a standard test card used by Stripe)
+  - **Expiration Date**: Any future date (e.g., `12/25`)
+  - **CVC**: Any 3 digits (e.g., `123`)
 
 Do **not** use regular `F5` (debug mode), as this may block Stripe callbacks.
 
