@@ -1,5 +1,5 @@
 ﻿using GoTorz.Api.Data;
-using GoTorz.Shared.DTOs;
+using GoTorz.Shared.DTOs.Booking;
 using GoTorz.Shared.Models;
 
 namespace GoTorz.Api.Services
@@ -20,5 +20,6 @@ namespace GoTorz.Api.Services
 );
 
         Task<bool> CancelBookingAsync(string bookingId);
+        Task<bool> HasUpcomingBookingsAsync(string userId);
     }
 }

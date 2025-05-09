@@ -1,0 +1,44 @@
+﻿@page "/booking-success"
+@using GoTorz.Client.Services.Interfaces
+@inject IBookingService BookingService
+@inject NavigationManager Navigation
+
+<h3>Booking Confirmation</h3>
+
+@if (loading)
+{
+    <p>Confirming your booking, please wait...</p>
+}
+else if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert @(success ? "alert-success" : "alert-danger")">
+        @message
+    </div>
+}
+
+@code {
+    private string? message;
+    private bool success = false;
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        var bookingId = query["bookingId"];
+
+        if (string.IsNullOrWhiteSpace(bookingId))
+        {
+            message = "No booking ID found in the URL.";
+            success = false;
+        }
+        else
+        {
+            var result = await BookingService.ConfirmPaymentAsync(bookingId);
+            success = result.Success;
+            message = result.Message;
+        }
+
+        loading = false;
+    }
+}

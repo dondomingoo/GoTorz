@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
 using GoTorz.Client.Services.Interfaces;
-using GoTorz.Shared.DTOs;
+using GoTorz.Shared.DTOs.Booking;
 using GoTorz.Shared.Models;
 
 namespace GoTorz.Client.Services

@@ -1,5 +1,5 @@
 ﻿using GoTorz.Api.Services;
-using GoTorz.Shared.DTOs;
+using GoTorz.Shared.DTOs.Booking;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GoTorz.Api.Controllers

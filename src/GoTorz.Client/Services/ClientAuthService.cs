@@ -1,6 +1,6 @@
-﻿using GoTorz.Shared.Auth;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.IdentityModel.Tokens.Jwt;
+using GoTorz.Shared.DTOs.Auth;
 
 
 public class ClientAuthService : IClientAuthService

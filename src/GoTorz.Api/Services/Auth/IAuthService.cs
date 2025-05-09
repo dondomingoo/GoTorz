@@ -1,4 +1,4 @@
-﻿using GoTorz.Shared.Auth;
+﻿using GoTorz.Shared.DTOs.Auth;
 using Microsoft.AspNetCore.Identity;
 
 namespace GoTorz.Api.Services.Auth
@@ -10,6 +10,8 @@ namespace GoTorz.Api.Services.Auth
     {
         Task<IdentityResult> RegisterUserAsync(RegisterDTO dto);
         Task<LoginResponseDTO> LoginUserAsync(LoginDTO dto);
+        Task<bool> DeleteUserAsync(string userId);
+
     }
 
 }

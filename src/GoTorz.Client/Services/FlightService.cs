@@ -1,5 +1,5 @@
 ﻿using GoTorz.Client.Services.Interfaces;
-using GoTorz.Shared.DTOs;
+using GoTorz.Shared.DTOs.Travelplanner;
 using System.Net.Http.Json;
 
 namespace GoTorz.Client.Services

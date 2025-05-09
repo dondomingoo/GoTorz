@@ -1,4 +1,4 @@
-﻿using GoTorz.Shared.Auth;
+﻿using GoTorz.Shared.DTOs.Auth;
 using Microsoft.AspNetCore.Identity;
 
 namespace GoTorz.Api.Services.Auth
@@ -27,7 +27,7 @@ namespace GoTorz.Api.Services.Auth
             if (!result.Succeeded)
                 return result;
 
-            var DefaultRole = "Admin";
+            var DefaultRole = "User";
             if (!await _roleManager.RoleExistsAsync(DefaultRole))
                 await _roleManager.CreateAsync(new IdentityRole(DefaultRole));
 
@@ -51,5 +51,15 @@ namespace GoTorz.Api.Services.Auth
                 Token = token,
             };
         }
+
+        public async Task<bool> DeleteUserAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return false;
+
+            var result = await _userManager.DeleteAsync(user);
+            return result.Succeeded;
+        }
+
     }
 }

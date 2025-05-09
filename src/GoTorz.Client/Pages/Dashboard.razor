@@ -3,7 +3,8 @@
 @page "/dashboard"
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
-@attribute [Authorize(Roles = "Admin")]
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize(Roles = "Admin,SalesRep")]
 
 <h3>Dashboard</h3>
 
@@ -23,18 +24,21 @@
         User admin panel <small class="text-muted">Create, edit or delete users (reset passwords)</small>
     </button>
 
-    <button class="btn btn-secondary btn-lg text-start" @onclick="@(() => NavigateTo("/chat"))">
+    <button class="btn btn-secondary btn-lg text-start" @onclick="@(() => NavigateTo("/AdminDashboardChat"))">
         Customer chat <small class="text-muted"></small>
     </button>
 
-    <button class="btn btn-secondary btn-lg text-start" @onclick="@(() => NavigateTo("/logs"))">
-        Log <small class="text-muted">errors etc. </small>
-    </button>
+    <AuthorizeView Roles="Admin">
+            <Authorized>
+                <button class="btn btn-secondary btn-lg text-start" @onclick="@(() => NavigateTo("/logs"))">
+                Log <small class="text-muted">errors etc. </small>
+                </button>
+            </Authorized>
+    </AuthorizeView>
 
 </div>
 @code {
     private string message;
-
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
@@ -42,7 +46,7 @@
 
         if (user.Identity.IsAuthenticated)
         {
-            message = $"User logged ind as: {user.Identity.Name}. Role: {string.Join(", ", user.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value))}";
+            message = $"User logged in as: {user.Identity.Name}. Role: {string.Join(", ", user.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value))}";
         }
 
     }

@@ -1,4 +1,4 @@
-﻿using GoTorz.Shared.DTOs;
+﻿using GoTorz.Shared.DTOs.Travelplanner;
 using GoTorz.Shared.Models;
 
 namespace GoTorz.Client.Utilities

@@ -1,7 +1,7 @@
 ﻿@page "/BookingHistory"
 @using GoTorz.Client.Services
 @using GoTorz.Client.Services.Interfaces
-@using GoTorz.Shared.DTOs
+@using GoTorz.Shared.DTOs.Booking
 @using GoTorz.Shared.Models
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
@@ -80,8 +80,38 @@ else if (bookings != null && bookings.Count > 0)
                                 Cancel
                             </button>
                         }
+                        <button class="btn btn-sm btn-info ms-1" @onclick="() => ToggleTravellers(booking.Id)">
+                            View Travellers
+                        </button>
                     </td>
                 </tr>
+                @if (visibleTravellerIds.Contains(booking.Id))
+                {
+                    <tr>
+                        <td colspan="7">
+                            <strong>Booker:</strong>
+                            <ul>
+                                <li>
+                                    <strong>@booking.CustomerName</strong> — Passport: @booking.Travellers.First().PassportNumber
+                                </li>
+                            </ul>
+
+                            @if (booking.Travellers.Count > 1)
+                            {
+                                <strong>Additional Travellers:</strong>
+                                <ul>
+                                    @foreach (var t in booking.Travellers.Skip(1))
+                                    {
+                                        <li>
+                                            <strong>@t.Name</strong> — Passport: @t.PassportNumber
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </td>
+                    </tr>
+                }
+
             }
         </tbody>
     </table>
@@ -113,6 +143,8 @@ else if (bookings != null)
 
     private string? successMessage;
     private string? errorMessage;
+
+	private HashSet<string> visibleTravellerIds = new(); 
 
     private async Task SearchBookings()
     {
@@ -150,5 +182,11 @@ else if (bookings != null)
         {
             errorMessage = $"Failed to cancel booking {bookingId}.";
         }
+    }
+
+    private void ToggleTravellers(string bookingId)
+    {
+        if (!visibleTravellerIds.Add(bookingId))
+            visibleTravellerIds.Remove(bookingId);
     }
 }

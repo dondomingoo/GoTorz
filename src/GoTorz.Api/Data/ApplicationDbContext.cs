@@ -20,6 +20,8 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<Flight> Flights => Set<Flight>(); // VIGTIGT for EF TPT!
 
     public DbSet<Booking> Bookings => Set<Booking>();
+    public DbSet<Traveller> Travellers => Set<Traveller>();
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -56,6 +58,13 @@ public class ApplicationDbContext : IdentityDbContext
 
             tp.ToTable("TravelPackages");
         });
+        // Booking-configurations
+        modelBuilder.Entity<Booking>()
+            .HasMany(b => b.Travellers)
+            .WithOne(t => t.Booking)
+            .HasForeignKey(t => t.BookingId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
 
         base.OnModelCreating(modelBuilder);
     }

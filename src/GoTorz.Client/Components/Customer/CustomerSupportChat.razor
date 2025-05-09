@@ -1,0 +1,74 @@
+﻿﻿@* Customer Support Chat component using SignalR *@
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@inject HttpClient Http
+@inject CustomAuthStateProvider AuthStateProvider
+@implements IAsyncDisposable
+
+<h3>Support Chat</h3>
+
+<p>Logged in as: @currentUsername</p>
+<input @bind="messageInput" placeholder="Type message" />
+<button @onclick="Send">Send</button>
+
+<ul>
+    @foreach (var msg in messages)
+    {
+        <li>@msg</li>
+    }
+</ul>
+
+@code {
+    private HubConnection? hubConnection;
+    private List<string> messages = new();
+    private string currentUsername = "";
+    private string messageInput = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is { IsAuthenticated: true })
+        {
+            currentUsername = user.Identity.Name ?? "unknown";
+        }
+        else
+        {
+            currentUsername = "Anonymous";
+        }
+
+        // Create and configure SignalR connection
+        hubConnection = new HubConnectionBuilder()
+        .WithUrl($"{Http.BaseAddress}supportchathub", options =>
+        {
+            options.AccessTokenProvider = async () => await AuthStateProvider.GetJwtAsync() ?? string.Empty;
+        })
+        .Build();
+
+        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        {
+            messages.Add($"{user}: {message}");
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private async Task Send()
+    {
+        if (hubConnection is not null && (!string.IsNullOrEmpty(messageInput)))
+        {
+            await hubConnection.InvokeAsync("SendUserMessage", messageInput);
+            messageInput = "";
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}

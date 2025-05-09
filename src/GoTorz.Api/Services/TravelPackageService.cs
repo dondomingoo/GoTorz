@@ -39,7 +39,9 @@ namespace GoTorz.Api.Services
         // Searches for travel packages based on filters
         public async Task<IEnumerable<TravelPackage>> GetTravelPackagesAsync(string? destination, DateTime? arrivalDate, DateTime? departureDate)
         {
-            var packages = (await _repository.GetAllAsync()).AsQueryable(); 
+            var packages = (await _repository.GetAllAsync())
+                .Where(x => !x.IsBooked)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(destination))
             {

@@ -63,4 +63,14 @@ public class CustomAuthStateProvider : AuthenticationStateProvider, ICustomAuthS
         var identity = new ClaimsIdentity(token.Claims, "jwt");
         return new ClaimsPrincipal(identity);
     }
+
+    /// <summary>
+    /// Retrieves the JWT token from local storage.
+    /// This method safely exposes the token without exposing the local storage directly.
+    /// </summary>
+    public async Task<string?> GetJwtAsync()
+    {
+        return await _localStorage.GetItemAsync("jwt");
+    }
+
 }

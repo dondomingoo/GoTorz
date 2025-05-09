@@ -17,16 +17,6 @@
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="bankaccounts">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Bank Accounts
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
             <NavLink class="nav-link" href="login">
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Login
             </NavLink>
@@ -52,7 +42,7 @@
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <AuthorizeView Roles="Admin">
+            <AuthorizeView Roles="Admin,SalesRep">
                 <Authorized>
                     <NavLink href="/dashboard" class="nav-link">
                         Admin Dashboard
@@ -60,6 +50,17 @@
                 </Authorized>
             </AuthorizeView>
         </div>
+
+        <AuthorizeView Roles="User">
+            <Authorized>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="/support" Match="NavLinkMatch.All">
+                        Support Chat
+                    </NavLink>
+                </li>
+            </Authorized>
+        </AuthorizeView>
+
     </nav>
 </div>
 

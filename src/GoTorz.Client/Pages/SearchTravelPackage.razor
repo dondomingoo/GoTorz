@@ -1,11 +1,12 @@
 ﻿@page "/search"
 @inject ISearchTravelPackageService SearchService
-@inject HttpClient Http
+@inject IBookingService BookingService
 @inject NavigationManager Navigation
 @using GoTorz.Client.Components
 @using GoTorz.Client.Services.Interfaces
+@using GoTorz.Shared.DTOs.Booking
 @using GoTorz.Shared.Models
-@using GoTorz.Shared.DTOs
+@* @using GoTorz.Shared.DTOs *@
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -163,18 +164,15 @@
 
     private async Task SubmitBooking()
     {
-        var response = await Http.PostAsJsonAsync("api/Booking/submit-info", bookingModel);
-        if (response.IsSuccessStatusCode)
+        var result = await BookingService.SubmitBookingAsync(bookingModel);
+
+        if (result.Success && !string.IsNullOrWhiteSpace(result.RedirectUrl))
         {
-            var result = await response.Content.ReadFromJsonAsync<BookingResponseDto>();
-            if (!string.IsNullOrWhiteSpace(result?.RedirectUrl))
-            {
                 Navigation.NavigateTo(result.RedirectUrl!, forceLoad: true);
-            }
         }
         else
         {
-            Console.WriteLine("Booking failed.");
+            Console.WriteLine($"Booking failed: {result.Message}");
         }
     }
 }
