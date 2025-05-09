@@ -33,6 +33,13 @@ Install EF Core CLI tools (only needed once per machine):
 dotnet tool install --global dotnet-ef
 ```
 
+After cloning the repository, restore the NuGet packages:
+- If you're using **Visual Studio**, it will automatically restore the necessary packages when you open the solution.
+- If you're using the **.NET CLI**, run the following command to restore the NuGet packages:
+```bash
+dotnet restore
+```
+
 ---
 
 ## ⚙️ Environment Configuration
@@ -62,7 +69,7 @@ The following values are required:
 
 ---
 
-## 📦 Database Setup (Required)
+## 📦 Database Setup
 
 This project uses Entity Framework Core for database management.
 
