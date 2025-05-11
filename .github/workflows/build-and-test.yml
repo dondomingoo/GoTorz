@@ -42,6 +42,18 @@ jobs:
           name: coverage-report
           path: coveragereport
 
+      # Build docker containers
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image - API
+        run: |
+          docker build -t gotorz-api-test -f src/GoTorz.API/Dockerfile src/GoTorz.API
+
+      - name: Build Docker image - Client
+        run: |
+          docker build -t gotorz-client-test -f src/GoTorz.Client/Dockerfile src/GoTorz.Client
+
 
 # We push manually because our Azure Student Accounts do not have access to app registrations which is needed to make github push images automatically
 # cd:
