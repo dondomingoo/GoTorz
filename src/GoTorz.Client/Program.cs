@@ -25,10 +25,13 @@ namespace GoTorz.Client
 
 
             // Http
-            builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
+            var apiBaseUrl = "__API_BASE_URL__";
 
-            var apiBaseUrl = builder.Configuration["ApiBaseUrl"]
-                ?? throw new InvalidOperationException("Missing ApiBaseUrl in configuration.");
+            // Use localhost for local dev if not replaced
+            if (apiBaseUrl == "__API_BASE_URL__")
+            {
+                apiBaseUrl = "https://localhost:7111/";
+            }
 
             builder.Services.AddScoped(sp =>
                 new HttpClient { BaseAddress = new Uri(apiBaseUrl) });

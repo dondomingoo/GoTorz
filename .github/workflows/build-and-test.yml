@@ -65,9 +65,13 @@ jobs:
         run: |
           docker build -t gotorzacr-aadtajefbqhgcnda.azurecr.io/gotorz-api:latest -f src/GoTorz.API/Dockerfile src/GoTorz.API
 
-      - name: Build and tag Client image
+      - name: Build and tag Client image (hardcoded URL)
         run: |
-          docker build -t gotorzacr-aadtajefbqhgcnda.azurecr.io/gotorz-client:latest -f src/GoTorz.Client/Dockerfile src/GoTorz.Client
+          docker build \
+          --build-arg API_BASE_URL=https://gotorz-api-app-h6ejandxdcg6ccdt.swedencentral-01.azurewebsites.net \
+          -t gotorzacr-aadtajefbqhgcnda.azurecr.io/gotorz-client:latest \
+          -f src/GoTorz.Client/Dockerfile \
+          src/GoTorz.Client
 
       # You must push manually from local machine until ACR login is configured
       # docker push gotorzacr-aadtajefbqhgcnda.azurecr.io/gotorz-api:latest
