@@ -21,7 +21,10 @@ namespace GoTorz.Api
             Env.Load();
 
             var builder = WebApplication.CreateBuilder(args);
-            
+
+            // Retrieve BaseUrl from appsettings.json
+            var apiBaseUrl = builder.Configuration.GetValue<string>("AppSettings:BaseUrl") ?? "https://localhost:7111";  // Default to localhost for dev
+
             // Add services to the container.       
 
             // DbContext

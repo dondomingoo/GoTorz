@@ -12,6 +12,11 @@ RUN sed -i "s|__API_BASE_URL__|${API_BASE_URL}|" ./src/GoTorz.Client/Program.cs
 # Restore dependencies
 RUN dotnet restore
 
+# Copy all source code
+COPY src/GoTorz.Api/ GoTorz.Api/
+COPY src/GoTorz.Client/ GoTorz.Client/
+COPY src/GoTorz.Shared/ GoTorz.Shared/
+
 # Publish the Client project
 WORKDIR /src/GoTorz.Client
 RUN dotnet publish -c Release -o /app/publish

@@ -25,13 +25,9 @@ namespace GoTorz.Client
 
 
             // Http
-            var apiBaseUrl = "__API_BASE_URL__";
-
-            // Use localhost for local dev if not replaced
-            if (apiBaseUrl == "__API_BASE_URL__")
-            {
-                apiBaseUrl = "https://localhost:7111/";
-            }
+            var apiBaseUrl = "__API_BASE_URL__" == "__API_BASE_URL__" // Looks weird but we inject value with dockerfile and PS command
+                ? "https://localhost:7111/"
+                : "__API_BASE_URL__";
 
             builder.Services.AddScoped(sp =>
                 new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
@@ -51,7 +47,7 @@ namespace GoTorz.Client
             builder.Services.AddScoped<CustomAuthStateProvider>();
             builder.Services.AddScoped<ICustomAuthStateProvider>(sp => sp.GetRequiredService<CustomAuthStateProvider>());
             builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthStateProvider>()); // Inject this in components (not the interface or concrete type)
-            builder.Services.AddScoped<IClientAuthService, ClientAuthService>();           
+            builder.Services.AddScoped<IClientAuthService, ClientAuthService>();
             builder.Services.AddAuthorizationCore();
 
             await builder.Build().RunAsync();
