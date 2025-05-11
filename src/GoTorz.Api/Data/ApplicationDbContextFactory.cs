@@ -15,6 +15,7 @@ namespace GoTorz.Api
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
+                .AddEnvironmentVariables() // Add support for .env overrides
                 .Build();
 
             var connectionString = configuration.GetConnectionString("DefaultConnection");
