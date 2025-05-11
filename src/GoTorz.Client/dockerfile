@@ -2,13 +2,18 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy solution and restore dependencies
-COPY *.sln .
-COPY GoTorz.Client/GoTorz.Client.csproj GoTorz.Client/
+# Copy solution and all source folders
+COPY . .
+
+# Restore dependencies
 RUN dotnet restore
 
-# Copy everything and build
-COPY GoTorz.Client/ GoTorz.Client/
+# Copy all source code
+COPY src/GoTorz.Api/ GoTorz.Api/
+COPY src/GoTorz.Client/ GoTorz.Client/
+COPY src/GoTorz.Shared/ GoTorz.Shared/
+
+# Publish the Client project
 WORKDIR /src/GoTorz.Client
 RUN dotnet publish -c Release -o /app/publish
 
@@ -16,10 +21,10 @@ RUN dotnet publish -c Release -o /app/publish
 FROM nginx:stable-alpine AS runtime
 WORKDIR /usr/share/nginx/html
 
-# Remove default nginx files
+# Remove default nginx static content
 RUN rm -rf ./*
 
-# Copy Blazor build artifacts
+# Copy Blazor build output
 COPY --from=build /app/publish/wwwroot .
 
 EXPOSE 80

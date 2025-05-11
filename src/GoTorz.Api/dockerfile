@@ -2,14 +2,19 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy solution and restore dependencies
-COPY *.sln .
-COPY GoTorz.API/GoTorz.API.csproj GoTorz.API/
+# Copy solution and all source folders
+COPY . .
+
+# Restore dependencies
 RUN dotnet restore
 
-# Copy everything and build
-COPY GoTorz.API/ GoTorz.API/
-WORKDIR /src/GoTorz.API
+# Copy all source code
+COPY src/GoTorz.Api/ GoTorz.Api/
+COPY src/GoTorz.Client/ GoTorz.Client/
+COPY src/GoTorz.Shared/ GoTorz.Shared/
+
+# Publish the API project
+WORKDIR /src/GoTorz.Api
 RUN dotnet publish -c Release -o /app/publish
 
 # Stage 2: Runtime
@@ -20,4 +25,4 @@ COPY --from=build /app/publish .
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
 
-ENTRYPOINT ["dotnet", "GoTorz.API.dll"]
+ENTRYPOINT ["dotnet", "GoTorz.Api.dll"]
