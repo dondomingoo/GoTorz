@@ -5,30 +5,25 @@ WORKDIR /src
 # Copy solution and all source folders
 COPY . .
 
-# Inject the actual API base URL into the Blazor WASM Program.cs
-ARG API_BASE_URL
-RUN sed -i "s|__API_BASE_URL__|${API_BASE_URL}|" ./src/GoTorz.Client/Program.cs
-
 # Restore dependencies
 RUN dotnet restore
 
-# Copy all source code
-COPY src/GoTorz.Api/ GoTorz.Api/
-COPY src/GoTorz.Client/ GoTorz.Client/
-COPY src/GoTorz.Shared/ GoTorz.Shared/
+# Inject API Base URL into Program.cs
+ARG API_BASE_URL
+RUN sed -i '0,/__API_BASE_URL__/s|__API_BASE_URL__|https://gotorz-api-app-h6ejandxdcg6ccdt.swedencentral-01.azurewebsites.net|' ./src/GoTorz.Client/Program.cs
 
 # Publish the Client project
-WORKDIR /src/GoTorz.Client
+WORKDIR /src/src/GoTorz.Client
 RUN dotnet publish -c Release -o /app/publish
 
 # Stage 2: Runtime
 FROM nginx:stable-alpine AS runtime
 WORKDIR /usr/share/nginx/html
 
-# Remove default nginx static content
+# Clean default nginx content
 RUN rm -rf ./*
 
-# Copy Blazor build output
+# Copy Blazor build output to nginx
 COPY --from=build /app/publish/wwwroot .
 
 EXPOSE 80

@@ -112,7 +112,8 @@ namespace GoTorz.Api
                             "https://localhost:7272"
                         )
                           .AllowAnyHeader()
-                          .AllowAnyMethod();
+                          .AllowAnyMethod()
+                          .AllowCredentials(); // If using cookies/auth
                 });
             });
 
@@ -127,17 +128,11 @@ namespace GoTorz.Api
             builder.Services.AddScoped<IPaymentAdapter, StripePaymentAdapter>();
             builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
-
-
-
-
-
             // External App Services (via HTTP)
             builder.Services.AddScoped<IBookingService, BookingService>(); // Stripe SDK internally uses HTTP - so external       
             builder.Services.AddHttpClient<IFlightApiAdapter, RapidApiFlightAdapter>();
             builder.Services.AddHttpClient<IHotelApiAdapter, RapidApiHotelAdapter>();
             builder.Services.AddHttpClient<IDestinationApiAdapter, RapidApiDestinationAdapter>();
-
 
             // System-level Services (HttpContextAccessor - for getting the current user)
             builder.Services.AddHttpContextAccessor();
@@ -154,6 +149,7 @@ namespace GoTorz.Api
                 var services = scope.ServiceProvider;
                 var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
                 var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                Console.WriteLine("Running IdentitySeeder.SeedAsync...");
                 await IdentitySeeder.SeedAsync(userManager, roleManager);  // Run the seeder
             }
 

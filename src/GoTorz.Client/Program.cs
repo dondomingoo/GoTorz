@@ -25,12 +25,13 @@ namespace GoTorz.Client
 
 
             // Http
-            var apiBaseUrl = "__API_BASE_URL__" == "__API_BASE_URL__" // Looks weird but we inject value with dockerfile and PS command
-                ? "https://localhost:7111/"
-                : "__API_BASE_URL__";
+            var rawApiBaseUrl = "__API_BASE_URL__";
+            var apiBaseUrl = rawApiBaseUrl == "__API_BASE_URL__"
+             ? "https://localhost:7111/"
+             : rawApiBaseUrl;
 
             builder.Services.AddScoped(sp =>
-                new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
+             new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
 
 
 
