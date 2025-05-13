@@ -47,6 +47,7 @@ namespace GoTorz.Api.Controllers
             await _service.DeletePackageAsync(id);
             return NoContent();
         }
+
         // Search function
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<TravelPackage>>> Search(
