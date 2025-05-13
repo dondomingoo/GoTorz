@@ -42,18 +42,16 @@ jobs:
           name: coverage-report
           path: coveragereport
 
+  cd:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    name: CD - Manual Docker Push
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-# We push manually because our Azure Student Accounts do not have access to app registrations which is needed to make github push images automatically
-# cd:
- #  if: github.ref == 'refs/heads/main'
-  # runs-on: ubuntu-latest
-   # name: CD - (disabled) Manual Docker Push instead
-     # steps:
-      # - name: Checkout code
-      #  uses: actions/checkout@v4
-
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       # - name: Log in to Azure
       #   uses: azure/login@v2
@@ -63,14 +61,18 @@ jobs:
       # - name: Log in to ACR
       #   run: az acr login --name gotorzacr
 
-      # - name: Build and push API image
-      #   run: |
-      #     docker build -t gotorzacr.azurecr.io/gotorz-api:latest -f GoTorz.API/Dockerfile .
-      #     docker push gotorzacr.azurecr.io/gotorz-api:latest
+      - name: Build and tag API image
+        run: |
+          docker build -t gotorzacr-aadtajefbqhgcnda.azurecr.io/gotorz-api:latest -f src/GoTorz.API/Dockerfile src/GoTorz.API
 
-      # - name: Build and push Client image
-      #   run: |
-      #     docker build -t gotorzacr.azurecr.io/gotorz-client:latest -f GoTorz.Client/Dockerfile .
-      #     docker push gotorzacr.azurecr.io/gotorz-client:latest
+      - name: Build and tag Client image (hardcoded URL)
+        run: |
+          docker build \
+          --build-arg API_BASE_URL=https://gotorz-api-app-h6ejandxdcg6ccdt.swedencentral-01.azurewebsites.net \
+          -t gotorzacr-aadtajefbqhgcnda.azurecr.io/gotorz-client:latest \
+          -f src/GoTorz.Client/Dockerfile \
+          src/GoTorz.Client
 
-
+      # You must push manually from local machine until ACR login is configured
+      # docker push gotorzacr-aadtajefbqhgcnda.azurecr.io/gotorz-api:latest
+      # docker push gotorzacr-aadtajefbqhgcnda.azurecr.io/gotorz-client:latest

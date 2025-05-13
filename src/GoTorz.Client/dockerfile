@@ -2,24 +2,28 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy solution and restore dependencies
-COPY *.sln .
-COPY GoTorz.Client/GoTorz.Client.csproj GoTorz.Client/
+# Copy solution and all source folders
+COPY . .
+
+# Restore dependencies
 RUN dotnet restore
 
-# Copy everything and build
-COPY GoTorz.Client/ GoTorz.Client/
-WORKDIR /src/GoTorz.Client
+# Inject API Base URL into Program.cs
+ARG API_BASE_URL
+RUN sed -i '0,/__API_BASE_URL__/s|__API_BASE_URL__|https://gotorz-api-app-h6ejandxdcg6ccdt.swedencentral-01.azurewebsites.net|' ./src/GoTorz.Client/Program.cs
+
+# Publish the Client project
+WORKDIR /src/src/GoTorz.Client
 RUN dotnet publish -c Release -o /app/publish
 
 # Stage 2: Runtime
 FROM nginx:stable-alpine AS runtime
 WORKDIR /usr/share/nginx/html
 
-# Remove default nginx files
+# Clean default nginx content
 RUN rm -rf ./*
 
-# Copy Blazor build artifacts
+# Copy Blazor build output to nginx
 COPY --from=build /app/publish/wwwroot .
 
 EXPOSE 80

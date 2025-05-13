@@ -1,6 +1,7 @@
 ﻿using GoTorz.Api.Data;
 using GoTorz.Api.Services;
 using GoTorz.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GoTorz.Api.Controllers
@@ -31,6 +32,7 @@ namespace GoTorz.Api.Controllers
             return Ok(package);
         }
 
+        [Authorize(Roles = "Admin,SalesRep")]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] TravelPackage package)
         {
@@ -38,6 +40,7 @@ namespace GoTorz.Api.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Admin,SalesRep")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
