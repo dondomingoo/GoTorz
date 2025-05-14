@@ -164,6 +164,7 @@
 
     private async Task SubmitBooking()
     {
+
         var result = await BookingService.SubmitBookingAsync(bookingModel);
 
         if (result.Success && !string.IsNullOrWhiteSpace(result.RedirectUrl))
