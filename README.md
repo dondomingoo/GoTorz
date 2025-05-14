@@ -200,7 +200,7 @@ GoTorz is deployed to Azure using **Docker containers** for both API and Client.
 
 A live demo of the project is available here:
 
-- [GoTorz Client](https://gotorz-client-app-g4a8c3cgg9beckfy.swedencentral-01.azurewebsites.net)
+- Ask for link (protecting azure resources on school accounts)
 
 The deployment is handled through GitHub Actions and Azure Container Registry (ACR).
 
