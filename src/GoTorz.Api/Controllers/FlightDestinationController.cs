@@ -1,12 +1,14 @@
 ﻿using GoTorz.Api.Services;
 using GoTorz.Client.Services.Interfaces;
 using GoTorz.Shared.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using IFlightServiceBackend = GoTorz.Api.Services.IFlightService;
 
 
 namespace GoTorz.Api.Controllers
 {
+    [Authorize(Roles = "Admin,SalesRep")]
     [ApiController]
     [Route("api/[controller]")]
     public class FlightsController : ControllerBase

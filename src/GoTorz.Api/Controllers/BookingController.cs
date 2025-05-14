@@ -1,9 +1,11 @@
 ﻿using GoTorz.Api.Services;
 using GoTorz.Shared.DTOs.Booking;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GoTorz.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class BookingController : ControllerBase
@@ -76,6 +78,7 @@ namespace GoTorz.Api.Controllers
         /// <summary>
         /// Delete a booking by ID.
         /// </summary>
+        [Authorize(Roles = "Admin,SalesRep")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> CancelBooking(string id)
         {
