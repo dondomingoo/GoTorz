@@ -3,6 +3,7 @@ using GoTorz.Api.Services;
 using GoTorz.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 
 namespace GoTorz.Api.Controllers
 {
@@ -12,10 +13,11 @@ namespace GoTorz.Api.Controllers
     public class TravelPackagesController : ControllerBase
     {
         private readonly ITravelPackageService _service;
-
-        public TravelPackagesController(ITravelPackageService service)
+        private readonly ILogger<TravelPackagesController> _logger; 
+        public TravelPackagesController(ITravelPackageService service, ILogger<TravelPackagesController> logger)
         {
             _service = service;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -37,16 +39,36 @@ namespace GoTorz.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] TravelPackage package)
         {
-            await _service.CreatePackageAsync(package);
-            return Ok();
+            try
+            {
+                await _service.CreatePackageAsync(package);
+                _logger.LogInformation("TravelPackage for '{Destination}' created by user '{User}'", package.Destination, User.Identity?.Name);
+                return Ok("Travel package created successfully.");
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogWarning("Failed to create TravelPackage for '{Destination}', by use '{User}'", package.Destination, User.Identity
+                        ?.Name);
+                return BadRequest("Could not create travel package");
+            }
+
         }
 
         [Authorize(Roles = "Admin,SalesRep")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            await _service.DeletePackageAsync(id);
-            return NoContent();
+            try
+            {
+                await _service.DeletePackageAsync(id);
+                _logger.LogInformation("TravelPackage with TravelPackageId {Id} has been deleted", id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("TravelPackage with TravelPackageId {Id} could not be deleted. Reason: {Message}", id, ex.Message);
+                return BadRequest(ex.Message);
+            }
         }
 
         // Search function

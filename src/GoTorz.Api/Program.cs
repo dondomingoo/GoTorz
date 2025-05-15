@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Stripe;
+using Serilog;
 using DotNetEnv;
 using Microsoft.Extensions.Options;
 using GoTorz.Api.Adapters;
@@ -21,6 +22,9 @@ namespace GoTorz.Api
             Env.Load();
 
             var builder = WebApplication.CreateBuilder(args);
+
+            // Set up Serilog as the logging framework, loading settings (e.g., sinks, minimum levels) from appsettings.json or other configuration sources
+            builder.Host.UseSerilog((hbc, lc) => lc.ReadFrom.Configuration(hbc.Configuration));
 
             // Retrieve BaseUrl from appsettings.json
             var apiBaseUrl = builder.Configuration.GetValue<string>("AppSettings:BaseUrl") ?? "https://localhost:7111";  // Default to localhost for dev
@@ -140,7 +144,6 @@ namespace GoTorz.Api
             // SignalR
             builder.Services.AddSignalR();
 
-
             var app = builder.Build();
 
             // Ensure roles and users are seeded before the app runs
@@ -159,6 +162,11 @@ namespace GoTorz.Api
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            // Enables custom Serilog ingestion middleware (e.g., for enriching or preprocessing HTTP logs)
+            app.UseSerilogIngestion();
+            // Logs details of all incoming HTTP requests using Serilog (method, path, status code, duration, etc.)
+            app.UseSerilogRequestLogging();
 
             // --- CSP ---  // Maybe add later - CSP header can prevent most XSS attacks by restricting what scripts are allowed --- we would need to grant access to external APIs and Bootstrap etc.
 
