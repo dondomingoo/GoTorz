@@ -1,8 +1,9 @@
 ﻿using GoTorz.Api.Services;
 using GoTorz.Api.Services.Auth;
 using GoTorz.Shared.DTOs.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class AuthController : ControllerBase
@@ -17,6 +18,7 @@ public class AuthController : ControllerBase
 
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDTO dto)
     {
@@ -27,6 +29,7 @@ public class AuthController : ControllerBase
         return Ok(new { Message = "User registered successfully." });
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponseDTO>> Login(LoginDTO dto)
     {
@@ -37,6 +40,7 @@ public class AuthController : ControllerBase
         return Ok(loginResult);
     }
 
+    
     [HttpDelete("delete/{userId}")]
     public async Task<IActionResult> DeleteUser(string userId)
     {

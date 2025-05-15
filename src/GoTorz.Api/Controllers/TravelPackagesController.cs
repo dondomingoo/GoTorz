@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GoTorz.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class TravelPackagesController : ControllerBase
@@ -49,6 +50,7 @@ namespace GoTorz.Api.Controllers
         }
 
         // Search function
+        [AllowAnonymous]
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<TravelPackage>>> Search(
             string? destination = null,

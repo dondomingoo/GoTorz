@@ -7,35 +7,72 @@ namespace GoTorz.Client.Services
     public class ProfileService : IProfileService
     {
         private readonly HttpClient _http;
+        private readonly IClientAuthService _authService;
 
-        public ProfileService(HttpClient http)
+        public ProfileService(HttpClient http, IClientAuthService authService)
         {
             _http = http;
+            _authService = authService;
         }
 
         public async Task<(List<BookingDto> Upcoming, List<BookingDto> Past)> GetBookingsByUserAsync(string userId)
         {
-            var now = DateTime.UtcNow;
-            var bookings = await _http.GetFromJsonAsync<List<BookingDto>>($"api/booking/all?userId={userId}") ?? new();
+            try
+            {
+                var request = await _authService.CreateAuthorizedRequest(HttpMethod.Get, $"api/booking/all?userId={userId}");
 
-            var upcoming = bookings
-                .Where(b => b.Departure >= now)
-                .OrderBy(b => b.Arrival)
-                .ToList();
+                if (request == null)
+                {
+                    Console.WriteLine("ProfileService error: Unauthorized (no token).");
+                    return (new(), new());
+                }
 
-            var past = bookings
-                .Where(b => b.Departure < now)
-                .OrderByDescending(b => b.Departure)
-                .ToList();
+                var response = await _http.SendAsync(request);
 
-            return (upcoming, past);
+                if (!response.IsSuccessStatusCode)
+                    return (new(), new());
+
+                var bookings = await response.Content.ReadFromJsonAsync<List<BookingDto>>() ?? new();
+                var now = DateTime.UtcNow;
+
+                var upcoming = bookings
+                    .Where(b => b.Departure >= now)
+                    .OrderBy(b => b.Arrival)
+                    .ToList();
+
+                var past = bookings
+                    .Where(b => b.Departure < now)
+                    .OrderByDescending(b => b.Departure)
+                    .ToList();
+
+                return (upcoming, past);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ProfileService error: " + ex.Message);
+                return (new(), new());
+            }
         }
 
         public async Task<(bool Success, string Message)> DeleteUserAsync(string userId)
         {
-            var response = await _http.DeleteAsync($"api/auth/delete/{userId}");
-            var msg = await response.Content.ReadAsStringAsync();
-            return (response.IsSuccessStatusCode, msg);
+            try
+            {
+                var request = await _authService.CreateAuthorizedRequest(HttpMethod.Delete, $"api/auth/delete/{userId}");
+
+                if (request == null)
+                    return (false, "Unauthorized (no token)");
+
+                var response = await _http.SendAsync(request);
+                var msg = await response.Content.ReadAsStringAsync();
+
+                return (response.IsSuccessStatusCode, msg);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ProfileService error: " + ex.Message);
+                return (false, ex.Message);
+            }
         }
     }
 }
