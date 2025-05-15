@@ -40,7 +40,8 @@ namespace GoTorz.Api.Services
         public async Task<IEnumerable<TravelPackage>> GetTravelPackagesAsync(string? destination, DateTime? arrivalDate, DateTime? departureDate)
         {
             var packages = (await _repository.GetAllAsync())
-                .Where(x => !x.IsBooked)
+                .Where(x => !x.IsBooked && x.Arrival.Date > DateTime.Now)
+                
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(destination))
