@@ -1,0 +1,27 @@
+# Ignore build artifacts
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# Ignore environment secrets
+.env
+*.env
+
+# Ignore Git and IDE files
+.git
+.vs
+.vscode
+
+# Ignore test results and logs
+TestResults/
+*.log
+*.trx
+
+# Ignore node_modules (if any)
+node_modules/
+
+# OS metadata
+Thumbs.db
+.DS_Store

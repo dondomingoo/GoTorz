@@ -25,13 +25,13 @@ namespace GoTorz.Client
 
 
             // Http
-            builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
-
-            var apiBaseUrl = builder.Configuration["ApiBaseUrl"]
-                ?? throw new InvalidOperationException("Missing ApiBaseUrl in configuration.");
+            var rawApiBaseUrl = "__API_BASE_URL__";
+            var apiBaseUrl = rawApiBaseUrl == "__API_BASE_URL__"
+             ? "https://localhost:7111/"
+             : rawApiBaseUrl;
 
             builder.Services.AddScoped(sp =>
-                new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
+             new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
 
 
 
@@ -48,7 +48,7 @@ namespace GoTorz.Client
             builder.Services.AddScoped<CustomAuthStateProvider>();
             builder.Services.AddScoped<ICustomAuthStateProvider>(sp => sp.GetRequiredService<CustomAuthStateProvider>());
             builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthStateProvider>()); // Inject this in components (not the interface or concrete type)
-            builder.Services.AddScoped<IClientAuthService, ClientAuthService>();           
+            builder.Services.AddScoped<IClientAuthService, ClientAuthService>();
             builder.Services.AddAuthorizationCore();
 
             await builder.Build().RunAsync();

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Stripe;
+using Serilog;
 using DotNetEnv;
 using Microsoft.Extensions.Options;
 using GoTorz.Api.Adapters;
@@ -21,7 +22,13 @@ namespace GoTorz.Api
             Env.Load();
 
             var builder = WebApplication.CreateBuilder(args);
-            
+
+            // Set up Serilog as the logging framework, loading settings (e.g., sinks, minimum levels) from appsettings.json or other configuration sources
+            builder.Host.UseSerilog((hbc, lc) => lc.ReadFrom.Configuration(hbc.Configuration));
+
+            // Retrieve BaseUrl from appsettings.json
+            var apiBaseUrl = builder.Configuration.GetValue<string>("AppSettings:BaseUrl") ?? "https://localhost:7111";  // Default to localhost for dev
+
             // Add services to the container.       
 
             // DbContext
@@ -109,7 +116,8 @@ namespace GoTorz.Api
                             "https://localhost:7272"
                         )
                           .AllowAnyHeader()
-                          .AllowAnyMethod();
+                          .AllowAnyMethod()
+                          .AllowCredentials(); // If using cookies/auth
                 });
             });
 
@@ -124,24 +132,17 @@ namespace GoTorz.Api
             builder.Services.AddScoped<IPaymentAdapter, StripePaymentAdapter>();
             builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
-
-
-
-
-
             // External App Services (via HTTP)
             builder.Services.AddScoped<IBookingService, BookingService>(); // Stripe SDK internally uses HTTP - so external       
             builder.Services.AddHttpClient<IFlightApiAdapter, RapidApiFlightAdapter>();
             builder.Services.AddHttpClient<IHotelApiAdapter, RapidApiHotelAdapter>();
             builder.Services.AddHttpClient<IDestinationApiAdapter, RapidApiDestinationAdapter>();
 
-
             // System-level Services (HttpContextAccessor - for getting the current user)
             builder.Services.AddHttpContextAccessor();
 
             // SignalR
             builder.Services.AddSignalR();
-
 
             var app = builder.Build();
 
@@ -151,6 +152,7 @@ namespace GoTorz.Api
                 var services = scope.ServiceProvider;
                 var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
                 var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                Console.WriteLine("Running IdentitySeeder.SeedAsync...");
                 await IdentitySeeder.SeedAsync(userManager, roleManager);  // Run the seeder
             }
 
@@ -160,6 +162,11 @@ namespace GoTorz.Api
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            // Enables custom Serilog ingestion middleware (e.g., for enriching or preprocessing HTTP logs)
+            app.UseSerilogIngestion();
+            // Logs details of all incoming HTTP requests using Serilog (method, path, status code, duration, etc.)
+            app.UseSerilogRequestLogging();
 
             // --- CSP ---  // Maybe add later - CSP header can prevent most XSS attacks by restricting what scripts are allowed --- we would need to grant access to external APIs and Bootstrap etc.
 
