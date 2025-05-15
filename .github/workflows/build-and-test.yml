@@ -2,7 +2,7 @@ name: build-and-test
 
 on:
   push:
-    branches: [master, develop, hotfix/**]
+    branches: [master, develop]
   pull_request:
     branches: [master]
 
@@ -43,7 +43,7 @@ jobs:
           path: coveragereport
 
   cd:
-    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/hotfix/')
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     name: CD - Build Docker Images (Manual Push Later)
     steps:
