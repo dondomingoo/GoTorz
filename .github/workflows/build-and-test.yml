@@ -2,7 +2,7 @@ name: build-and-test
 
 on:
   push:
-    branches: [master, develop]
+    branches: [master, develop, hotfix/**]
   pull_request:
     branches: [master]
 
@@ -43,7 +43,7 @@ jobs:
           path: coveragereport
 
   cd:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/hotfix/')
     runs-on: ubuntu-latest
     name: CD - Build Docker Images (Manual Push Later)
     steps:
@@ -61,17 +61,25 @@ jobs:
       # - name: Log in to ACR
       #   run: az acr login --name gotorzacr
 
+      - name: Debug folder structure
+        run: |
+            echo "Current Directory: $(pwd)"
+            echo "Root contents:"
+            ls -la
+            echo "src contents:"
+            ls -la src || echo "src folder not found"
+
       - name: Build and tag API image
         run: |
-          docker build -t gotorzacr-aadtajefbqhgcnda.azurecr.io/gotorz-api:latest -f GoTorz.Api/Dockerfile GoTorz.Api
+          docker build -t gotorzacr-aadtajefbqhgcnda.azurecr.io/gotorz-api:latest -f src/GoTorz.Api/Dockerfile src/GoTorz.Api
 
       - name: Build and tag Client image (hardcoded URL)
         run: |
           docker build \
           --build-arg API_BASE_URL=https://gotorz-api-app-h6ejandxdcg6ccdt.swedencentral-01.azurewebsites.net \
           -t gotorzacr-aadtajefbqhgcnda.azurecr.io/gotorz-client:latest \
-          -f GoTorz.Client/Dockerfile \
-          GoTorz.Client
+          -f src/GoTorz.Client/Dockerfile \
+          src/GoTorz.Client
 
       # You must push manually from local machine until ACR login is configured
       # docker push gotorzacr-aadtajefbqhgcnda.azurecr.io/gotorz-api:latest
