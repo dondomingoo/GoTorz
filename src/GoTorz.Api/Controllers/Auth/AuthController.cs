@@ -3,6 +3,7 @@ using GoTorz.Api.Services.Auth;
 using GoTorz.Shared.DTOs.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
@@ -47,18 +48,24 @@ public class AuthController : ControllerBase
         return Ok(loginResult);
     }
 
-    
-    [HttpDelete("delete/{userId}")]
-    public async Task<IActionResult> DeleteUser(string userId)
+
+    [HttpDelete("delete")]
+    public async Task<IActionResult> DeleteUser()
     {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized();
+
         var hasUpcomingBookings = await _bookingService.HasUpcomingBookingsAsync(userId);
         if (hasUpcomingBookings)
         {
             _logger.LogWarning("User deletion blocked due to existing upcoming bookings.");
             return BadRequest("You have upcoming bookings and cannot delete your profile.");
         }
+
         var result = await _authService.DeleteUserAsync(userId);
-        if(result)
+        if (result)
         {
             _logger.LogInformation("User deleted successfully");
             return Ok("User deleted.");
