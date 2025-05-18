@@ -11,7 +11,7 @@ namespace GoTorz.Shared.Models
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string PassportNumber { get; set; } = string.Empty;
-        public string UserId { get; set; } // Foreign key
+        public string? UserId { get; set; } // Foreign key
 
         public string TravelPackageId { get; set; } = string.Empty;
         public TravelPackage? TravelPackage { get; set; } // Navigation property
@@ -22,6 +22,6 @@ namespace GoTorz.Shared.Models
 
         public List<Traveller> Travellers { get; set; } = new();
 
-        public IdentityUser User { get; set; }  // Navigation property
+       
     }
 }

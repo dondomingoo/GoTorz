@@ -69,10 +69,10 @@ public class ApplicationDbContext : IdentityDbContext
              .OnDelete(DeleteBehavior.Cascade);
 
             
-            b.HasOne<IdentityUser>(b => b.User)
+            b.HasOne<IdentityUser>()
              .WithMany()
              .HasForeignKey(b => b.UserId)
-             .OnDelete(DeleteBehavior.Restrict);
+             .OnDelete(DeleteBehavior.SetNull);
         });
 
         base.OnModelCreating(modelBuilder);

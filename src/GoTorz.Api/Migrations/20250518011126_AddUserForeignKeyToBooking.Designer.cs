@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GoTorz.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250518001756_AddUserForeignKeyToBooking")]
+    [Migration("20250518011126_AddUserForeignKeyToBooking")]
     partial class AddUserForeignKeyToBooking
     {
         /// <inheritdoc />
