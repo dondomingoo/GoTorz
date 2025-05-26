@@ -15,11 +15,11 @@ namespace GoTorz.Client.Services
             _authService = authService;
         }
 
-        public async Task<(List<BookingDto> Upcoming, List<BookingDto> Past)> GetBookingsByUserAsync(string userId)
+        public async Task<(List<BookingDto> Upcoming, List<BookingDto> Past)> GetMyBookingsAsync()
         {
             try
             {
-                var request = await _authService.CreateAuthorizedRequest(HttpMethod.Get, $"api/booking/all?userId={userId}");
+                var request = await _authService.CreateAuthorizedRequest(HttpMethod.Get, $"api/booking/my");
 
                 if (request == null)
                 {
@@ -54,11 +54,11 @@ namespace GoTorz.Client.Services
             }
         }
 
-        public async Task<(bool Success, string Message)> DeleteUserAsync(string userId)
+        public async Task<(bool Success, string Message)> DeleteUserAsync()
         {
             try
             {
-                var request = await _authService.CreateAuthorizedRequest(HttpMethod.Delete, $"api/auth/delete/{userId}");
+                var request = await _authService.CreateAuthorizedRequest(HttpMethod.Delete, $"api/auth/delete");
 
                 if (request == null)
                     return (false, "Unauthorized (no token)");
