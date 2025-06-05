@@ -1,7 +1,10 @@
 ﻿@page "/"
+@using GoTorz.Client.Components
+@inject NavigationManager Navigation
 
-<PageTitle>Home</PageTitle>
 
-<h1>Hello, Customer!</h1>
+<HeroBanner />
 
-Welcome to our new app.
+<DestinationSlider />
+
+<button class="support-button" @onclick="@(() => Navigation.NavigateTo("/support"))">Support</button>

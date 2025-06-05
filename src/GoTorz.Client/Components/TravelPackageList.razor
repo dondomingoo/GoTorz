@@ -1,17 +1,4 @@
-﻿@code {
-    [Parameter] public List<GoTorz.Shared.Models.TravelPackage> Packages { get; set; }
-    [Parameter] public EventCallback<string> OnPackageSelected { get; set; }
-
-    private string selectedPackageId;
-
-    private async Task SelectPackage(string packageId)
-    {
-        selectedPackageId = packageId;
-        await OnPackageSelected.InvokeAsync(packageId);
-    }
-}
-
-@if (Packages != null)
+﻿@if (Packages != null && Packages.Any())
 {
     <ul class="package-list">
         @foreach (var package in Packages)
@@ -21,11 +8,31 @@
                         @onclick="() => SelectPackage(package.TravelPackageId)">
                     <strong>@package.Destination</strong> <br />
                     Hotel: @package.Hotel.Name <br />
-                    Departure: @package.Arrival.ToString("d") <br />
-                    Return: @package.Departure.ToString("d") <br />
-                    Price: @package.Price EUR
+                    Afrejse: @package.Arrival.ToString("d") <br />
+                    Hjemrejse: @package.Departure.ToString("d") <br />
+                    Pris: @package.Price DKK
                 </button>
             </li>
         }
     </ul>
+}
+else
+{
+    <p>Ingen rejsepakker fundet.</p>
+}
+
+@code {
+    [Parameter]
+    public List<GoTorz.Shared.Models.TravelPackage> Packages { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnPackageSelected { get; set; }
+
+    private string selectedPackageId;
+
+    private async Task SelectPackage(string packageId)
+    {
+        selectedPackageId = packageId;
+        await OnPackageSelected.InvokeAsync(packageId);
+    }
 }

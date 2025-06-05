@@ -1,0 +1,32 @@
+﻿.header {
+    padding: 80px 0;         /* Du kan justere højden som du vil */
+    margin: 0;
+    background: #10A1CD;
+    text-align: center;
+    position: relative;
+    width: 100%;
+    display: block;
+}
+
+.header h1 {
+    color: #FFF;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 50px;
+    font-style: normal;
+    font-weight: 900;
+    line-height: normal;
+}
+
+.header p {
+    color: #FFF;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 25px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+}
+
+.header u {
+    text-decoration-color: yellow;
+}
+

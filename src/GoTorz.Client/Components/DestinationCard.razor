@@ -1,0 +1,23 @@
+﻿@code {
+    [Parameter] public string? ImageUrl { get; set; }
+    [Parameter] public string? Label { get; set; }
+    [Parameter] public double Opacity { get; set; } = 1.0;
+}
+
+<div class="card">
+    <div class="image-wrapper">
+        @if (!string.IsNullOrEmpty(ImageUrl))
+        {
+            <img src="@ImageUrl" alt="@Label" style="opacity:@Opacity;" />
+        }
+        else
+        {
+            <div class="placeholder"></div>
+        }
+
+        @if (!string.IsNullOrEmpty(Label))
+        {
+            <div class="corner-ribbon">@Label</div>
+        }
+    </div>
+</div>
