@@ -1,0 +1,50 @@
+﻿<div class="destination-slider-section">
+    <p class="subheading">Gotorz Provided Places</p>
+    <h2 class="main-heading"> Best Travel Destinations</h2>
+
+    <div class="slider-wrapper">
+        <button class="nav-button" @onclick="ShowPrevious">‹</button>
+
+        <div class="card-slider">
+            @foreach (var destination in VisibleDestinations)
+            {
+                <DestinationCard ImageUrl="@destination.ImageUrl" Label="@destination.Label" Opacity="1.0" />
+            }
+        </div>
+
+        <button class="nav-button" @onclick="ShowNext">›</button>
+    </div>
+</div>
+
+@code {
+    private int currentIndex = 0;
+    private const int PageSize = 3;
+
+    private record Destination(string ImageUrl, string Label);
+
+    private List<Destination> AllDestinations = new()
+    {
+        new("images/Maldives.jpg", "Maldives"),
+        new("images/Paris.jpg", "Paris"),
+        new("images/Tokyo.jpg", "Tokyo"),
+        new("images/NewYork.jpg", "New York"),
+        new("images/Barcelona.jpg", "Barcelona"),
+        new("images/CapeTown.jpg", "Cape Town")
+    };
+
+    private IEnumerable<Destination> VisibleDestinations =>
+        AllDestinations
+            .Concat(AllDestinations) // allows overflow wrap-around
+            .Skip(currentIndex)
+            .Take(PageSize);
+
+    private void ShowNext()
+    {
+        currentIndex = (currentIndex + 1) % AllDestinations.Count;
+    }
+
+    private void ShowPrevious()
+    {
+        currentIndex = (currentIndex - 1 + AllDestinations.Count) % AllDestinations.Count;
+    }
+}

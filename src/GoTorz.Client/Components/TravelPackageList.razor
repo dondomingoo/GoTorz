@@ -1,6 +1,32 @@
-﻿@code {
-    [Parameter] public List<GoTorz.Shared.Models.TravelPackage> Packages { get; set; }
-    [Parameter] public EventCallback<string> OnPackageSelected { get; set; }
+﻿@if (Packages != null && Packages.Any())
+{
+    <ul class="package-list">
+        @foreach (var package in Packages)
+        {
+            <li class="package-item">
+                <button class="package-button @(selectedPackageId == package.TravelPackageId ? "selected" : "not-selected")"
+                        @onclick="@(() => SelectPackage(package.TravelPackageId))">
+                    <strong>@package.Destination</strong><br />
+                    Hotel: @package.Hotel?.Name ?? "Ukendt"<br />
+                    Afrejse: @package.Arrival.ToString("dd-MM-yyyy")<br />
+                    Hjemrejse: @package.Departure.ToString("dd-MM-yyyy")<br />
+                    Pris: @package.Price:N0 DKK
+                </button>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>Ingen rejsepakker fundet.</p>
+}
+
+@code {
+    [Parameter]
+    public List<GoTorz.Shared.Models.TravelPackage> Packages { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnPackageSelected { get; set; }
 
     private string selectedPackageId;
 
@@ -9,23 +35,4 @@
         selectedPackageId = packageId;
         await OnPackageSelected.InvokeAsync(packageId);
     }
-}
-
-@if (Packages != null)
-{
-    <ul class="package-list">
-        @foreach (var package in Packages)
-        {
-            <li class="package-item">
-                <button class="package-button @(selectedPackageId == package.TravelPackageId ? "selected" : "not-selected")"
-                        @onclick="() => SelectPackage(package.TravelPackageId)">
-                    <strong>@package.Destination</strong> <br />
-                    Hotel: @package.Hotel.Name <br />
-                    Afrejse: @package.Arrival.ToString("d") <br />
-                    Hjemrejse: @package.Departure.ToString("d") <br />
-                    Pris: @package.Price DKK
-                </button>
-            </li>
-        }
-    </ul>
 }
