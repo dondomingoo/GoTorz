@@ -160,6 +160,8 @@ else if (bookings != null)
     string.IsNullOrWhiteSpace(email) ? null : email
     );
 
+        bookings = bookings.OrderByDescending(b => b.OrderDate).ToList();
+
         isLoading = false;
     }
 

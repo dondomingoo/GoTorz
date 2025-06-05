@@ -13,7 +13,7 @@
 
 <link rel="stylesheet" href="css/search.css" />
 
-<h3 class="page-header">Search for a TravelPackage </h3>
+<h3 class="page-header">Søg efter rejsepakker</h3>
 
 <SearchForm OnSearch="HandleSearch" />
 
@@ -164,6 +164,7 @@
 
     private async Task SubmitBooking()
     {
+
         var result = await BookingService.SubmitBookingAsync(bookingModel);
 
         if (result.Success && !string.IsNullOrWhiteSpace(result.RedirectUrl))

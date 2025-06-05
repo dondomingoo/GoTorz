@@ -7,6 +7,21 @@ The full source code is hosted in this GitHub repository. Required environment s
 
 ---
 
+## 📑 Table of Contents
+
+- [System Description](#-system-description)
+- [Requirements](#-requirements)
+- [Environment Configuration](#%EF%B8%8F-environment-configuration)
+- [Database Setup](#-database-setup)
+- [How to Run the Project](#%EF%B8%8F-how-to-run-the-project)
+- [Stripe Test Payments](#-stripe-test-payments)
+- [Test Users](#-test-users)
+- [Testing the Support Chat](#-testing-the-support-chat)
+- [Features You Can Explore](#-features-you-can-explore)
+- [Live Deployment](#-live-deployment)
+
+---
+
 ## 📄 System Description
 
 GoTorz is a travel booking and management platform that allows users to **create**, **search**, and **book** travel packages. It features role-based access with Admin, Sales Representative and Regular User accounts. The system integrates with external APIs for real-time flight and hotel data, enabling users to plan their trips efficiently.
@@ -173,13 +188,21 @@ To test the support chat feature:
 
 ---
 
-## 🌐 Live Deployment (Coming Soon)
+## 🌐 Live Deployment
 
-This version is intended for development and demonstration.
+GoTorz is deployed to Azure using **Docker containers** for both API and Client.
 
-The team is currently implementing a CI/CD pipeline using GitHub Actions and Azure. Once completed, the project will be automatically built, tested, and deployed to a public domain.
+### Deployment Flow
+- On merge to `develop` branch: builds, tests, and generates a test report (CI).
+- On merge to `master` branch: builds Docker images for API and Client (CD).
+- Docker images are manually pushed to Azure Container Registry (ACR).
+- Azure Web Apps automatically pull and deploy the latest images from ACR.
 
-Users will then be able to explore the full application online without running it locally.
+A live demo of the project is available here:
+
+- Ask for link (protecting azure resources on school accounts)
+
+The deployment is handled through GitHub Actions and Azure Container Registry (ACR).
 
 ---
 
