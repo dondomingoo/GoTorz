@@ -2,13 +2,13 @@ name: build-and-test
 
 on:
   push:
-    branches: [master, develop, feature/tests-auth]
+    branches: [master, develop]
   pull_request:
     branches: [master]
 
 jobs:
   ci:
-    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/tests-auth'
+    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     name: CI - Build/Test on develop
     steps:
