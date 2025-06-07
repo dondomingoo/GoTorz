@@ -8,7 +8,7 @@ on:
 
 jobs:
   ci:
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/tests-auth'
     runs-on: ubuntu-latest
     name: CI - Build/Test on develop
     steps:
