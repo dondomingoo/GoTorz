@@ -8,7 +8,7 @@ on:
 
 jobs:
   ci: #Continuous Integration - Build and Test
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/develop' || github.base_ref == 'develop'
     runs-on: ubuntu-latest
     name: CI - Build/Test on develop
     steps:
