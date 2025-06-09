@@ -1,31 +1,31 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 
 /// <summary>
 /// Hub for handling real-time support chat between a user and the server.
 /// Each user is automatically placed into a private group based on their username.
-/// Admins can join and interact with user groups.
+/// Admins and SalesReps can join and interact with user groups.
 /// </summary>
 [Authorize]
 public class SupportChatHub : Hub
 {
-
     private static readonly HashSet<string> _connectedUsernames = new();
     private static readonly object _lock = new();
 
     /// <summary>
     /// Called automatically when a client connects to the hub.
-    /// Each user is placed into a private group based on their username.
+    /// Each regular user is placed into a private group based on their username.
+    /// Support agents (Admin, SalesRep) are not.
     /// </summary>
     public override async Task OnConnectedAsync()
     {
         var username = Context.User?.Identity?.Name;
-        var isAdmin = Context.User?.IsInRole("Admin") == true;
+        var isSupportAgent = IsSupportAgent(Context.User);
 
         Console.WriteLine($"[OnConnectedAsync] Connected as: '{username}'");
 
-        if (!string.IsNullOrWhiteSpace(username) && !isAdmin)
+        if (!string.IsNullOrWhiteSpace(username) && !isSupportAgent)
         {
             lock (_lock)
             {
@@ -37,7 +37,7 @@ public class SupportChatHub : Hub
         }
         else
         {
-            Console.WriteLine($"[OnConnectedAsync] No username found! Connection won't be added to group.");
+            Console.WriteLine($"[OnConnectedAsync] Support agent or no username. Not added to group.");
         }
 
         await base.OnConnectedAsync();
@@ -46,9 +46,9 @@ public class SupportChatHub : Hub
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         var username = Context.User?.Identity?.Name;
-        var isAdmin = Context.User?.IsInRole("Admin") == true;
+        var isSupportAgent = IsSupportAgent(Context.User);
 
-        if (!string.IsNullOrWhiteSpace(username) && !isAdmin)
+        if (!string.IsNullOrWhiteSpace(username) && !isSupportAgent)
         {
             lock (_lock)
             {
@@ -59,7 +59,10 @@ public class SupportChatHub : Hub
         await base.OnDisconnectedAsync(exception);
     }
 
-    [Authorize(Roles = "Admin")]
+    /// <summary>
+    /// Support agents (Admin or SalesRep) can see who is currently connected.
+    /// </summary>
+    [Authorize(Roles = "Admin,SalesRep")]
     public Task<List<string>> GetConnectedUsers()
     {
         lock (_lock)
@@ -69,7 +72,7 @@ public class SupportChatHub : Hub
     }
 
     /// <summary>
-    /// Called by a normal user to send a message to their own private group.
+    /// Called by a regular user to send a message to their own private group.
     /// </summary>
     /// <param name="message">The message content to send.</param>
     public async Task SendUserMessage(string message)
@@ -78,30 +81,29 @@ public class SupportChatHub : Hub
         Console.WriteLine($"[SendUserMessage] Sender username: '{username}'");
         Console.WriteLine($"[SendUserMessage] Sending message: '{message}'");
 
-        if (!string.IsNullOrWhiteSpace(username) && !Context.User.IsInRole("Admin"))
+        if (!string.IsNullOrWhiteSpace(username) && !IsSupportAgent(Context.User))
         {
             await Clients.Group($"private-{username}").SendAsync("ReceiveMessage", username, message);
             Console.WriteLine($"[SendUserMessage] Sent to group: private-{username}");
         }
         else
         {
-            Console.WriteLine($"[SendUserMessage] Message blocked. Either no username or sender is admin.");
+            Console.WriteLine($"[SendUserMessage] Message blocked. Sender is support agent or username is missing.");
         }
     }
 
     /// <summary>
-    /// Allows an admin to join a private support room for a specific user.
-    /// Only users with the "Admin" role are allowed to use this.
+    /// Support agents (Admin or SalesRep) can join a user's private support room.
     /// </summary>
     /// <param name="targetUser">The username (email) of the user to assist.</param>
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,SalesRep")]
     public async Task JoinSupportRoom(string targetUser)
     {
-        var adminName = Context.User?.Identity?.Name;
+        var supportName = Context.User?.Identity?.Name;
 
-        if (!Context.User.IsInRole("Admin"))
+        if (!IsSupportAgent(Context.User))
         {
-            Console.WriteLine($"[JoinSupportRoom] Access denied. '{adminName}' is not an admin.");
+            Console.WriteLine($"[JoinSupportRoom] Access denied. '{supportName}' is not a support agent.");
             return;
         }
 
@@ -112,23 +114,22 @@ public class SupportChatHub : Hub
         }
 
         await Groups.AddToGroupAsync(Context.ConnectionId, $"private-{targetUser}");
-        Console.WriteLine($"[JoinSupportRoom] Admin '{adminName}' joined private-{targetUser}");
+        Console.WriteLine($"[JoinSupportRoom] Support agent '{supportName}' joined private-{targetUser}");
     }
 
     /// <summary>
-    /// Called by admins to send a message to a user's private group.
+    /// Support agents (Admin or SalesRep) send a message to a user's private group.
     /// </summary>
     /// <param name="targetUser">The username (email) of the user to send the message to.</param>
     /// <param name="message">The message content to send.</param>
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,SalesRep")]
     public async Task SendAdminMessage(string targetUser, string message)
     {
-        var adminName = Context.User?.Identity?.Name;
-        Console.WriteLine($"[SendAdminMessage] Admin '{adminName}' sends: '{message}' to '{targetUser}'");
+        var supportName = Context.User?.Identity?.Name;
 
-        if (!Context.User.IsInRole("Admin"))
+        if (!IsSupportAgent(Context.User))
         {
-            Console.WriteLine($"[SendAdminMessage] Access denied. '{adminName}' is not an admin.");
+            Console.WriteLine($"[SendAdminMessage] Access denied. '{supportName}' is not a support agent.");
             return;
         }
 
@@ -138,6 +139,19 @@ public class SupportChatHub : Hub
             return;
         }
 
-        await Clients.Group($"private-{targetUser}").SendAsync("ReceiveMessage", $"Admin ({adminName})", message);
+        string role = Context.User?.IsInRole("Admin") == true ? "Admin" : "Support";
+
+        await Clients.Group($"private-{targetUser}")
+            .SendAsync("ReceiveMessage", $"{role} ({supportName})", message);
+
+        Console.WriteLine($"[SendAdminMessage] {role} '{supportName}' sent message to '{targetUser}'");
+    }
+
+    /// <summary>
+    /// Determines if the current user is a support agent.
+    /// </summary>
+    private bool IsSupportAgent(ClaimsPrincipal? user)
+    {
+        return user?.IsInRole("Admin") == true || user?.IsInRole("SalesRep") == true;
     }
 }
