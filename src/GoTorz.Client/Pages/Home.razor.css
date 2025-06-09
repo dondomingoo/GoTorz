@@ -1,0 +1,48 @@
+﻿.section-title {
+    font-weight: bold;
+    padding: 20px;
+    font-size: 1.5rem;
+    color: #2b5a7e;
+    text-align: center;
+}
+
+.slider-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 40px;
+}
+
+.card-slider {
+    display: flex;
+    gap: 40px;
+    overflow: hidden;
+    padding: 20px;
+}
+
+.nav-button {
+    font-size: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #2b5a7e;
+    padding: 10px;
+}
+
+    .nav-button:disabled {
+        color: #aaa;
+        cursor: default;
+    }
+
+.support-button {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background-color: #9edcf6;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}

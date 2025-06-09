@@ -1,6 +1,5 @@
 ﻿@page "/profile"
 @using GoTorz.Client.Services.Interfaces
-@using System.Security.Claims
 @using GoTorz.Shared.DTOs.Booking
 @using Microsoft.AspNetCore.Authorization
 @inject IClientAuthService AuthService
@@ -15,6 +14,9 @@
 {
     <p><strong>Email:</strong> @email</p>
     <button class="btn btn-danger mb-3" @onclick="DeleteProfile">Delete My Profile</button>
+    <button class="btn btn-info mb-3" @onclick="@(() => NavigateTo("/logout"))">
+        Logout <small class="text-muted"></small>
+    </button>
 }
 
 @if (!string.IsNullOrEmpty(message))
@@ -87,7 +89,6 @@ else
 
 @code {
     private string? email;
-    private string? userId;
     private string? message;
     private bool isSuccess;
     private bool loadingBookings = true;
@@ -98,15 +99,10 @@ else
     protected override async Task OnInitializedAsync()
     {
         email = await LocalStorage.GetItemAsync("email");
-        var token = await LocalStorage.GetItemAsync("jwt");
-        userId = ParseUserIdFromJwt(token);
 
-        if (!string.IsNullOrWhiteSpace(userId))
-        {
-            var (upcoming, past) = await ProfileService.GetBookingsByUserAsync(userId);
-            upcomingBookings = upcoming;
-            pastBookings = past;
-        }
+        var (upcoming, past) = await ProfileService.GetMyBookingsAsync();
+        upcomingBookings = upcoming;
+        pastBookings = past;
 
         loadingBookings = false;
     }
@@ -114,10 +110,8 @@ else
     private async Task DeleteProfile()
     {
         message = null;
-
-        if (string.IsNullOrWhiteSpace(userId)) return;
-
-        var (success, msg) = await ProfileService.DeleteUserAsync(userId);
+ 
+        var (success, msg) = await ProfileService.DeleteUserAsync();
         isSuccess = success;
         message = msg;
 
@@ -128,11 +122,9 @@ else
         }
     }
 
-    private string? ParseUserIdFromJwt(string? jwt)
+    private void NavigateTo(string url)
     {
-        if (string.IsNullOrWhiteSpace(jwt)) return null;
-        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-        var token = handler.ReadJwtToken(jwt);
-        return token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        Navigation.NavigateTo(url);
     }
+
 }

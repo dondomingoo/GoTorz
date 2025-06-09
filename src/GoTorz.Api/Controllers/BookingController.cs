@@ -99,6 +99,7 @@ namespace GoTorz.Api.Controllers
         /// <summary>
         /// get all bookings
         /// </summary>
+        [Authorize(Roles = "Admin,SalesRep")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllBookings(
     [FromQuery] string? userId,
@@ -138,6 +139,22 @@ namespace GoTorz.Api.Controllers
                 _logger.LogWarning("Deletion of BookingId {BookingId} failed, booking could not be found or could not be cancelled.", id);
                 return NotFound(result);
             }
+        }
+        /// <summary>
+        /// Get all bookings for the current user.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("my")]
+        public async Task<IActionResult> GetMyBookings()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrWhiteSpace(userId))
+                return Unauthorized();
+
+            var bookings = await _bookingService.GetAllBookingsAsync(
+                userId, null, null, null, null, null);
+
+            return Ok(bookings);
         }
     }
 }

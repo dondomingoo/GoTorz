@@ -1,4 +1,5 @@
 ﻿using GoTorz.Shared.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -58,13 +59,21 @@ public class ApplicationDbContext : IdentityDbContext
 
             tp.ToTable("TravelPackages");
         });
-        // Booking-configurations
-        modelBuilder.Entity<Booking>()
-            .HasMany(b => b.Travellers)
-            .WithOne(t => t.Booking)
-            .HasForeignKey(t => t.BookingId)
-            .OnDelete(DeleteBehavior.Cascade);
         
+        // Booking-configurations
+        modelBuilder.Entity<Booking>(b =>
+        {
+            b.HasMany(b => b.Travellers)
+             .WithOne(t => t.Booking)
+             .HasForeignKey(t => t.BookingId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            
+            b.HasOne<IdentityUser>()
+             .WithMany()
+             .HasForeignKey(b => b.UserId)
+             .OnDelete(DeleteBehavior.SetNull);
+        });
 
         base.OnModelCreating(modelBuilder);
     }

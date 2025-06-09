@@ -4,11 +4,11 @@ on:
   push:
     branches: [master, develop]
   pull_request:
-    branches: [master]
+    branches: [master, develop]
 
 jobs:
-  ci:
-    if: github.ref == 'refs/heads/develop'
+  ci: #Continuous Integration - Build and Test
+    if: github.ref == 'refs/heads/develop' || github.base_ref == 'develop'
     runs-on: ubuntu-latest
     name: CI - Build/Test on develop
     steps:
@@ -42,7 +42,42 @@ jobs:
           name: coverage-report
           path: coveragereport
 
-  cd:
+        # - name: Check consistent code formatting (dotnet format)
+        #   run: dotnet format --verify-no-changes
+        #   # Disabled to avoid blocking pushes on minor formatting issues.
+        #   # Enable later with a proper .editorconfig.
+
+
+
+  codeql-analysis: # Static Analysis with CodeQL
+    runs-on: ubuntu-latest
+    name: Static Analysis - CodeQL
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [csharp]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+
+
+  cd: # Continuous Deployment - Build Docker Images
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     name: CD - Build Docker Images (Manual Push Later)
