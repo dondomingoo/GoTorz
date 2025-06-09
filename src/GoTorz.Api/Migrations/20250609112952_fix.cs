@@ -10,10 +10,6 @@ namespace GoTorz.Api.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Bookings_AspNetUsers_UserId",
-                table: "Bookings");
-
             migrationBuilder.AlterColumn<string>(
                 name: "UserId",
                 table: "Bookings",
