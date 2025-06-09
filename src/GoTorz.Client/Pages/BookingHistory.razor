@@ -5,7 +5,7 @@
 @using GoTorz.Shared.Models
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Roles = "Admin, SalesRep")]
 @inject IBookingHistoryservice BookingService
 @inject IJSRuntime JS
 
